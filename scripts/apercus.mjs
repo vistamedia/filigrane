@@ -8,7 +8,7 @@
  * fiches plausibles, aucune donnée réelle de la collection.
  */
 import { chromium } from '@playwright/test';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 
 const BASE = process.env.FILIGRANE_URL ?? 'http://localhost:8080';
 const COMPTE = process.env.FILIGRANE_COMPTE ?? 'emmanuel@filigrane.test';
@@ -63,4 +63,42 @@ for (const vue of VUES) {
     console.log(`✓ ${SORTIE}/${vue.nom}.jpg`);
 }
 
+/*
+ * La famille d'icônes, côte à côte.
+ *
+ * En PNG et sur fond transparent, contrairement aux captures d'interface : la
+ * planche est montrée sur la page publique, qui a un thème clair et un thème
+ * sombre, et sur fond opaque elle ferait une tache dans l'un des deux.
+ */
+await plancheDIcones(page);
+
 await navigateur.close();
+
+async function plancheDIcones(page) {
+    const lire = async (nom, hauteur) => (await readFile(`resources/icones/${nom}.svg`, 'utf8'))
+        .replace(/<svg\b[^>]*>/, (balise) => balise
+            .replace(/\s(width|height)="[^"]*"/g, '')
+            .replace('<svg', `<svg height="${hauteur}"`));
+
+    const tuile = async (nom, hauteur, legende, arrondi = true) => `
+        <figure style="margin:0;text-align:center">
+          <div style="display:inline-block;font-size:0${arrondi ? `;border-radius:${Math.round(hauteur * 0.22)}px;overflow:hidden` : ''}">
+            ${await lire(nom, hauteur)}
+          </div>
+          <figcaption style="margin-top:12px;font:13px/1.4 ui-serif,Georgia,serif;color:#8A8178">${legende}</figcaption>
+        </figure>`;
+
+    await page.setViewportSize({ width: 1440, height: 420 });
+    await page.setContent(`<body style="margin:0;padding:28px;display:inline-block">
+        <div id="planche" style="display:flex;gap:40px;align-items:flex-end">
+          ${await tuile('icone', 160, 'L’icône — 180 px')}
+          ${await tuile('icone-maskable', 120, 'La variante rognée en cercle')}
+          ${await tuile('favicon', 64, 'Le favicon — 32 px')}
+          ${await tuile('logo', 64, 'Le logo, dans l’interface', false)}
+        </div></body>`);
+
+    for (const cible of [`${SORTIE}/icones.png`, 'DOCS/captures/icone.png']) {
+        await page.locator('#planche').screenshot({ path: cible, omitBackground: true });
+        console.log(`✓ ${cible}`);
+    }
+}

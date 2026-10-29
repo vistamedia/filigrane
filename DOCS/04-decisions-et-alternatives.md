@@ -758,7 +758,11 @@ motif sur fond : **5,93 : 1**.
 
 Quatre fichiers plutôt qu'un : `icone.svg`, `icone-maskable.svg`,
 `favicon.svg` simplifié pour 32 pixels, et `logo.svg` — le motif seul, sans
-fond, repris dans le crème de l'interface.
+fond, repris dans le crème de l'interface. Un cinquième, `logo-sombre.svg`,
+est **dérivé** du précédent à la génération : le logo n'ayant pas de tuile,
+son papier doit prendre la couleur de la surface, et celle-ci change avec le
+thème. Une seule couleur diffère, il n'y a donc pas deux dessins à tenir à
+jour.
 
 **Pourquoi quatre.** Ce qui tient à 512 pixels ne tient pas à 32 : le favicon
 perd ses vergeures et appuie ses pontuseaux. Et le logo posé à côté du

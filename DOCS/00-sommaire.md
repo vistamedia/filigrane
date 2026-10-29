@@ -64,7 +64,7 @@ qu'il faut exiger en retour, et la marche à suivre pour l'intégrer — métado
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 32 tests PHP + 62 tests de bout en bout
+make test       # 32 tests PHP + 64 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »

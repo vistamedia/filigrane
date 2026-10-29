@@ -111,3 +111,45 @@ test.describe('Confort de lecture et de manipulation', () => {
         }
     });
 });
+
+test.describe('Thème sombre', () => {
+    test.use({ colorScheme: 'dark' });
+
+    test('le fond et le logo suivent réellement le thème', async ({ page }) => {
+        await page.goto('/dessins');
+
+        // Filament pose la classe sur <html>, et non sur <body> : une règle
+        // écrite « .fi-body:not(.dark) » était toujours vraie, et peignait le
+        // crème du thème clair jusque dans le thème sombre.
+        await expect(page.locator('html')).toHaveClass(/\bdark\b/);
+
+        const fond = await page.evaluate(() =>
+            getComputedStyle(document.body).backgroundColor);
+
+        expect(fond, 'le crème du thème clair ne doit pas réapparaître')
+            .not.toBe('rgb(251, 248, 242)');
+
+        // Le logo n'a pas de tuile : son papier doit prendre la couleur de la
+        // surface, faute de quoi il fait une vignette blanche sur la barre.
+        //
+        // On interroge la règle CSS et non la visibilité : sur un téléphone,
+        // la barre latérale est repliée et le logo s'y trouve caché pour une
+        // raison qui n'a rien à voir avec le thème.
+        const logos = await page.evaluate(() => {
+            const style = (selecteur) => {
+                const element = document.querySelector(selecteur);
+
+                return element ? getComputedStyle(element).display : null;
+            };
+
+            return {
+                clair: style('img[src$="/logo.svg"]'),
+                sombre: style('img[src*="logo-sombre.svg"]'),
+            };
+        });
+
+        expect(logos.clair, 'le logo clair doit être masqué').toBe('none');
+        expect(logos.sombre, 'le logo sombre doit être affiché').not.toBe('none');
+        expect(logos.sombre).not.toBeNull();
+    });
+});

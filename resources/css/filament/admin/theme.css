@@ -31,8 +31,11 @@ html {
     font-size: 17px;
 }
 
-/* Fond papier en thème clair, sans toucher au thème sombre. */
-.fi-body:not(.dark) {
+/* Fond papier en thème clair, sans toucher au thème sombre.
+   La classe « dark » est posée sur <html>, pas sur <body> : écrit
+   « .fi-body:not(.dark) », le sélecteur était toujours vrai et peignait le
+   crème jusque dans le thème sombre. */
+html:not(.dark) .fi-body {
     background-color: var(--color-papier);
 }
 

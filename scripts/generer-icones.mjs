@@ -20,7 +20,7 @@
  * n'a plus à se restreindre aux aplats.
  */
 import { chromium } from '@playwright/test';
-import { copyFile, mkdir, readFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,6 +63,23 @@ for (const nom of COPIES) {
     await copyFile(path.join(SOURCES, `${nom}.svg`), path.join(DESTINATION, `${nom}.svg`));
     console.log(`✓ ${nom}.svg`);
 }
+
+/*
+ * Variante sombre du logo.
+ *
+ * Le logo n'a pas de tuile : ce qui est « du papier » y reprend la couleur de
+ * la surface sur laquelle il est posé. En thème sombre, ce crème faisait une
+ * vignette blanche collée sur la barre. Plutôt qu'un second dessin à tenir à
+ * jour, on dérive la variante du fichier source — une seule couleur change.
+ */
+const logo = await readFile(path.join(SOURCES, 'logo.svg'), 'utf8');
+
+await writeFile(
+    path.join(DESTINATION, 'logo-sombre.svg'),
+    logo.replaceAll('#FBF8F2', '#1C1A17'),
+);
+
+console.log('✓ logo-sombre.svg');
 
 const navigateur = await chromium.launch();
 const page = await (await navigateur.newContext({ deviceScaleFactor: 1 })).newPage();

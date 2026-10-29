@@ -23,7 +23,7 @@ mot de passe `filigrane`.
 
 ```bash
 make             # liste tout
-make test        # 32 tests PHP + 62 tests de bout en bout
+make test        # 32 tests PHP + 64 tests de bout en bout
 make deploy      # met en ligne
 make sauvegarde  # rapatrie base et photographies
 make apercus     # régénère les captures de la page « À propos »

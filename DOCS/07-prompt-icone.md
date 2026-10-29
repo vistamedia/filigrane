@@ -33,6 +33,11 @@ Quatre fichiers dans `resources/icones/`, qui ne servent pas la même chose :
 | `favicon.svg` | Une version simplifiée — vergeures retirées, pontuseaux appuyés — qui tient dans 32 pixels. |
 | `logo.svg` | Le motif seul, sans fond, cadré serré, repris dans le crème de l'interface. Posé à gauche du mot « Filigrane ». |
 
+`make icones` en dérive un cinquième, `logo-sombre.svg` : le logo n'ayant pas
+de tuile, ce qui est « du papier » doit prendre la couleur de la surface, et
+celle-ci change avec le thème. Une seule couleur est substituée — il n'y a
+pas deux dessins à tenir à jour.
+
 ---
 
 ## Comment refaire ce travail

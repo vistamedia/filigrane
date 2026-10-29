@@ -24,7 +24,7 @@
         'MariaDB 11.4' => 'Base de données',
         'Imagick' => 'Traitement des images, HEIC des iPhone compris',
         'PWA' => 'Installable sur Mac et sur iPhone',
-        'Playwright' => '94 tests automatisés, dont 62 dans un vrai navigateur',
+        'Playwright' => '96 tests automatisés, dont 64 dans un vrai navigateur',
         'Docker' => 'Environnement de développement identique à la production',
     ];
 @endphp
@@ -172,6 +172,48 @@
                     Ces valeurs ne sont pas des intentions : un test automatisé
                     échoue si le contraste passe sous le seuil, un autre si un
                     bouton devient trop petit pour le doigt.
+                </p>
+            </article>
+
+            <article>
+                <h2 class="text-2xl font-semibold">Une icône, quatre fichiers</h2>
+
+                <p class="mt-4 text-lg leading-relaxed">
+                    Une icône n'est pas une image qu'on décline. Ce qui tient à
+                    512 pixels ne tient pas à 32 : le favicon abandonne la
+                    trame du papier et appuie ce qu'il en reste. Et le logo
+                    posé à côté du mot n'a pas de tuile — lui laisser le fond
+                    de l'icône ferait une vignette dans la barre. D'où quatre
+                    dessins plutôt qu'un.
+                </p>
+
+                <figure class="mt-8">
+                    <img
+                        src="/apercus/icones.png"
+                        alt="L'icône de Filigrane dans ses quatre déclinaisons : l'icône complète, la variante rognée en cercle, le favicon et le logo."
+                        loading="lazy"
+                        class="w-full"
+                    >
+                </figure>
+
+                <p class="mt-8 text-lg leading-relaxed">
+                    Le motif : une feuille, son coin replié, un crayon posé en
+                    diagonale, et le filigrane qui transparaît dans le papier.
+                    La trame passe <em>par-dessus</em> le dessin — c'est ce
+                    détail qui en fait un filigrane, pris dans l'épaisseur de
+                    la feuille, plutôt qu'un dessin posé à sa surface.
+                    Contraste du motif sur son fond : <strong>5,93 : 1</strong>.
+                </p>
+
+                <p class="mt-4 text-lg leading-relaxed">
+                    La fabrication des PNG, elle, a réservé une surprise. Le
+                    rasteriseur employé au départ compose mal les
+                    transformations imbriquées : il plaçait le crayon
+                    entièrement hors du cadre. Sans message, sans code
+                    d'erreur — des fichiers de la bonne taille, et faux. Le
+                    rendu passe désormais par un navigateur sans tête, celui-là
+                    même qui joue les tests. L'image produite est alors
+                    exactement celle que verront les visiteurs.
                 </p>
             </article>
 

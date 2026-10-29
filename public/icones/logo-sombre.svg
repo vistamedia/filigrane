@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15 8 46 48" width="34.5" height="36">
+  <!-- Filigrane — logo posé à gauche du mot-symbole, dans l'application.
+       Cadré sur le motif, sans fond : il se pose sur le papier de
+       l'interface (#1C1A17).
+
+       Le cadrage a été élargi d'environ deux unités par rapport au fichier
+       livré : le crayon, tourné de 60°, atteint x ≈ 59,6 et y ≈ 54,7, et le
+       viewBox d'origine s'arrêtait à 58. Sa pointe était coupée. -->
+
+<rect x="16" y="10" width="32" height="44" fill="#8E462F"></rect>
+<rect x="18.6" y="12.6" width="26.8" height="38.8" fill="#1C1A17"></rect>
+<polygon fill="#1C1A17" points="37,9 49,9 49,21"></polygon>
+<polygon fill="#8E462F" points="38,10 48,20 38,20"></polygon>
+<path fill="#8E462F" d="M22.05 46.19L24.83 45.73L27.11 45.06L28.97 44.17L30.45 43.05L31.54 41.68L32.25 40.15L32.61 38.53L32.71 36.91L32.63 35.31L32.43 33.76L32.19 32.28L31.97 30.89L31.82 29.6L31.78 28.42L31.9 27.32L32.24 26.26L32.91 25.19L34.04 24.11L35.74 23.1L38.05 22.19L37.95 21.81L35.44 22.28L33.39 22.96L31.74 23.87L30.45 25.04L29.54 26.43L28.99 27.97L28.75 29.56L28.73 31.16L28.86 32.73L29.07 34.24L29.29 35.69L29.46 37.04L29.55 38.3L29.5 39.47L29.28 40.57L28.79 41.66L27.91 42.77L26.53 43.87L24.56 44.9L21.95 45.81Z"></path>
+<g transform="translate(38.4 21.9) rotate(60)">
+<polygon fill="#1C1A17" points="-1.8,0 5,-3.9 35.6,-3.9 35.6,3.9 5,3.9"></polygon>
+<polygon fill="#8E462F" points="0,0 6.2,-1.5 6.2,1.5"></polygon>
+<rect x="6" y="-2.5" width="24.5" height="5" fill="#8E462F"></rect>
+<rect x="9.4" y="-2.5" width=".9" height="5" fill="#1C1A17"></rect>
+<rect x="26.2" y="-2.5" width=".9" height="5" fill="#1C1A17"></rect>
+<rect x="30.5" y="-1.5" width="3.8" height="3" fill="#8E462F"></rect>
+</g>
+</svg>

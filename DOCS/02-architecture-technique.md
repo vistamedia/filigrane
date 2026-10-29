@@ -377,15 +377,15 @@ ligne de commande, import en masse ou test.
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
 | PHPUnit (`tests/Feature`) | 32 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports. |
-| Playwright `mac` | 48 tests | Connexion, droits, catalogage, import, studio, mesure, PWA, confort, diaporama, exports. |
-| Playwright `mobile` | 14 tests | Mise en page et atteignabilité à 390 px. |
+| Playwright `mac` | 49 tests | Connexion, droits, catalogage, import, studio, mesure, PWA, confort, diaporama, exports. |
+| Playwright `mobile` | 15 tests | Mise en page et atteignabilité à 390 px. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
 Les tests tournent contre **MariaDB**, pas SQLite : le schéma interroge des
 colonnes JSON par chemin (`exif->camera`), et la traduction SQL diffère d'un
 moteur à l'autre. Un test vert sur SQLite ne prouverait rien.
 
-Sept défauts réels ont été trouvés par ces tests plutôt que par l'usage :
+Huit défauts réels ont été trouvés par ces tests plutôt que par l'usage :
 
 1. `SheetDetector` lisait la taille du canevas au lieu de celle de la zone
    détourée — toute détection échouait.
@@ -413,6 +413,13 @@ Sept défauts réels ont été trouvés par ces tests plutôt que par l'usage :
    développement, où elles sont bien là. Le motif est maintenant `/vendor`, et
    deux contrôles veillent : `verifier-production.sh` et la recette en ligne
    échouent si une clé brute réapparaît.
+8. Filament pose la classe `dark` sur `<html>`, et non sur `<body>`. Une règle
+   écrite `.fi-body:not(.dark)` était donc **toujours vraie** : le crème du
+   thème clair se peignait jusque dans le thème sombre, et le logo — qui n'a
+   pas de tuile — y faisait une vignette blanche sur la barre. Les deux sont
+   corrigés, et un test joué en `colorScheme: 'dark'` interroge désormais la
+   règle CSS elle-même plutôt que la visibilité, la barre latérale étant
+   repliée sur un téléphone.
 
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 
