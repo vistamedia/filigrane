@@ -19,21 +19,45 @@ import { fixture } from './aide.js';
 
 const COMPTE = process.env.FILIGRANE_COMPTE;
 const MOT_DE_PASSE = process.env.FILIGRANE_MOTDEPASSE;
+const ADRESSE = process.env.FILIGRANE_URL ?? '';
 
 test.describe('Recette en ligne', () => {
     test.skip(
-        ! COMPTE || ! MOT_DE_PASSE,
-        'Renseignez FILIGRANE_COMPTE et FILIGRANE_MOTDEPASSE pour jouer la recette en ligne.',
+        ! COMPTE || ! MOT_DE_PASSE || ! ADRESSE,
+        'Renseignez FILIGRANE_URL, FILIGRANE_COMPTE et FILIGRANE_MOTDEPASSE pour jouer la recette en ligne.',
+    );
+
+    // Ce test crée une fiche puis l'efface définitivement. Dirigé par erreur
+    // sur l'environnement local, il mentirait sur l'état du serveur réel.
+    test.skip(
+        /localhost|127\.0\.0\.1/.test(ADRESSE),
+        `FILIGRANE_URL pointe sur ${ADRESSE} : cette recette s'adresse au serveur en ligne.`,
     );
 
     test('photographier, consulter puis effacer, sur le serveur réel', async ({ page, request }) => {
         test.setTimeout(180_000);
 
         // 1. Connexion.
-        await page.goto('/login');
+        //
+        // Sur le serveur réel, le formulaire est piloté par Livewire et met un
+        // instant à s'armer. Remplir un champ avant qu'il n'écoute laisse la
+        // valeur dans le DOM sans qu'elle parte avec la requête : la page
+        // affiche alors « Ces identifiants ne correspondent pas », avec les
+        // bons identifiants sous les yeux. On attend donc que le composant
+        // soit vivant, et on vérifie que les valeurs ont bien pris.
+        await page.goto('/login', { waitUntil: 'networkidle' });
+        await page.waitForFunction(() => window.Livewire?.all?.().length > 0, null, { timeout: 30_000 });
+
         await page.getByLabel('Adresse e-mail').fill(COMPTE);
         await page.locator('input[type="password"]').fill(MOT_DE_PASSE);
+
+        await expect(page.getByLabel('Adresse e-mail')).toHaveValue(COMPTE);
+        await expect(page.locator('input[type="password"]')).toHaveValue(MOT_DE_PASSE);
+
         await page.getByRole('button', { name: /connexion/i }).click();
+
+        await expect(page.getByText(/identifiants ne correspondent pas|Trop de tentatives/))
+            .toHaveCount(0);
         await expect(page.getByText('Dessins au catalogue')).toBeVisible({ timeout: 30_000 });
 
         // Les 168 traductions écrites à la main vivent dans lang/vendor/. Un

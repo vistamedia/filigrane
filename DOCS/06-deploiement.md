@@ -21,7 +21,7 @@
 >
 > ```bash
 > cp .deploiement.env.example .deploiement.env   # puis renseigner
-> source .deploiement.env                        # pour les commandes ci-dessous
+> set -a; source .deploiement.env; set +a       # pour les commandes ci-dessous
 > ```
 >
 > Un identifiant SSH et l'arborescence d'une machine sont la moitié d'une
@@ -68,11 +68,18 @@ HTTPS et les en-têtes de sécurité.
 ### Recette complète, dans un vrai navigateur
 
 ```bash
-source .deploiement.env
+# « set -a » exporte les variables : sans lui, elles resteraient dans le shell
+# et Playwright ne les verrait pas.
+set -a; source .deploiement.env; set +a
+
 FILIGRANE_COMPTE=ton@adresse.fr \
 FILIGRANE_MOTDEPASSE='…' \
 npx playwright test --project=en-ligne
 ```
+
+> **Sans `FILIGRANE_URL`, le test ne s'exécute pas** — il s'annonce ignoré
+> plutôt que de se rabattre sur l'environnement local. Il crée puis efface une
+> fiche : lancé sur la mauvaise cible, il mentirait sur l'état du serveur.
 
 Ce test photographie un dessin, vérifie que la vignette est bien fabriquée et
 servie, décrit la fiche, la retrouve dans le diaporama, **télécharge les deux
@@ -242,6 +249,7 @@ commande n'a aucun effet.
 
 | Symptôme | Cause probable | Remède |
 |---|---|---|
+| Un outil automatisé reçoit des 429 sur les images et les styles | Protection anti-robot de l'hébergement : elle reconnaît « HeadlessChrome » dans l'agent utilisateur | Donner un agent utilisateur réaliste — c'est ce que fait le profil `en-ligne` de Playwright. Les vrais navigateurs ne sont pas concernés |
 | L'export PDF ne se termine pas | Trop de fiches d'un coup sur un mutualisé | Filtrer la liste avant d'exporter, ou lancer l'export par onglet |
 | « Lien expiré » au téléchargement d'un export | Plus de dix minutes entre la préparation et le clic | Relancer l'export |
 | Erreur 500 partout | Cache de configuration périmé, ou `.env` absent | `php artisan optimize:clear` puis `php artisan optimize` |

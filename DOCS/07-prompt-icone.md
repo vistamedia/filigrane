@@ -224,6 +224,32 @@ open public/icones/icone-180x180.png public/icones/icone-32x32.png
 > ne gère pas — relis les contraintes techniques ci-dessus et demande une
 > version en aplats.
 
+### Si le dessin retenu exige vraiment un tracé au trait
+
+Il y a une sortie de secours, et elle est moins coûteuse qu'il n'y paraît :
+**les icônes sont fabriquées en local**, dans le conteneur Docker, et seuls les
+PNG produits partent sur le serveur. L'hébergement ne régénère jamais rien.
+
+Il suffit donc d'améliorer le moteur SVG de l'image de développement, sans rien
+changer en ligne : ajouter `librsvg2-bin` aux paquets installés dans
+`docker/app/Dockerfile`, puis `make build && make icones`. ImageMagick délègue
+alors le rendu à librsvg, qui gère `stroke`, `clipPath` et les dégradés.
+
+Pour savoir lequel des deux moteurs est en place :
+
+```bash
+docker compose exec app convert -list format | grep -i '^ *SVG'
+```
+
+`Scalable Vector Graphics (RSVG 2.x)` signifie que librsvg a pris la main.
+`(XML 2.9.x)` signifie que c'est le moteur interne, celui qui impose les
+contraintes ci-dessus.
+
+> Une réserve, tout de même : un dessin en aplats rend **identiquement
+> partout**. Un dessin qui dépend de librsvg ne rendra plus si l'image Docker
+> est reconstruite ailleurs sans ce paquet. À 64 × 64, la contrainte des aplats
+> coûte peu et achète cette tranquillité.
+
 ### 5. Mettre en ligne
 
 ```bash

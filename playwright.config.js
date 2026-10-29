@@ -70,6 +70,18 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
                 viewport: { width: 1440, height: 900 },
+                // Pas de repli sur localhost ici : ce profil crée puis efface
+                // une fiche. Lancé par mégarde sans FILIGRANE_URL, il
+                // s'attaquerait à l'environnement local en prétendant valider
+                // le serveur réel.
+                baseURL: process.env.FILIGRANE_URL,
+                // La protection anti-robot de l'hébergement répond 429 aux
+                // fichiers statiques dès qu'elle reconnaît « HeadlessChrome »
+                // dans l'agent utilisateur : feuilles de style et images ne
+                // sont plus servies, et le test échoue pour une raison qui
+                // n'a rien à voir avec l'application.
+                userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                    + 'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15',
             },
             testMatch: /10-recette-en-ligne\.spec\.js/,
         },

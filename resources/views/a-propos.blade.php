@@ -24,7 +24,7 @@
         'MariaDB 11.4' => 'Base de données',
         'Imagick' => 'Traitement des images, HEIC des iPhone compris',
         'PWA' => 'Installable sur Mac et sur iPhone',
-        'Playwright' => '70 tests de bout en bout',
+        'Playwright' => '94 tests automatisés, dont 62 dans un vrai navigateur',
         'Docker' => 'Environnement de développement identique à la production',
     ];
 @endphp
