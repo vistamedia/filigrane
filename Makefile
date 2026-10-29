@@ -41,11 +41,12 @@ install: ## Installation complète depuis zéro
 	$(APP) php artisan storage:link
 	$(APP) php artisan migrate:fresh --seed --force
 	$(APP) php artisan filament:assets
-	$(APP) php scripts/generer-icones.php
 	$(APP) php scripts/generer-images-test.php
 	npm install
 	npm run build
 	npx playwright install chromium
+	node scripts/generer-icones.mjs
+	$(APP) php scripts/generer-favicon-ico.php
 	@echo "→ http://localhost:8080 — lise@filigrane.test / filigrane"
 
 build: ## Reconstruit l'image Docker
@@ -62,7 +63,8 @@ fresh: ## Remet la base à zéro et la réamorce
 	rm -rf storage/app/private/photos storage/app/public/photos
 
 icones: ## Régénère les icônes de l'application
-	$(APP) php scripts/generer-icones.php
+	node scripts/generer-icones.mjs
+	$(APP) php scripts/generer-favicon-ico.php
 
 images-test: ## Régénère les images de test
 	$(APP) php scripts/generer-images-test.php

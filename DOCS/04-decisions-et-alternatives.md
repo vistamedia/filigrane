@@ -592,7 +592,7 @@ collection sera entièrement photographiée : ces images seront irremplaçables.
 ## D-27 — La charte graphique actuelle est provisoire
 
 **Choix.** Papier crème, encre, un seul accent sanguine, titres en romain.
-Le logo, lui, a été repris et n'est plus provisoire : voir [D-34](#d-34).
+L'icône et le logo, eux, viennent de Claude Design : voir [D-34](#d-34).
 
 **Pourquoi.** Il fallait quelque chose de cohérent pour travailler, et qui
 s'efface devant des reproductions en noir et blanc. C'est volontairement
@@ -749,36 +749,59 @@ risque sérieux de dépassement mémoire.
 ---
 
 <a id="d-34"></a>
-## D-34 — L'icône est une feuille de papier, pas une tuile sombre
+## D-34 — L'icône vient de Claude Design, rendue par un navigateur
 
-**Choix.** Fond crème, trame de papier vergé — vergeures serrées, pontuseaux
-espacés — et un **croissant** sanguine découpé dedans. Dessinée plein bord,
-sans coins arrondis.
+**Choix.** Une feuille de papier au coin replié, un crayon sanguine `#8E462F`
+posé en diagonale, un filigrane en volute dans la feuille, le tout sur un fond
+de papier vergé `#F4EEE2`. Dessinée plein bord, sans coins arrondis. Contraste
+motif sur fond : **5,93 : 1**.
 
-**Pourquoi.** Le croissant est le filigrane le plus répandu des papiers
-anciens, et le seul assez simple pour tenir dans 32 pixels ; une spécialiste
-du dessin le reconnaît immédiatement. La trame court **par-dessus** le motif :
-c'est ce détail qui distingue un filigrane, pris dans l'épaisseur de la
-feuille, d'un dessin posé à sa surface.
+Quatre fichiers plutôt qu'un : `icone.svg`, `icone-maskable.svg`,
+`favicon.svg` simplifié pour 32 pixels, et `logo.svg` — le motif seul, sans
+fond, repris dans le crème de l'interface.
+
+**Pourquoi quatre.** Ce qui tient à 512 pixels ne tient pas à 32 : le favicon
+perd ses vergeures et appuie ses pontuseaux. Et le logo posé à côté du
+mot-symbole n'a pas de tuile : lui donner le fond de l'icône ferait une
+vignette dans la barre.
 
 Fond clair, parce qu'une tuile sombre de plus fait un trou sur un écran
-d'accueil, et parce qu'un filigrane se regarde à contre-jour.
+d'accueil, et parce qu'un filigrane se regarde à contre-jour. Pas de coins
+arrondis : iOS, Android et les navigateurs appliquent leur propre masque.
 
-Pas de coins arrondis : iOS, Android et les navigateurs appliquent leur propre
-masque, et une trame qui court jusqu'au bord ne risque pas de déborder d'un
-arrondi dessiné à la main.
+**Le rendu est passé d'ImageMagick à Chromium.** C'est le vrai enseignement de
+cette étape. Le moteur SVG interne d'ImageMagick compose mal les
+transformations imbriquées : il plaçait le crayon, tourné de 60°, complètement
+hors du cadre — **sans message ni code d'erreur**. Les PNG étaient produits,
+de la bonne taille, et faux.
 
-**Deux contraintes découvertes à l'usage.** Le moteur SVG d'ImageMagick ignore
-les tracés au trait (`stroke` sur un `path` en `fill="none"`) : tout doit être
-exprimé en aplats. Et le disque qui échancre le croissant reprend la couleur
-exacte du papier, faute de quoi il faudrait un masque — que ce même moteur
-rend mal.
+`scripts/generer-icones.mjs` rend donc chaque SVG dans le Chromium déjà
+installé pour les tests, à la taille exacte voulue, et capture l'image.
+`scripts/generer-favicon-ico.php` en tire le `.ico` par simple conversion de
+pixels — le seul travail où ce moteur ne peut pas se tromper, puisqu'il
+n'intervient pas.
 
-**Alternative.** Les autres pistes essayées — la feuille entière sur fond
-d'encre, l'initiale au fil de laiton — sont décrites dans l'historique ; la
-première devenait illisible à 32 px, la seconde ne rendait pas.
+Deux bénéfices : le rendu est **exactement** celui que verront les visiteurs,
+et le dessin n'a plus à se restreindre aux aplats — `stroke`, `clipPath` et
+dégradés sont désormais permis.
 
-**Coût d'un changement.** `resources/icones/*.svg` puis `make icones`.
+**Ce qui reste à surveiller.** Le cadrage. Une forme tournée qui sort du
+`viewBox` est rognée en silence : c'est arrivé au `logo.svg` livré, dont la
+pointe du crayon atteignait x ≈ 59,6 pour un cadre s'arrêtant à 58. Corrigé en
+élargissant le `viewBox` de deux unités.
+
+**Les métadonnées sont retirées.** Les fichiers livrés portaient un manifeste
+C2PA de 7,7 Ko — plus lourd que le dessin — qu'il aurait fallu servir à chaque
+visiteur, favicon compris. Supprimé à l'intégration.
+
+**Alternative.** Garder ImageMagick en lui adjoignant librsvg
+(`librsvg2-bin` dans l'image Docker). Cela aurait marché — les icônes sont
+fabriquées en local, le serveur n'en régénère jamais — mais ajoutait une
+dépendance système pour un résultat moins fidèle qu'un navigateur, que le
+projet installe déjà.
+
+**Coût d'un changement.** `resources/icones/*.svg` puis `make icones`. La
+marche à suivre complète est dans [07 — Icône](07-prompt-icone.md).
 
 ---
 

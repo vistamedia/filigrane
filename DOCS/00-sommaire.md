@@ -52,10 +52,10 @@ Déployer, contrôler, sauvegarder, restaurer, dépanner. Et le relevé de ce qu
 l'hébergement fournit.
 
 ### [07 — Icône](07-prompt-icone.md)
-L'icône est une demande à part, avec ses propres contraintes : le moteur qui
-fabrique les PNG ignore la moitié de SVG **sans prévenir**. Ce document donne
-le texte à copier, la liste de ce qu'il faut exiger en retour, et l'étape de
-vérification qui attrape les échecs silencieux.
+L'icône est une demande à part : quatre fichiers, pas un. Ce document montre
+le dessin actuel, donne le texte à copier dans Claude Design, la liste de ce
+qu'il faut exiger en retour, et la marche à suivre pour l'intégrer — métadonnées
+à retirer et cadrage à vérifier compris.
 
 ---
 
@@ -90,8 +90,9 @@ make            # liste toutes les commandes
 - Ajoutés le 29 octobre : **diaporama**, **export tableur et catalogue PDF**,
   **page publique de présentation**, nouvelle **icône**. Le réglage de taille
   du texte a été **retiré** (voir [D-18](04-decisions-et-alternatives.md#d-18)).
-- Charte graphique provisoire, en attente de celle de Claude Design — l'icône,
-  elle, est arrêtée.
+- Charte graphique provisoire, en attente de celle de Claude Design.
+- **Icône, favicon et logo** livrés par Claude Design et intégrés
+  (voir [D-34](04-decisions-et-alternatives.md#d-34)).
 - Reste à faire à la main : essayer l'application sur un vrai iPhone, et
   déposer une photo HEIC dans `tests/fixtures/` pour activer le test de
   conversion.

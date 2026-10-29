@@ -4,26 +4,42 @@
 
 La charte générale fait l'objet d'un autre document,
 [05 — Charte graphique](05-prompt-charte-graphique.md). Celui-ci ne traite que
-de **l'icône de l'application** : c'est un travail à part, avec ses propres
-contraintes techniques, et le mélanger au reste donne des réponses tièdes sur
-les deux sujets.
+de **l'icône** : c'est un travail à part, avec ses propres livrables, et le
+mélanger au reste donne des réponses tièdes sur les deux sujets.
 
 ---
 
-## Comment s'en servir
+## L'icône actuelle
+
+![L'icône de Filigrane](captures/icone.png)
+
+Une feuille de papier, son coin replié, un crayon sanguine posé en diagonale,
+et le filigrane en volute qui transparaît dans la feuille. Le tout sur un fond
+de papier vergé — vergeures serrées, trois pontuseaux.
+
+| | |
+|---|---|
+| Papier de l'icône | `#F4EEE2` |
+| Sanguine | `#8E462F` |
+| Trame | `#3D2B1F`, à 6 % (vergeures) et 10 % (pontuseaux) |
+| Contraste motif / fond | **5,93 : 1** |
+
+Quatre fichiers dans `resources/icones/`, qui ne servent pas la même chose :
+
+| Fichier | Rôle |
+|---|---|
+| `icone.svg` | Le dessin complet, plein bord. Écran d'accueil, installation. |
+| `icone-maskable.svg` | Le même, motif réduit à 64 % et centré, pour les systèmes qui rognent l'icône en cercle. |
+| `favicon.svg` | Une version simplifiée — vergeures retirées, pontuseaux appuyés — qui tient dans 32 pixels. |
+| `logo.svg` | Le motif seul, sans fond, cadré serré, repris dans le crème de l'interface. Posé à gauche du mot « Filigrane ». |
+
+---
+
+## Comment refaire ce travail
 
 1. Copier le bloc **« Le texte à copier »** dans Claude Design.
-2. Récupérer sa réponse — elle doit contenir deux fichiers SVG complets et un
-   tableau de valeurs.
-3. Suivre la section **« Quand tu auras reçu la réponse »**, en bas : trois
-   commandes, pas davantage.
-
-> **L'essentiel du prompt, c'est la section « Contraintes techniques ».**
-> Le moteur qui transforme le SVG en PNG est celui d'ImageMagick, pas un
-> navigateur : il ignore silencieusement la moitié de SVG. Un dessin superbe
-> qui s'appuie sur un `stroke` ou un `clipPath` sortira **vide**, sans message
-> d'erreur. Ce n'est pas une préférence de style, c'est ce qui fonctionne ou
-> non.
+2. Récupérer sa réponse : quatre SVG complets et un tableau de valeurs.
+3. Suivre **« Quand tu auras reçu la réponse »**, plus bas.
 
 ---
 
@@ -38,16 +54,15 @@ les deux sujets.
 > d'environ deux cent cinquante feuilles, photographiées puis décrites une à
 > une. Deux utilisateurs : sa propriétaire, qui décrit, et moi, qui
 > photographie et entretiens l'application. Elle s'en sert sur un Mac et sur un
-> iPhone, sur lesquels l'application est installée comme une application
-> native.
+> iPhone, où l'application est installée comme une application native.
 >
 > **Le nom.** Un *filigrane* est la marque laissée dans la pâte du papier au
 > moment de sa fabrication, visible par transparence. Les spécialistes du
 > dessin ancien s'en servent pour dater et attribuer une feuille. Les motifs
-> historiques sont simples et beaux : croissant de lune, raisin, licorne, pot,
-> main, couronne, cloche, aigle. Le papier vergé lui-même porte une trame
-> régulière — des **vergeures** serrées et des **pontuseaux** espacés — qui
-> apparaît elle aussi à contre-jour.
+> historiques sont simples : croissant de lune, raisin, licorne, pot, main,
+> couronne, cloche. Le papier vergé porte lui-même une trame régulière — des
+> **vergeures** serrées et des **pontuseaux** espacés — qui apparaît aussi à
+> contre-jour.
 >
 > **Le registre.** Sobriété de cabinet d'arts graphiques. Papier, encre,
 > lumière rasante. Pas de dégradé, pas d'ombre portée, pas de couleur vive.
@@ -61,90 +76,65 @@ les deux sujets.
 > | Écran d'accueil iOS | 180 × 180 px | iOS applique **son propre** masque à coins arrondis |
 > | Installation Android / Chrome | 192 et 512 px | variante « maskable » obligatoire, rognée en cercle |
 > | Onglet de navigateur | 32 × 32 px et SVG | c'est la taille critique |
-> | Logo dans l'application | 36 px de haut, à gauche du mot « Filigrane » en romain | sur fond crème `#FBF8F2` |
-> | Écran de démarrage | couleur de fond unie | tu me donnes laquelle |
+> | Logo dans l'application | 36 px de haut, à gauche du mot « Filigrane » en romain, sur fond crème `#FBF8F2` | sans tuile ni fond |
+> | Écran de démarrage | couleur de fond unie | tu me dis laquelle |
 >
-> ### Contraintes techniques — à lire avant de dessiner
+> ### Contraintes techniques
 >
-> Les PNG sont fabriqués à partir du SVG par **le moteur interne
-> d'ImageMagick** (MSVG), et non par un navigateur. Ce moteur ne sait pas tout
-> faire, et surtout : **il échoue en silence**. Ce qui n'est pas supporté
-> disparaît du PNG sans message d'erreur.
+> Les PNG sont fabriqués en rendant le SVG **dans un navigateur sans tête**
+> (Chromium), puis en capturant l'image. Tu peux donc utiliser tout ce qu'un
+> navigateur sait faire : `stroke`, `clipPath`, `mask`, dégradés, opacités.
 >
-> **Interdit — vérifié, ne rend pas :**
+> Trois règles tout de même :
 >
-> - `stroke` : tout tracé au trait. Un `<path fill="none" stroke="…">` donne
->   une image vide. Les contours doivent être convertis en aplats fermés.
-> - `clipPath`, `mask`, `filter`, `pattern`, `use`.
-> - Les dégradés, les opacités de groupe imbriquées, le CSS (`<style>`,
->   attribut `class`).
->
-> **Autorisé — ce avec quoi il faut composer :**
->
-> - `rect`, `circle`, `ellipse`, `polygon`, `path` — **avec `fill` uniquement**.
-> - `line` avec `stroke` : c'est la seule exception qui fonctionne, utile pour
->   une trame.
-> - `opacity` et `fill-opacity` sur un élément simple.
-> - `transform="translate(…) scale(…) rotate(…)"` sur un `<g>`.
->
-> **Astuce qui marche bien :** pour évider une forme, superposer une forme de
-> la **couleur exacte du fond** plutôt que d'utiliser un masque. C'est ainsi
-> que l'icône actuelle obtient son croissant : un disque de couleur papier
-> mordant sur un disque de couleur accent.
->
-> **Format :** un seul `<svg viewBox="0 0 64 64">`, dessiné **plein bord**,
-> sans coins arrondis — iOS, Android et les navigateurs appliquent leur propre
-> masque, et un arrondi dessiné à la main produit un double arrondi.
+> 1. **Un seul `<svg viewBox="0 0 64 64">`**, autonome. Pas de CSS externe, pas
+>    de police à charger, pas d'image liée : le fichier doit se suffire.
+> 2. **Plein bord, sans coins arrondis.** iOS, Android et les navigateurs
+>    appliquent leur propre masque ; un arrondi dessiné à la main en produirait
+>    un deuxième.
+> 3. **Rien ne dépasse du viewBox.** Vérifie les extrémités des formes
+>    tournées : une pointe de crayon à `rotate(60)` sort vite du cadre, et le
+>    rendu la coupe sans rien dire.
 >
 > ### Ce que je te demande de produire
 >
-> 1. **`icone.svg`** — le SVG complet, prêt à coller dans un fichier. Plein
->    bord, 64 × 64.
+> 1. **`icone.svg`** — le dessin complet, prêt à coller dans un fichier.
 >
 > 2. **`icone-maskable.svg`** — même dessin, **motif réduit à 64 % et centré**,
 >    fond plein bord. C'est la variante que les systèmes rognent en cercle :
->    rien d'important ne doit dépasser du disque central.
+>    rien d'important ne doit sortir du disque central.
 >
-> 3. **Le tableau des couleurs**, en hexadécimal, avec un nom pour chacune :
->    fond de l'icône, couleur du motif, couleur de la trame s'il y en a une.
+> 3. **`favicon.svg`** — la version qui tient dans 32 pixels. Simplifie :
+>    enlève ce qui deviendra de la bouillie, appuie ce qui reste.
 >
-> 4. **Le contraste mesuré** entre le motif et le fond de l'icône, exprimé en
->    rapport (par exemple 5,2 : 1). Je veux au moins **4,5 : 1** pour que le
->    motif tienne à 32 pixels.
+> 4. **`logo.svg`** — le motif seul, sans fond ni tuile, cadré serré, pour être
+>    posé à gauche du mot « Filigrane » dans l'interface. Donne-lui un
+>    `viewBox` ajusté au dessin et des attributs `width`/`height` au même
+>    rapport. Les parties qui sont « du papier » doivent y reprendre le crème
+>    de l'interface, `#FBF8F2`, et non celui de l'icône.
 >
-> 5. **Deux valeurs pour le manifeste** de l'application installable :
+> 5. **Le tableau des couleurs**, en hexadécimal, avec un nom pour chacune.
+>
+> 6. **Le contraste mesuré** entre le motif et le fond de l'icône, en rapport
+>    (par exemple 5,9 : 1). Je veux au moins **4,5 : 1** pour que le motif
+>    tienne à 32 pixels.
+>
+> 7. **Deux valeurs pour le manifeste** de l'application installable :
 >    `theme_color` et `background_color`. Dis-moi laquelle va où et pourquoi.
->
-> 6. **Un avis sur le favicon.** À 32 pixels, faut-il le même dessin ou une
->    version simplifiée ? Si tu proposes une simplification, donne-la en SVG
->    complet, sous le nom `favicon.svg`.
->
-> 7. **Un avis sur le logo dans l'application.** Aujourd'hui l'icône est posée
->    telle quelle à gauche du mot « Filigrane ». Si ton dessin appelle autre
->    chose — un monogramme, un cadrage différent —, dis-le et donne le SVG.
 >
 > 8. **Une phrase de justification par choix important** : le motif, la
 >    couleur, le cadrage. Pas un paragraphe.
 >
 > ### Ce qui existe aujourd'hui
 >
-> J'ai dessiné une icône de travail, que tu peux reprendre, améliorer ou
-> écarter — dis-moi simplement laquelle des trois tu fais.
+> Une feuille de papier au coin replié, un crayon sanguine `#8E462F` posé en
+> diagonale, un filigrane en volute dans la feuille, sur un fond de papier
+> vergé `#F4EEE2`. Tu peux le reprendre, l'améliorer ou l'écarter — dis-moi
+> simplement laquelle des trois tu fais.
 >
-> - Fond crème `#F4EEE2`, plein bord.
-> - Un **croissant** `#8E462F` (une craie rouge, dite sanguine), obtenu par
->   deux disques : un disque plein de couleur accent, échancré par un disque de
->   couleur papier.
-> - Par-dessus l'ensemble, la trame du papier vergé : des `line` horizontales
->   très serrées à 4,5 % d'opacité, et quatre verticales à 7,5 %.
->
-> L'idée que je tiens à garder, si tu changes de motif : **la trame passe
-> par-dessus le motif**. C'est ce détail qui en fait un filigrane, pris dans
+> L'idée à laquelle je tiens, si tu changes de motif : **la trame passe
+> par-dessus le dessin**. C'est ce détail qui en fait un filigrane, pris dans
 > l'épaisseur de la feuille, et non un dessin posé à sa surface.
->
-> Ce que je n'aime pas dans l'état actuel : le croissant seul se lit parfois
-> comme une lune, et la trame horizontale peut évoquer du papier réglé plutôt
-> que du papier vergé.
 >
 > ### Ce qu'il faut éviter
 >
@@ -164,24 +154,22 @@ les deux sujets.
 
 ## Quand tu auras reçu la réponse
 
-### 1. Les deux fichiers
+### 1. Les quatre fichiers
 
-Remplace le contenu de :
+Remplace le contenu de `resources/icones/` : `icone.svg`,
+`icone-maskable.svg`, `favicon.svg`, `logo.svg`.
 
-- `resources/icones/icone.svg`
-- `resources/icones/icone-maskable.svg`
+> **Retire les métadonnées.** Les fichiers livrés portent un manifeste C2PA de
+> près de 8 Ko — plus lourd que le dessin lui-même, et servi à chaque visiteur
+> pour le favicon. Supprime le bloc `<metadata>…</metadata>` et l'attribut
+> `xmlns:c2pa` de la balise `<svg>`.
 
 Puis :
 
 ```bash
-make icones     # régénère les PNG 32, 180, 192, 512 et le favicon.ico
+make icones     # rend les PNG, recopie les SVG, refait le favicon.ico
 make assets     # recompile les feuilles de style
 ```
-
-`make icones` recopie aussi `icone.svg` en `public/icones/favicon.svg`. Si
-Claude Design a fourni un `favicon.svg` distinct, dépose-le **après** dans
-`public/icones/`, et note-le dans `scripts/generer-icones.php` pour qu'il
-survive à la prochaine régénération.
 
 ### 2. Les couleurs du manifeste
 
@@ -192,20 +180,13 @@ Dans `public/manifest.webmanifest` :
 "theme_color": "#…",
 ```
 
-Et la même valeur de `theme_color` dans
-`resources/views/pwa/head.blade.php` :
+Et la même valeur de `theme_color` dans `resources/views/pwa/head.blade.php` :
 
 ```html
 <meta name="theme-color" content="#…">
 ```
 
-### 3. Le logo dans l'application
-
-`resources/views/components/filigrane-logo.blade.php` pose l'icône à gauche du
-mot « Filigrane ». Si la réponse propose autre chose, c'est le seul fichier à
-reprendre.
-
-### 4. Vérifier
+### 3. Vérifier
 
 ```bash
 make test       # la suite complète
@@ -213,44 +194,21 @@ make captures   # régénère les captures de la documentation
 make apercus    # régénère les aperçus de la page publique
 ```
 
-Puis **regarde le PNG**, pas seulement le SVG :
+Puis **regarde les PNG**, pas seulement les SVG :
 
 ```bash
 open public/icones/icone-180x180.png public/icones/icone-32x32.png
 ```
 
-> **C'est l'étape qui attrape les échecs silencieux.** Si le motif a disparu ou
-> s'est transformé, c'est qu'il s'appuyait sur une fonctionnalité que le moteur
-> ne gère pas — relis les contraintes techniques ci-dessus et demande une
-> version en aplats.
+Et le logo en situation, à sa taille réelle de 36 pixels : la page de
+connexion le montre à côté du mot-symbole.
 
-### Si le dessin retenu exige vraiment un tracé au trait
+> **Le piège, c'est le cadrage.** Un dessin dont une forme tournée sort du
+> `viewBox` est rogné sans message d'erreur. C'est arrivé au premier
+> `logo.svg` livré : le crayon atteignait x ≈ 59,6 pour un cadre qui s'arrêtait
+> à 58, et sa pointe était coupée. Deux unités de `viewBox` ont suffi.
 
-Il y a une sortie de secours, et elle est moins coûteuse qu'il n'y paraît :
-**les icônes sont fabriquées en local**, dans le conteneur Docker, et seuls les
-PNG produits partent sur le serveur. L'hébergement ne régénère jamais rien.
-
-Il suffit donc d'améliorer le moteur SVG de l'image de développement, sans rien
-changer en ligne : ajouter `librsvg2-bin` aux paquets installés dans
-`docker/app/Dockerfile`, puis `make build && make icones`. ImageMagick délègue
-alors le rendu à librsvg, qui gère `stroke`, `clipPath` et les dégradés.
-
-Pour savoir lequel des deux moteurs est en place :
-
-```bash
-docker compose exec app convert -list format | grep -i '^ *SVG'
-```
-
-`Scalable Vector Graphics (RSVG 2.x)` signifie que librsvg a pris la main.
-`(XML 2.9.x)` signifie que c'est le moteur interne, celui qui impose les
-contraintes ci-dessus.
-
-> Une réserve, tout de même : un dessin en aplats rend **identiquement
-> partout**. Un dessin qui dépend de librsvg ne rendra plus si l'image Docker
-> est reconstruite ailleurs sans ce paquet. À 64 × 64, la contrainte des aplats
-> coûte peu et achète cette tranquillité.
-
-### 5. Mettre en ligne
+### 4. Mettre en ligne
 
 ```bash
 make deploy
@@ -262,7 +220,16 @@ réellement et sont servies comme des images.
 
 ---
 
-## Les raisons du dessin actuel
+## Comment les PNG sont fabriqués
 
-Elles sont dans [D-34](04-decisions-et-alternatives.md#d-34), avec les deux
-pistes écartées et pourquoi.
+`scripts/generer-icones.mjs` rend chaque SVG dans le **Chromium déjà installé
+pour les tests**, à la taille exacte voulue, et capture l'image.
+`scripts/generer-favicon-ico.php` en tire ensuite le `.ico`, par simple
+conversion de pixels.
+
+Ce n'était pas le cas au départ : le rendu passait par ImageMagick, dont le
+moteur SVG interne compose mal les transformations imbriquées et **échoue en
+silence**. Il plaçait le crayon hors du cadre, sans message ni code d'erreur.
+Un navigateur, lui, rend exactement ce que verront les visiteurs — et le dessin
+n'a plus à se restreindre aux aplats. Voir
+[D-34](04-decisions-et-alternatives.md#d-34).

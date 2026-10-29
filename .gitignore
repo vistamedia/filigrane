@@ -53,6 +53,10 @@ Thumbs.db
 # Fichiers de contrôle visuel, hors campagne de tests.
 /.verif
 
+# Livraison brute des icônes (les sources intégrées vivent dans
+# resources/icones/, débarrassées de leurs métadonnées).
+/filigrane-icones
+
 # Configuration locale des outils d'assistance : propre au poste, sans intérêt
 # pour quiconque clone le dépôt.
 /.claude
