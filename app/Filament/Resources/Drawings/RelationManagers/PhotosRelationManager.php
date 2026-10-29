@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Drawings\RelationManagers;
 
 use App\Enums\PhotoKind;
 use App\Filament\Pages\MesurerPhoto;
+use App\Filament\Pages\RetoucherPhoto;
 use App\Models\Photo;
 use App\Services\PhotoImporter;
 use Filament\Actions\Action;
@@ -89,7 +90,8 @@ class PhotosRelationManager extends RelationManager
                     ->label('Définition')
                     ->state(fn (Photo $record): string => $record->width_px
                         ? sprintf('%d × %d px', $record->width_px, $record->height_px)
-                        : 'en cours de traitement'),
+                        : 'en cours de traitement')
+                    ->description(fn (Photo $record): ?string => $record->isRetouched() ? 'retouchée' : null),
 
                 TextColumn::make('echelle')
                     ->label('Échelle')
@@ -128,6 +130,13 @@ class PhotosRelationManager extends RelationManager
                             ->success()
                             ->send();
                     }),
+
+                Action::make('retoucher')
+                    ->label('Retoucher')
+                    ->icon('heroicon-o-scissors')
+                    ->tooltip('Redresser, recadrer, tourner ou éclaircir cette photo')
+                    ->iconButton()
+                    ->url(fn (Photo $record): string => RetoucherPhoto::getUrl(['photo' => $record->id])),
 
                 Action::make('mesurer')
                     ->label('Mesurer')

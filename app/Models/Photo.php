@@ -22,12 +22,14 @@ use Illuminate\Support\Facades\Storage;
     'width_px',
     'height_px',
     'web_path',
+    'raw_web_path',
     'thumb_path',
     'exif',
     'taken_at',
     'calibration_id',
     'px_per_mm',
     'sheet_box',
+    'retouch',
     'sort_order',
     'processed_at',
     'processing_error',
@@ -43,6 +45,7 @@ class Photo extends Model
             'kind' => PhotoKind::class,
             'exif' => 'array',
             'sheet_box' => 'array',
+            'retouch' => 'array',
             'taken_at' => 'datetime',
             'processed_at' => 'datetime',
             'px_per_mm' => 'float',
@@ -86,6 +89,36 @@ class Photo extends Model
     }
 
     /**
+     * La photographie telle qu'elle a été prise, avant toute retouche : c'est
+     * sur elle que l'outil de retouche replace les coins.
+     */
+    public function rawWebUrl(): ?string
+    {
+        $chemin = $this->raw_web_path ?? $this->web_path;
+
+        return $chemin ? Storage::disk('public')->url($chemin) : null;
+    }
+
+    public function isRetouched(): bool
+    {
+        return $this->retouch !== null;
+    }
+
+    /**
+     * Définition de l'image sur laquelle on mesure : celle de l'original, ou
+     * celle de l'image redressée, rapportée à la pleine résolution.
+     *
+     * @return array{width: int, height: int}
+     */
+    public function workingSize(): array
+    {
+        return [
+            'width' => (int) ($this->retouch['largeur_px'] ?? $this->width_px ?? 0),
+            'height' => (int) ($this->retouch['hauteur_px'] ?? $this->height_px ?? 0),
+        ];
+    }
+
+    /**
      * L'original ne sort jamais du dossier privé : il passe par une route
      * authentifiée.
      */
@@ -121,12 +154,14 @@ class Photo extends Model
      */
     public function measuredSheetSize(): ?array
     {
-        if (! $this->px_per_mm || ! $this->sheet_box || ! $this->width_px || ! $this->height_px) {
+        $size = $this->workingSize();
+
+        if (! $this->px_per_mm || ! $this->sheet_box || ! $size['width'] || ! $size['height']) {
             return null;
         }
 
-        $widthPx = ($this->sheet_box['w'] ?? 0) * $this->width_px;
-        $heightPx = ($this->sheet_box['h'] ?? 0) * $this->height_px;
+        $widthPx = ($this->sheet_box['w'] ?? 0) * $size['width'];
+        $heightPx = ($this->sheet_box['h'] ?? 0) * $size['height'];
 
         if ($widthPx <= 0 || $heightPx <= 0) {
             return null;
@@ -145,7 +180,7 @@ class Photo extends Model
     {
         Storage::disk('local')->delete($this->original_path);
 
-        foreach (array_filter([$this->web_path, $this->thumb_path]) as $path) {
+        foreach (array_filter([$this->web_path, $this->raw_web_path, $this->thumb_path]) as $path) {
             Storage::disk('public')->delete($path);
         }
     }

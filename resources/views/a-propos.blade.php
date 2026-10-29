@@ -24,7 +24,7 @@
         'MariaDB 11.4' => 'Base de données',
         'Imagick' => 'Traitement des images, HEIC des iPhone compris',
         'PWA' => 'Installable sur Mac et sur iPhone',
-        'Playwright' => '96 tests automatisés, dont 64 dans un vrai navigateur',
+        'Playwright' => '113 tests automatisés, dont 68 dans un vrai navigateur',
         'Docker' => 'Environnement de développement identique à la production',
     ];
 @endphp
@@ -139,6 +139,38 @@
                     Mesure de contrôle sur une feuille de 300 × 400 mm :
                     <strong>301 × 401 mm</strong>. Trois millièmes d'erreur, et
                     pas un geste demandé à la personne qui décrit.
+                </p>
+            </article>
+
+            <article>
+                <h2 class="text-2xl font-semibold">Redresser un cadre accroché trop haut</h2>
+
+                <p class="mt-4 text-lg leading-relaxed">
+                    La première séance de prise de vue l'a montré : une œuvre
+                    accrochée haut se photographie d'en bas, et arrive en
+                    trapèze, entre deux cadres voisins. Quatre pastilles posées
+                    sur ses coins suffisent à la remettre d'aplomb. Pas à lui
+                    rendre ses proportions.
+                </p>
+
+                <p class="mt-4 text-lg leading-relaxed">
+                    Un même trapèze peut venir d'un cadre allongé vu de face
+                    comme d'un cadre plus haut vu très en biais. Ce qui tranche,
+                    c'est la focale de l'appareil, et le seul fait certain :
+                    les côtés d'un cadre sont perpendiculaires. C'est la
+                    méthode de Zhang et He. Sur une prise de vue simulée — un
+                    cadre de 30 × 40 cm, l'appareil levé de 25° —, les
+                    proportions apparentes se trompent de <strong>10 %</strong> ;
+                    le calcul retrouve exactement les bonnes.
+                </p>
+
+                <p class="mt-4 text-lg leading-relaxed">
+                    L'aperçu suit le doigt sans attendre le serveur : le
+                    navigateur applique lui-même la même transformation. Et
+                    rien n'est jamais écrit sur la photographie d'origine. Une
+                    retouche n'est qu'une liste de réglages, d'où l'on
+                    refabrique les images affichées. On la reprend ou on
+                    l'annule quand on veut.
                 </p>
             </article>
 

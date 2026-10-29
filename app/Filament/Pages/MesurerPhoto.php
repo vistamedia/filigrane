@@ -46,7 +46,11 @@ class MesurerPhoto extends Page
             return;
         }
 
-        $chemin = Storage::disk(config('filigrane.originals_disk'))->path($this->photo->original_path);
+        // Sur une photographie retouchée, on détoure l'image redressée : c'est
+        // elle qu'on mesure, et c'est à elle que le cadre doit correspondre.
+        $chemin = $this->photo->isRetouched()
+            ? Storage::disk(config('filigrane.derivatives_disk'))->path($this->photo->web_path)
+            : Storage::disk(config('filigrane.originals_disk'))->path($this->photo->original_path);
 
         $this->cadreInitial = SheetDetector::detect($chemin) ?? $this->cadreInitial;
     }
@@ -77,14 +81,13 @@ class MesurerPhoto extends Page
     }
 
     /**
+     * Définition de l'image mesurée : l'original, ou l'image redressée.
+     *
      * @return array{width: int, height: int}
      */
     public function definition(): array
     {
-        return [
-            'width' => $this->photo->width_px ?? 0,
-            'height' => $this->photo->height_px ?? 0,
-        ];
+        return $this->photo->workingSize();
     }
 
     /**
@@ -125,7 +128,7 @@ class MesurerPhoto extends Page
 
         $calibration = null;
 
-        if ($donnees['profil'] ?? false) {
+        if (($donnees['profil'] ?? false) && ! $this->photo->isRetouched()) {
             $calibration = Calibration::create([
                 'label' => $donnees['profil_label'] ?: 'Série du '.now()->translatedFormat('j F Y'),
                 'is_active' => true,

@@ -23,8 +23,8 @@ flowchart TB
     end
 
     subgraph serveur["o2switch — Apache/LiteSpeed + PHP 8.4"]
-        filament["Panneau Filament 5<br/>Livewire 3"]
-        services["Services métier<br/>PhotoImporter · DerivativeMaker<br/>ScaleResolver · SeriesScaler"]
+        filament["Panneau Filament 5<br/>Livewire 4"]
+        services["Services métier<br/>PhotoImporter · DerivativeMaker<br/>ScaleResolver · SeriesScaler<br/>RetouchePhoto"]
         exports["Exports<br/>ExportTableur (XLSX)<br/>ExportCatalogue (PDF)"]
         imagick["Imagick<br/>HEIC → JPEG, redimensionnement, détourage"]
     end
@@ -91,7 +91,7 @@ parent. `scripts/deployer.sh` le réécrit à chaque mise en ligne.
 | Serveur web | Apache (LiteSpeed en production) | — | `.htaccess` identique en local et en ligne. |
 | PHP | 8.4.27 | identique en dev et en ligne | `config.platform` dans `composer.json` fige la résolution sur 8.4. |
 | Framework | Laravel | 13.x | |
-| Interface | Filament | 5.11 | Livewire 3, Alpine, Tailwind 4. |
+| Interface | Filament | 5.11 | Livewire 4, Alpine, Tailwind 4. |
 | Base | MariaDB | 11.4 | Même version en local (image Docker) qu'en ligne. |
 | Images | Imagick + Intervention Image | 4.4 | **Imagick obligatoire** : GD ne lit pas le HEIC. |
 | Export tableur | openspout | 4.x | Écriture en flux : la mémoire ne dépend pas du nombre de lignes. |
@@ -218,7 +218,54 @@ pour un catalogue ; insuffisant pour un constat d'état.
 **Une voie secondaire** existe : si l'EXIF contient la focale équivalente 35 mm
 **et** la distance du sujet, l'échelle est estimée sans référence
 (`ScaleResolver::estimateFromExif()`). En pratique les iPhone fournissent
-rarement la seconde, donc cette voie reste un bonus.
+rarement la seconde, donc cette voie reste un bonus — et les photos prises
+depuis Filigrane n'ont, de fait, aucun EXIF hormis l'orientation.
+
+---
+
+## La retouche
+
+Les œuvres encadrées se photographient au mur, souvent d'en bas : elles
+arrivent en trapèze, entourées de mur et de cadres voisins. La page
+`RetoucherPhoto` (`/retoucher?photo=…`) les redresse.
+
+```mermaid
+flowchart LR
+    A["Version web d'origine<br/>(raw_web_path)"] --> B["Quatre coins posés<br/>+ zoom déclaré"]
+    B --> C["Aperçu dans le navigateur<br/>matrix3d + filtres CSS"]
+    B --> D["Enregistrer"]
+    D --> E["RetouchePhoto<br/>original → perspective Imagick<br/>→ quart de tour → lumière"]
+    E --> F["Nouvelle version web<br/>et nouvelle miniature<br/>(noms neufs)"]
+```
+
+**Les réglages, pas l'image.** La colonne `retouch` retient les coins
+(normalisés sur l'image orientée), le quart de tour, la focale, la luminosité,
+le contraste, et la définition du rectangle redressé rapportée à la pleine
+résolution. L'image est refabriquée depuis l'**original** — pas depuis la
+version web, pour ne rien perdre en recadrant. Voir
+[D-36](04-decisions-et-alternatives.md#d-36).
+
+**Les proportions.** `App\Support\Perspective::proportions()` calcule le vrai
+rapport largeur / hauteur du rectangle photographié, à partir des coins et de
+la focale (méthode de Zhang et He). Le même calcul est réécrit en JavaScript
+dans la page, pour l'aperçu. Voir [D-37](04-decisions-et-alternatives.md#d-37).
+
+**Le rendu.** `Imagick::distortImage(DISTORTION_PERSPECTIVE)` envoie les quatre
+coins sur un rectangle aux dimensions de la version web, directement — on ne
+fabrique pas une image pleine définition pour la réduire ensuite. La lumière
+est un polynôme du premier degré (`functionImage`), identique aux filtres CSS
+de l'aperçu. Compter moins d'une seconde par photographie.
+
+**Ce qui en dépend.**
+
+| Élément | Comportement sur une photographie retouchée |
+|---|---|
+| Version web, miniature | Retouchées, sous un nom neuf (le cache du navigateur dure un an). |
+| Diaporama, catalogue PDF, planche | Suivent, puisqu'ils lisent la version web. |
+| Lien « Pleine résolution » | Toujours l'original, sans retouche. |
+| Outil de mesure | Travaille sur l'image redressée : `Photo::workingSize()` donne sa définition. |
+| Mesure déjà faite | Effacée si la géométrie change ; les dimensions de la fiche restent. |
+| Profils d'échelle | Ne s'appliquent plus (`SeriesScaler::candidates()` l'exclut). |
 
 ---
 
@@ -228,12 +275,16 @@ rarement la seconde, donc cette voie reste un bonus.
 |---|---|---|---|
 | Disque | privé (`storage/app/private`) | public | public |
 | Format | tel quel (HEIC, JPEG, TIFF…) | JPEG progressif | JPEG |
-| Taille | inchangée | 2 400 px au plus long côté | 600 × 600 |
+| Taille | inchangée | 2 400 px de large au plus | 600 × 600 |
 | Accès | route authentifiée `/photos/{id}/original` | statique, par Apache | statique, par Apache |
 
 L'original est l'unique copie de référence de l'œuvre : il n'est jamais
 recompressé ni réorienté. Les dérivés, eux, sont jetables — ils se
 reconstruisent à partir de l'original.
+
+Une photographie retouchée garde en plus sa **version web d'origine**
+(`raw_web_path`) : c'est sur elle que l'outil replace les coins. Environ 1 Mo
+de plus par photographie retouchée.
 
 Les noms de fichiers sont des ULID : impossibles à deviner, triables par date
 de création.
@@ -353,7 +404,8 @@ app/
 ├── Console/Commands/     filigrane:compte, :sauvegarder, :menage, :jeu-d-essai
 ├── Enums/                DrawingStatus, PhotoKind, DimensionsSource, UserRole
 ├── Filament/
-│   ├── Pages/            StudioPhoto, ImportEnMasse, MesurerPhoto, Diaporama
+│   ├── Pages/            StudioPhoto, ImportEnMasse, MesurerPhoto,
+│   │                     RetoucherPhoto, Diaporama
 │   ├── Resources/        Drawings, Tags, Calibrations, Users
 │   └── Widgets/          CollectionProgress, LatestDrawings
 ├── Http/Controllers/     PhotoFileController (originaux authentifiés)
@@ -365,8 +417,8 @@ app/
 ├── Policies/             une par modèle
 ├── Services/             PhotoImporter, DerivativeMaker, ScaleResolver,
 │                         SeriesScaler, InventoryNumberGenerator,
-│                         ExportTableur, ExportCatalogue
-└── Support/              ExifReader, SheetDetector, TexteRiche
+│                         ExportTableur, ExportCatalogue, RetouchePhoto
+└── Support/              ExifReader, SheetDetector, TexteRiche, Perspective
 ```
 
 **Pourquoi un composant Livewire séparé pour le panneau d'images ?**
@@ -384,9 +436,9 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 32 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports. |
-| Playwright `mac` | 49 tests | Connexion, droits, catalogage, import, studio, mesure, PWA, confort, diaporama, exports. |
-| Playwright `mobile` | 15 tests | Mise en page et atteignabilité à 390 px. |
+| PHPUnit (`tests/Feature`) | 45 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions. |
+| Playwright `mac` | 52 tests | Connexion, droits, catalogage, import, studio, mesure, retouche, PWA, confort, diaporama, exports. |
+| Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
 Les tests tournent contre **MariaDB**, pas SQLite : le schéma interroge des
@@ -429,15 +481,33 @@ Huit défauts réels ont été trouvés par ces tests plutôt que par l'usage :
    règle CSS elle-même plutôt que la visibilité, la barre latérale étant
    repliée sur un téléphone.
 
+Un neuvième, trouvé en écrivant l'outil de retouche et non par un test — ce
+qui dit bien la limite d'un test qui partage l'erreur qu'il devrait voir :
+
+9. Dans l'outil de mesure, la photographie était posée dans un cadre à marge
+   intérieure de 8 px, et les pastilles se repéraient sur ce cadre, pas sur
+   l'image. Une pastille posée sur le coin de la feuille désignait donc un
+   point légèrement décalé, soit environ 1 % d'erreur sur les dimensions. Le
+   test de bout en bout visait le même cadre et ne pouvait rien voir. La scène
+   épouse désormais l'image, et le test vise la scène. Au passage, sa hauteur
+   est bornée à l'écran : sur un Mac, une photographie en hauteur cachait le
+   bas de la feuille sous la ligne de flottaison.
+
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 
 - **Safari sur un vrai iPhone.** Chromium à 390 px vérifie la mise en page, pas
   le comportement de Safari : accès caméra en mode installé, gestion du HEIC,
-  clavier qui recouvre un champ.
+  clavier qui recouvre un champ. Essayé à la main le 29 octobre sur la
+  tablette, le téléphone et le Mac de l'utilisatrice : rien à signaler.
 - **La conversion HEIC.** ImageMagick sait lire ce format mais pas l'écrire :
   impossible de fabriquer une image de test. Déposez une vraie photo d'iPhone
   dans `tests/fixtures/dessin-iphone.heic` et le test dédié s'activera.
 - **La qualité d'une vraie mesure**, sur un vrai dessin, avec une vraie règle.
+- **Les proportions d'une vraie œuvre redressée.** Le test prouve le calcul sur
+  un appareil simulé ; reste à le confronter à un cadre de dimensions connues,
+  photographié d'en bas.
+- **Le glisser des pastilles au doigt, dans Safari.** Chromium vérifie que les
+  pastilles sont dans l'écran et assez grandes, pas que le geste est agréable.
 
 ---
 

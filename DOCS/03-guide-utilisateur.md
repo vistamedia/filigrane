@@ -142,6 +142,36 @@ dans toute sa finesse. C'est utile pour lire une signature ou une inscription.
 
 ---
 
+## Redresser une photographie
+
+![Redresser une photographie](captures/mac-retouche.png)
+
+Un cadre accroché haut se photographie d'en bas : il apparaît en trapèze, avec
+un morceau de mur et le cadre voisin autour. On peut le remettre d'aplomb.
+
+1. Sous la photographie de la fiche, cliquez sur **Redresser, recadrer**.
+2. Faites glisser les **quatre pastilles bleues** sur les quatre coins de
+   l'œuvre. Chacune porte une flèche qui dit à quel coin elle va. Pendant que
+   vous la déplacez, une loupe montre le coin de près.
+3. À droite, l'**aperçu** montre aussitôt le résultat : l'œuvre seule, bien
+   droite.
+4. Si l'image est trop sombre, touchez **Automatique**, ou réglez vous-même la
+   **luminosité** et le **contraste**.
+5. **Enregistrer.**
+
+C'est sans risque. **La photographie d'origine n'est jamais modifiée** : on
+peut reprendre la retouche autant de fois qu'on veut (le lien devient
+**Reprendre la retouche**), ou tout annuler avec **Revenir à la photographie
+d'origine**.
+
+Les boutons **Tourner à gauche** et **Tourner à droite** servent quand une
+photographie est arrivée couchée.
+
+> Un reflet dans la vitre ne s'efface pas : il faut reprendre la photographie
+> d'un autre angle.
+
+---
+
 ## Les mots-clés
 
 Les mots-clés servent à regrouper les dessins comme vous l'entendez : par

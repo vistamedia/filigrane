@@ -71,6 +71,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Zooms de l'appareil, proposés dans l'outil de retouche
+    |--------------------------------------------------------------------------
+    | Focale équivalente 24 × 36, en millimètres, de chaque position du zoom de
+    | l'iPhone. Elle sert à retrouver les vraies proportions d'un cadre
+    | photographié de biais (voir App\Support\Perspective) ; les photos prises
+    | depuis Filigrane arrivent sans EXIF, il faut donc la demander.
+    */
+
+    'zooms' => [
+        ['label' => '0,5×', 'focale' => 13],
+        ['label' => '1×', 'focale' => 26],
+        ['label' => '2×', 'focale' => 52],
+        ['label' => '3×', 'focale' => 77],
+        ['label' => '5×', 'focale' => 120],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Détection automatique de la feuille
     |--------------------------------------------------------------------------
     | Tolérance de couleur du fond, en pourcentage, utilisée pour détourer la

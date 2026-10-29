@@ -38,7 +38,7 @@ près, poser des mots-clés, parcourir la collection en diaporama, l'exporter en
 tableur ou en catalogue PDF, récupérer une fiche effacée.
 
 ### [04 — Décisions et alternatives](04-decisions-et-alternatives.md)
-Trente-cinq décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
+Trente-sept décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
 et ce qu'il en coûterait de changer d'avis — y compris une décision **revenue**
 (D-18, le réglage de taille du texte). **C'est le document à ouvrir quand
 quelque chose te paraît discutable.**
@@ -61,9 +61,10 @@ qu'il faut exiger en retour, et la marche à suivre pour l'intégrer — métado
 ### [08 — Guide de prise de vue](08-prise-de-vue.md)
 Ce qu'il faut faire appareil en main : les feuilles des cartons en séance, avec
 un profil d'échelle ; les œuvres encadrées au mur, avec une référence dans
-chaque photographie et aucune contrainte de distance. La règle qui prime sur
-toutes les autres — **la photographie est irréversible, la mesure ne l'est
-pas** — et les trois pièges qui coûtent de la précision.
+chaque photographie et aucune contrainte de distance ; le redressement après
+la séance, et pourquoi le zoom compte. La règle qui prime sur toutes les
+autres — **la photographie est irréversible, la mesure ne l'est pas** — et les
+quatre pièges qui coûtent de la précision.
 
 ---
 
@@ -72,7 +73,7 @@ pas** — et les trois pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 32 tests PHP + 64 tests de bout en bout
+make test       # 45 tests PHP + 68 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -93,7 +94,10 @@ make            # liste toutes les commandes
 ## État au 29 octobre 2026
 
 - Application en ligne et vérifiée sur le serveur réel.
-- Deux comptes créés, catalogue vide, prêt à recevoir la première fiche.
+- Deux comptes créés. **Première séance de prise de vue faite le 29 octobre** :
+  32 œuvres encadrées photographiées au mur.
+- Essayée le même jour sur la tablette, le téléphone et le Mac de
+  l'utilisatrice : tout fonctionne.
 - Sauvegarde quotidienne de la base installée sur le serveur.
 - Ajoutés le 29 octobre : **diaporama**, **export tableur et catalogue PDF**,
   **page publique de présentation**, nouvelle **icône**. Le réglage de taille
@@ -101,10 +105,13 @@ make            # liste toutes les commandes
 - Charte graphique provisoire, en attente de celle de Claude Design.
 - **Icône, favicon et logo** livrés par Claude Design et intégrés
   (voir [D-34](04-decisions-et-alternatives.md#d-34)).
-- Reste à faire à la main : essayer l'application sur un vrai iPhone, et
-  déposer une photo HEIC dans `tests/fixtures/` pour activer le test de
-  conversion.
-- **Première séance de prise de vue à venir** : lire
-  [08 — Guide de prise de vue](08-prise-de-vue.md) avant de commencer, et
-  tester en trente secondes si l'EXIF de l'iPhone porte la distance de mise au
-  point — cela décide de la méthode pour les œuvres encadrées.
+- **Test de l'EXIF fait** : les photos prises depuis Filigrane n'en portent
+  que l'orientation. Pour les œuvres au mur, la carte bancaire dans chaque
+  photo reste la seule méthode de mesure.
+- Ajoutée à la suite de cette séance : la **retouche** — redresser un cadre
+  photographié de biais par ses quatre coins, recadrer, tourner, éclaircir,
+  sans jamais toucher à l'original (voir
+  [D-36](04-decisions-et-alternatives.md#d-36) et
+  [D-37](04-decisions-et-alternatives.md#d-37)).
+- Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
+  activer le test de conversion.

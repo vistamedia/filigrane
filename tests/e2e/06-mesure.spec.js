@@ -12,7 +12,7 @@ const FEUILLE = { x1: 0.35, y1: 0.2333, x2: 0.65, y2: 0.7667 };
 
 /** Fait glisser une poignée jusqu'à un point donné de la photographie. */
 async function deplacer(page, etiquette, fx, fy) {
-    const scene = page.locator('[class*="fi-filigrane-vignette"]').first();
+    const scene = page.locator('[x-ref="scene"]');
     const cadre = await scene.boundingBox();
     const poignee = page.getByRole('button', { name: etiquette });
     const depart = await poignee.boundingBox();

@@ -101,38 +101,68 @@ pièce et le profil ne vaut plus rien — donc à réserver aux cas évidents.
 
 ---
 
-## À tester une fois : la voie sans aucun geste
+## La voie sans aucun geste : fermée
 
-Si ton iPhone inscrit la distance de mise au point dans l'EXIF, l'application
-calcule l'échelle toute seule, sans référence et sans trait à tracer.
+Si l'iPhone inscrivait la distance de mise au point dans l'EXIF, l'application
+calculerait l'échelle toute seule. **Le test est fait** : les 32 clichés de la
+première séance, le 29 octobre, pris depuis Filigrane, sont arrivés avec la
+seule orientation dans l'EXIF — ni appareil, ni focale, ni distance.
 
-**Le test prend trente secondes :** photographie un cadre, importe la photo, et
-regarde la fiche.
-
-| Ce que tu vois | Ce que ça veut dire |
-|---|---|
-| Des dimensions apparaissent, mention *estimée* | L'EXIF suffit. Rien à faire pour les œuvres au mur. |
-| Les dimensions restent vides | L'appareil ne l'enregistre pas. Reviens à la carte. |
-
-**Réserve.** Cette distance vient de l'autofocus : elle est approximative. Cinq
-pour cent d'erreur sur la distance font cinq pour cent sur la taille, soit deux
-centimètres sur une feuille de quarante. Pour un catalogue de travail, c'est
-acceptable ; pour une assurance ou un constat d'état, non. La carte reste
-nettement plus sûre.
+Pour les œuvres au mur, c'est donc **la carte dans chaque photo**, comme décrit
+plus haut.
 
 ---
 
-## Les trois pièges qui coûtent de la précision
+## Après la séance : redresser
+
+Un cadre accroché haut se photographie d'en bas, il sort en trapèze, avec du
+mur et les cadres voisins autour. Sur la fiche, **Redresser, recadrer** :
+
+1. Les quatre pastilles bleues sur les quatre coins de ce que tu veux garder —
+   le cadre, le passe-partout ou la feuille.
+2. Le **zoom** que l'appareil affichait au déclenchement : 1×, 2×, 3×…
+3. Au besoin, **Automatique** pour la lumière.
+4. **Enregistrer**, ou **Enregistrer, puis la suivante** pour enchaîner les
+   photographies pas encore retouchées.
+
+L'original n'est jamais touché : on reprend ou on annule quand on veut.
+
+**Le zoom compte.** Quatre coins disent comment redresser, pas quelles sont
+les vraies proportions de l'œuvre : un trapèze donné peut venir d'un cadre
+allongé vu de face comme d'un cadre plus haut vu très en biais. C'est la focale
+qui tranche, et l'EXIF des photos ne la donne pas. L'outil suppose donc 1×, l'objectif
+principal. Un cadre levé de 25° et photographié à 2× sans le dire sortirait
+**7 % trop large**. Le plus simple : garde le même zoom pour toute une séance,
+et note-le. Si tu photographies à l'iPad, rien ne dit que sa focale soit celle
+de l'iPhone : 30 mm pris pour 26 faussent les proportions d'environ 2 % sur un
+cadre levé de 25°.
+
+**Redresser d'abord, mesurer ensuite.** Sur la photographie brute d'un cadre
+pris de biais, l'échelle varie d'un bord à l'autre, et la carte ne vaut que
+là où elle est. Une fois l'image redressée, une seule échelle vaut partout :
+la carte contre la vitre donne alors la largeur *et* la hauteur. Redresser
+efface la mesure faite sur la photographie (elle désignerait d'autres pixels),
+pas les dimensions déjà reportées sur la fiche.
+
+---
+
+## Les quatre pièges qui coûtent de la précision
 
 **La référence doit être dans le même plan que ce qu'on mesure.** Contre la
 vitre, pas sur le mur à côté du cadre, pas tenue en avant. Un cadre fait trois
 ou quatre centimètres d'épaisseur : une carte tenue devant lui fausse l'échelle
 de 2 à 3 %.
 
-**Photographie bien en face**, depuis le centre de l'œuvre. De biais, l'échelle
-n'est plus la même d'un bord à l'autre de l'image, et aucune calibration ne
-rattrape cela. C'est l'erreur la plus coûteuse, et la seule qu'on ne voit pas
-sur la photo.
+**Photographie aussi en face que possible**, depuis le centre de l'œuvre. De
+biais, l'échelle n'est plus la même d'un bord à l'autre de l'image. Le
+redressement le rattrape — voir plus haut —, à deux conditions : la carte est
+dans le plan de l'œuvre, et le zoom déclaré est le bon. Sans redressement, une
+mesure prise sur un trapèze est fausse sans que rien ne le signale.
+
+**Les reflets ne se corrigent pas après coup.** Une vitre renvoie la fenêtre ou
+la lampe qui lui fait face. Puisque la perspective se redresse ensuite, tu peux
+te décaler d'un pas pour sortir du reflet : un cadre un peu de biais vaut mieux
+qu'une œuvre voilée.
 
 **Décide ce que tu enregistres, et n'en change plus.** L'application retient
 une hauteur et une largeur, pas deux jeux. Pour une œuvre encadrée, la feuille
@@ -149,8 +179,10 @@ mesure ne vaut rien.
 |---|---|
 | Feuille à plat, règle de 200 mm, bien en face | moins de 0,5 % |
 | Œuvre au mur, carte bancaire, bien en face | autour de 1 % |
-| Prise de vue de biais | 3 % et au-delà, sans moyen de le savoir |
-| Estimation par l'EXIF seul | 5 % environ |
+| Œuvre de biais, redressée, zoom déclaré juste | comme de face, en théorie ; à vérifier sur une pièce de dimensions connues |
+| Œuvre de biais, redressée, zoom déclaré faux (2× pris pour 1×) | 7 % et au-delà sur les proportions |
+| Prise de vue de biais, mesurée sans redresser | 3 % et au-delà, sans moyen de le savoir |
+| Estimation par l'EXIF seul | 5 % environ (sans objet : l'EXIF est vide) |
 
 Pour mémoire, la mesure de contrôle de la chaîne complète, sur une feuille de
 300 × 400 mm photographiée en conditions idéales, donne 301 × 401 mm.

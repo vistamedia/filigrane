@@ -56,6 +56,18 @@
             @endif
 
             <div class="flex justify-between gap-3">
+                <dt class="text-gray-500 dark:text-gray-400">Photographie</dt>
+                <dd class="text-right">
+                    <a
+                        href="{{ \App\Filament\Pages\RetoucherPhoto::getUrl(['photo' => $principale->id]) }}"
+                        class="font-medium text-primary-600 hover:underline dark:text-primary-400"
+                    >
+                        {{ $principale->isRetouched() ? 'Reprendre la retouche' : 'Redresser, recadrer' }}
+                    </a>
+                </dd>
+            </div>
+
+            <div class="flex justify-between gap-3">
                 <dt class="text-gray-500 dark:text-gray-400">Original</dt>
                 <dd class="text-right">
                     <a
@@ -64,7 +76,7 @@
                         rel="noopener"
                         class="font-medium text-primary-600 hover:underline dark:text-primary-400"
                     >
-                        Pleine résolution
+                        {{ $principale->isRetouched() ? 'Pleine résolution, sans retouche' : 'Pleine résolution' }}
                     </a>
                 </dd>
             </div>

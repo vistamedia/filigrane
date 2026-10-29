@@ -24,7 +24,8 @@ marquées *validée*.
 
 **Images et mesure**
 [D-05](#d-05) Originaux privés · [D-06](#d-06) Mesure par référence ·
-[D-24](#d-24) HEIC converti côté serveur
+[D-24](#d-24) HEIC converti côté serveur · [D-36](#d-36) Retouche non destructive ·
+[D-37](#d-37) Proportions par la focale
 
 **Sécurité et comptes**
 [D-12](#d-12) Deux rôles · [D-13](#d-13) Pas de courriel ·
@@ -169,6 +170,8 @@ une fois par séance, par toi, et non à chaque dessin.
 
 **Alternatives.**
 - *EXIF seul* : implémenté comme voie secondaire, mais rarement exploitable.
+  Vérifié le 29 octobre : les photos prises depuis Filigrane n'ont dans leur
+  EXIF que l'orientation — ni appareil, ni focale, ni distance.
 - *Saisie manuelle* : toujours possible, et jamais écrasée par un calcul.
 - *LiDAR / ARKit* (iPhone Pro) : mesure réelle au centimètre près, mais il
   faudrait une application native. Hors de proportion ici.
@@ -828,6 +831,113 @@ d'essai plausibles (`filigrane:jeu-d-essai`).
 inutile puisqu'elle ne contient rien.
 
 **Coût d'un changement.** Une ligne dans `routes/web.php` pour la refermer.
+
+---
+
+<a id="d-36"></a>
+## D-36 — La retouche enregistre des réglages, jamais une image
+
+**Choix.** Redresser, recadrer, tourner et éclaircir une photographie, c'est
+enregistrer quatre coins, un quart de tour, une luminosité et un contraste
+dans la colonne `retouch`. La version web et la miniature sont refabriquées à
+partir de l'original et de ces réglages ; l'original n'est pas touché. La
+version web d'avant retouche est mise de côté (`raw_web_path`) : c'est sur
+elle qu'on replace les coins pour reprendre la retouche.
+
+**Pourquoi.** La première séance — 32 œuvres encadrées, sur quatre étages —
+a donné des trapèzes, des cadres voisins dans le champ et des étages hauts
+plus sombres. Il fallait les reprendre, mais l'original reste la pièce
+d'archive ([D-24](#d-24)) : une retouche ratée ne doit rien coûter. Et comme
+tout ce qui s'affiche, se projette ou s'exporte passe par la version web,
+la retouche se propage partout sans que rien d'autre ne change.
+
+Le redressement n'est pas qu'esthétique. Sur un cadre pris de biais,
+l'échelle varie d'un bord à l'autre de l'image ; une fois redressé, une seule
+échelle vaut partout, et la carte bancaire contre la vitre donne les deux
+dimensions.
+
+**Trois conséquences, voulues.**
+- Chaque retouche écrit ses fichiers **sous un nom neuf**. Le navigateur garde
+  les images un an en cache (`.htaccess`) : une image changée sous le même nom
+  resterait invisible à qui l'a déjà vue — c'est arrivé à l'icône.
+- Une retouche qui change la géométrie **efface la mesure faite sur la
+  photographie** (échelle et cadre bleu désigneraient d'autres pixels), mais
+  **pas les dimensions de la fiche**. Une retouche de la seule lumière ne
+  touche à rien.
+- Une photographie redressée **n'entre plus dans les profils d'échelle** : elle
+  n'a plus l'échelle des clichés bruts de sa série.
+
+**L'aperçu est calculé par le navigateur.** L'homographie qui envoie les
+quatre coins sur un rectangle est appliquée à l'image par `matrix3d()`, et la
+lumière par les filtres CSS `brightness()` et `contrast()`. Le serveur applique
+exactement la même formule (`y = C·(L·x − 0,5) + 0,5`) : ce qu'on voit est ce
+qu'on obtient, sans aller-retour pendant qu'on déplace un coin.
+
+**Ce que la retouche ne fait pas.** Les reflets dans la vitre : rien ne les
+retire proprement, cela se règle à la prise de vue. La dominante jaune d'un mur
+éclairé de près : un réglage de balance des blancs s'ajouterait au même
+endroit, si le besoin se confirme.
+
+**Alternatives.**
+- *Retoucher dans l'app Photos de l'iPhone avant l'envoi* : outil familier,
+  mais l'original reçu serait déjà modifié, et le redressement de Photos ne
+  connaît pas les vraies proportions de l'œuvre (voir [D-37](#d-37)).
+- *Écraser les dérivés sans garder de réglages* : plus simple, mais impossible
+  de reprendre une retouche, seulement de la refaire depuis le début.
+- *Détection automatique des coins* : le détourage échoue sur un mur tendu de
+  toile et des cadres voisins ([D-06](#d-06)) ; poser quatre coins prend dix
+  secondes.
+
+**Coût d'un changement.** `App\Services\RetouchePhoto` et la page
+`RetoucherPhoto`. Ajouter un réglage (balance des blancs, netteté) : une clé de
+plus dans `retouch`, une ligne d'Imagick, un curseur. Une heure.
+
+---
+
+<a id="d-37"></a>
+## D-37 — Les vraies proportions viennent de la focale, et on demande le zoom
+
+**Choix.** Le rectangle redressé ne prend pas les proportions apparentes du
+trapèze, mais celles que calcule la méthode de Zhang et He (*Whiteboard
+scanning and image enhancement*, 2007) : les côtés du cadre réel sont
+perpendiculaires, et cette contrainte, avec la focale, fixe le rapport largeur
+/ hauteur. La focale vient de l'EXIF quand il y en a une ; sinon, l'outil
+demande **quel zoom affichait l'appareil** (0,5×, 1×, 2×, 3×, 5×), 1× par
+défaut.
+
+**Pourquoi.** Quatre coins disent comment redresser, pas quelles proportions
+donner au résultat : un trapèze donné peut venir d'un cadre allongé vu de
+face comme d'un cadre plus haut vu très en biais. Sur un cadre de 300 × 400 mm
+levé de 25 à 35°, le rapport apparent se trompe de 10 à 22 % ; le calcul par
+la focale retrouve 0,75 exactement. Un catalogue de dessins qui allonge les
+figures de 10 % n'est pas acceptable.
+
+Mais les photos prises depuis Filigrane arrivent sans EXIF ([D-06](#d-06)). D'où la
+question du zoom : c'est le chiffre que l'iPhone affiche à l'écran, et le seul
+que la personne qui photographie connaisse. Le prendre faux coûte cher — un
+cadre levé de 25° photographié à 2× et déclaré à 1× sort 7 % trop large —,
+d'où la consigne de garder un même zoom pour une séance
+([08](08-prise-de-vue.md)).
+
+**Le calcul est écrit deux fois**, en PHP (`App\Support\Perspective`) et en
+JavaScript (l'aperçu), pour que l'aperçu montre ce que le serveur produira. Le
+test `RetoucheTest` vérifie la version PHP sur un cadre photographié par un
+appareil simulé dont on connaît tout.
+
+**Alternatives.**
+- *Proportions apparentes* (moyenne des côtés opposés) : exactes de face,
+  fausses de 10 % et plus dès que l'appareil se lève. C'est le repli quand le
+  calcul n'a plus de sens (coins presque alignés).
+- *Estimer la focale à partir des coins* : possible quand le cadre est vu à la
+  fois d'en bas et de côté, impossible quand il n'est vu que d'en bas — le cas
+  le plus courant ici. Et des coins posés au doigt la rendraient instable.
+- *Saisir les dimensions connues de l'œuvre* : exact, mais on retouche le plus
+  souvent avant d'avoir mesuré.
+
+**Coût d'un changement.** Les focales sont dans `config/filigrane.php`
+(`zooms`). Si l'on envoyait un jour les photos avec leur EXIF intact, la
+question disparaîtrait d'elle-même : l'outil ne la pose pas quand l'EXIF
+répond.
 
 ---
 

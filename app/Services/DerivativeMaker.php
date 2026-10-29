@@ -5,6 +5,7 @@ namespace App\Services;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\Encoders\JpegEncoder;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\ImageInterface;
 
 /**
  * Fabrication des deux dérivés JPEG servis par l'application :
@@ -27,31 +28,49 @@ class DerivativeMaker
      */
     public function make(string $sourcePath): array
     {
-        $quality = (int) config('filigrane.jpeg_quality', 82);
-
-        $image = $this->manager->decodePath($sourcePath)->orient();
+        $image = $this->decodeOriented($sourcePath);
 
         $width = $image->width();
         $height = $image->height();
 
-        $web = (string) $image
-            ->scaleDown(width: (int) config('filigrane.web_width', 2400))
-            ->encode(new JpegEncoder(quality: $quality, progressive: true));
-
-        // La miniature part de la version web, déjà réduite : c'est bien plus
-        // rapide que de repartir de l'original.
-        $thumbSize = (int) config('filigrane.thumb_size', 600);
-
-        $thumb = (string) $this->manager
-            ->decodeBinary($web)
-            ->cover($thumbSize, $thumbSize)
-            ->encode(new JpegEncoder(quality: $quality));
+        $web = $this->encodeWeb($image->scaleDown(width: (int) config('filigrane.web_width', 2400)));
 
         return [
             'web' => $web,
-            'thumb' => $thumb,
+            'thumb' => $this->thumbnail($web),
             'width' => $width,
             'height' => $height,
         ];
+    }
+
+    /**
+     * La miniature part de la version web, déjà réduite : c'est bien plus
+     * rapide que de repartir de l'original.
+     */
+    public function thumbnail(string $web): string
+    {
+        $thumbSize = (int) config('filigrane.thumb_size', 600);
+
+        return (string) $this->manager
+            ->decodeBinary($web)
+            ->cover($thumbSize, $thumbSize)
+            ->encode(new JpegEncoder(quality: (int) config('filigrane.jpeg_quality', 82)));
+    }
+
+    /**
+     * L'original décodé et remis à l'endroit, pour qui doit le transformer
+     * avant d'en tirer une version web (la retouche).
+     */
+    public function decodeOriented(string $sourcePath): ImageInterface
+    {
+        return $this->manager->decodePath($sourcePath)->orient();
+    }
+
+    public function encodeWeb(ImageInterface $image): string
+    {
+        return (string) $image->encode(new JpegEncoder(
+            quality: (int) config('filigrane.jpeg_quality', 82),
+            progressive: true,
+        ));
     }
 }

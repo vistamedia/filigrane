@@ -72,6 +72,34 @@ test.describe('Usage sur téléphone', () => {
         expect(cadre.y).toBeLessThan(page.viewportSize().height);
     });
 
+    test('la retouche tient dans la largeur et se manie au doigt', async ({ page }) => {
+        const erreurs = surveillerLesErreurs(page);
+
+        await page.goto('/studio-photo');
+        await page.locator('input[capture]').setInputFiles(fixture('cadre-en-perspective.jpg'));
+        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+
+        await page.locator('.fi-filigrane-vignette').first().click();
+        await page.getByRole('link', { name: 'Redresser, recadrer' }).click();
+        await expect(page.getByRole('heading', { name: /Retoucher FIL-/ })).toBeVisible();
+
+        const largeur = page.viewportSize().width;
+
+        // Aucun défilement horizontal : la photographie tient dans l'écran.
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(largeur);
+
+        // Les quatre pastilles sont dans l'écran, et assez grandes pour le doigt.
+        for (const coin of ['supérieur gauche', 'supérieur droit', 'inférieur droit', 'inférieur gauche']) {
+            const pastille = await page.getByRole('button', { name: `Coin ${coin} de l'œuvre` }).boundingBox();
+
+            expect(pastille.width).toBeGreaterThanOrEqual(44);
+            expect(pastille.x).toBeGreaterThanOrEqual(0);
+            expect(pastille.x + pastille.width).toBeLessThanOrEqual(largeur);
+        }
+
+        expect(erreurs).toEqual([]);
+    });
+
     test('l\'éditeur de description reste utilisable au doigt', async ({ page }) => {
         await page.goto('/dessins');
         await page.getByRole('link', { name: 'Nouvelle fiche' }).click();

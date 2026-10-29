@@ -24,55 +24,62 @@
         >
             {{-- Scène : la photo, le segment de référence et le cadre de la feuille. --}}
             <div class="lg:col-span-2">
-                <div
-                    x-ref="scene"
-                    class="fi-filigrane-vignette relative select-none overflow-hidden rounded-xl"
-                    style="touch-action: none;"
-                    x-on:pointermove="deplacer($event)"
-                    x-on:pointerup.window="prise = null"
-                    x-on:pointercancel.window="prise = null"
-                >
-                    <img
-                        src="{{ $this->urlPhoto() }}"
-                        alt=""
-                        class="block w-full"
-                        draggable="false"
+                <div class="fi-filigrane-vignette rounded-xl">
+                    {{-- La scène épouse exactement l'image : les pastilles se
+                         repèrent sur la photographie, et non sur son encadrement,
+                         dont la marge fausserait la mesure. Sa hauteur reste dans
+                         l'écran, pour qu'une photographie en hauteur ne cache pas
+                         le bas de la feuille. --}}
+                    <div
+                        x-ref="scene"
+                        class="relative mx-auto select-none"
+                        style="touch-action: none; max-width: min(100%, calc(75vh * {{ $definition['width'] / max(1, $definition['height']) }}));"
+                        x-on:pointermove="deplacer($event)"
+                        x-on:pointerup.window="prise = null"
+                        x-on:pointercancel.window="prise = null"
                     >
-
-                    <svg class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-                        {{-- Cadre de la feuille --}}
-                        <rect
-                            :x="pc(Math.min(boite.x1, boite.x2))"
-                            :y="pc(Math.min(boite.y1, boite.y2))"
-                            :width="pc(Math.abs(boite.x2 - boite.x1))"
-                            :height="pc(Math.abs(boite.y2 - boite.y1))"
-                            fill="rgba(37, 99, 235, 0.08)"
-                            stroke="#2563EB"
-                            stroke-width="2"
-                            stroke-dasharray="9 7"
-                        />
-                        {{-- Segment de référence --}}
-                        <line
-                            :x1="pc(segment.x1)" :y1="pc(segment.y1)"
-                            :x2="pc(segment.x2)" :y2="pc(segment.y2)"
-                            stroke="#A3553E" stroke-width="3" stroke-linecap="round"
-                        />
-                    </svg>
-
-                    {{-- Poignées : grandes, pour être attrapables au doigt. --}}
-                    <template x-for="poignee in poignees" :key="poignee.cle">
-                        <button
-                            type="button"
-                            x-on:pointerdown="saisir($event, poignee.cle)"
-                            class="absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white shadow-lg"
-                            :class="poignee.couleur"
-                            :style="`left:${position(poignee.cle).x * 100}%; top:${position(poignee.cle).y * 100}%`"
-                            :aria-label="poignee.titre"
-                            :title="poignee.titre"
+                        <img
+                            src="{{ $this->urlPhoto() }}"
+                            alt=""
+                            class="block w-full"
+                            draggable="false"
                         >
-                            <span class="h-2.5 w-2.5 rounded-full bg-white"></span>
-                        </button>
-                    </template>
+
+                        <svg class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+                            {{-- Cadre de la feuille --}}
+                            <rect
+                                :x="pc(Math.min(boite.x1, boite.x2))"
+                                :y="pc(Math.min(boite.y1, boite.y2))"
+                                :width="pc(Math.abs(boite.x2 - boite.x1))"
+                                :height="pc(Math.abs(boite.y2 - boite.y1))"
+                                fill="rgba(37, 99, 235, 0.08)"
+                                stroke="#2563EB"
+                                stroke-width="2"
+                                stroke-dasharray="9 7"
+                            />
+                            {{-- Segment de référence --}}
+                            <line
+                                :x1="pc(segment.x1)" :y1="pc(segment.y1)"
+                                :x2="pc(segment.x2)" :y2="pc(segment.y2)"
+                                stroke="#A3553E" stroke-width="3" stroke-linecap="round"
+                            />
+                        </svg>
+
+                        {{-- Poignées : grandes, pour être attrapables au doigt. --}}
+                        <template x-for="poignee in poignees" :key="poignee.cle">
+                            <button
+                                type="button"
+                                x-on:pointerdown="saisir($event, poignee.cle)"
+                                class="absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white shadow-lg"
+                                :class="poignee.couleur"
+                                :style="`left:${position(poignee.cle).x * 100}%; top:${position(poignee.cle).y * 100}%`"
+                                :aria-label="poignee.titre"
+                                :title="poignee.titre"
+                            >
+                                <span class="h-2.5 w-2.5 rounded-full bg-white"></span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
 
                 <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
@@ -139,39 +146,43 @@
                     </p>
                 </x-filament::section>
 
-                <x-filament::section heading="Appliquer à toute la série" collapsible>
-                    <div class="space-y-4">
-                        <label class="flex items-start gap-3 text-base">
-                            <input type="checkbox" x-model="profil" class="fi-checkbox-input mt-1 h-5 w-5 shrink-0 rounded">
-                            <span>
-                                Enregistrer cette échelle comme profil
-                                <span class="block text-sm text-gray-500 dark:text-gray-400">
-                                    Les photographies prises avec le même appareil, à la même focale
-                                    et dans le même cadrage réutiliseront automatiquement cette échelle.
-                                </span>
-                            </span>
-                        </label>
-
-                        <div x-show="profil" class="space-y-4 pl-8">
-                            <input
-                                type="text"
-                                x-model="profilLabel"
-                                placeholder="Nom du profil (ex. : séance du 28 octobre)"
-                                class="fi-input block w-full rounded-lg border-none bg-white px-3 py-2 text-base shadow-sm ring-1 ring-gray-950/10 dark:bg-white/5 dark:text-white dark:ring-white/20"
-                            >
-
+                {{-- Une photographie redressée n'a plus l'échelle des clichés
+                     bruts de sa série : elle ne peut pas servir de profil. --}}
+                @unless ($this->photo->isRetouched())
+                    <x-filament::section heading="Appliquer à toute la série" collapsible>
+                        <div class="space-y-4">
                             <label class="flex items-start gap-3 text-base">
-                                <input type="checkbox" x-model="appliquerSerie" class="fi-checkbox-input mt-1 h-5 w-5 shrink-0 rounded">
+                                <input type="checkbox" x-model="profil" class="fi-checkbox-input mt-1 h-5 w-5 shrink-0 rounded">
                                 <span>
-                                    Mesurer tout de suite les autres photographies de la série
+                                    Enregistrer cette échelle comme profil
                                     <span class="block text-sm text-gray-500 dark:text-gray-400">
-                                        Par lots de {{ \App\Services\SeriesScaler::LOT }} pour ne pas faire attendre le serveur.
+                                        Les photographies prises avec le même appareil, à la même focale
+                                        et dans le même cadrage réutiliseront automatiquement cette échelle.
                                     </span>
                                 </span>
                             </label>
+
+                            <div x-show="profil" class="space-y-4 pl-8">
+                                <input
+                                    type="text"
+                                    x-model="profilLabel"
+                                    placeholder="Nom du profil (ex. : séance du 28 octobre)"
+                                    class="fi-input block w-full rounded-lg border-none bg-white px-3 py-2 text-base shadow-sm ring-1 ring-gray-950/10 dark:bg-white/5 dark:text-white dark:ring-white/20"
+                                >
+
+                                <label class="flex items-start gap-3 text-base">
+                                    <input type="checkbox" x-model="appliquerSerie" class="fi-checkbox-input mt-1 h-5 w-5 shrink-0 rounded">
+                                    <span>
+                                        Mesurer tout de suite les autres photographies de la série
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">
+                                            Par lots de {{ \App\Services\SeriesScaler::LOT }} pour ne pas faire attendre le serveur.
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                </x-filament::section>
+                    </x-filament::section>
+                @endunless
 
                 <div class="flex flex-col gap-3">
                     <x-filament::button

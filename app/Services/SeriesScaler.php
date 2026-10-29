@@ -60,12 +60,16 @@ class SeriesScaler
      * même définition. Si l'un des trois change, la distance de prise de vue
      * a pu changer aussi et l'échelle ne serait plus valable.
      *
+     * Une photographie redressée est exclue : recadrée et remise d'aplomb,
+     * elle n'a plus l'échelle des clichés bruts de la série.
+     *
      * @return Builder<Photo>
      */
     public function candidates(Calibration $calibration): Builder
     {
         return Photo::query()
             ->whereNull('px_per_mm')
+            ->whereNull('retouch')
             ->whereNotNull('processed_at')
             ->where('width_px', $calibration->image_width_px)
             ->where('height_px', $calibration->image_height_px)

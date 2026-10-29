@@ -56,12 +56,14 @@ erDiagram
         int width_px
         int height_px
         varchar web_path "disque public"
+        varchar raw_web_path "disque public, si retouchée"
         varchar thumb_path "disque public"
         longtext exif "JSON"
         timestamp taken_at
         bigint calibration_id FK
         decimal px_per_mm
         longtext sheet_box "JSON {x,y,w,h}"
+        longtext retouch "JSON"
         int sort_order
         timestamp processed_at
         text processing_error
@@ -156,12 +158,14 @@ inscription, filigrane vu par transparence, cadre.
 | `original_name` | `varchar(255)` | oui | Nom du fichier tel que déposé, pour la traçabilité. |
 | `mime`, `size_bytes` | | oui | Renseignés à l'import. |
 | `width_px`, `height_px` | `int unsigned` | oui | Définition de l'**original**, pas du dérivé. Base de tout calcul d'échelle. |
-| `web_path`, `thumb_path` | `varchar(255)` | oui | Dérivés JPEG sur le disque public, servis en statique par Apache. |
+| `web_path`, `thumb_path` | `varchar(255)` | oui | Dérivés JPEG sur le disque public, servis en statique par Apache. Retouchés si la photo l'est. |
+| `raw_web_path` | `varchar(255)` | oui | Version web d'avant retouche, gardée pour reprendre la retouche. Null si la photo n'est pas retouchée. |
 | `exif` | `longtext` (JSON) | oui | `camera`, `focal_35mm`, `subject_distance_mm`, `taken_at`, `iso`… |
 | `taken_at` | `timestamp` | oui | Extrait de l'EXIF, utile pour reconstituer une séance. |
 | `calibration_id` | FK → `calibrations` | oui | Profil d'échelle appliqué. `ON DELETE SET NULL`. |
 | `px_per_mm` | `decimal(12,6)` | oui | Nombre de pixels par millimètre réel sur cette photo. |
-| `sheet_box` | `longtext` (JSON) | oui | Rectangle de la feuille, en coordonnées **normalisées** `{x, y, w, h}` ∈ [0,1]. |
+| `sheet_box` | `longtext` (JSON) | oui | Rectangle de la feuille, en coordonnées **normalisées** `{x, y, w, h}` ∈ [0,1]. Sur une photo retouchée, se rapporte à l'image redressée. |
+| `retouch` | `longtext` (JSON) | oui | Réglages de retouche : `coins`, `quart`, `focale`, `luminosite`, `contraste`, et la définition du rectangle redressé (`largeur_px`, `hauteur_px`). Voir **D-36**. |
 | `sort_order` | `int unsigned` | non | Ordre d'affichage, réorganisable à la souris. |
 | `processed_at` | `timestamp` | oui | Null tant que les dérivés ne sont pas fabriqués. |
 | `processing_error` | `text` | oui | Message d'échec, conservé pour diagnostic. |
