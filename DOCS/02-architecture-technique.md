@@ -508,6 +508,8 @@ qui dit bien la limite d'un test qui partage l'erreur qu'il devrait voir :
   photographié d'en bas.
 - **Le glisser des pastilles au doigt, dans Safari.** Chromium vérifie que les
   pastilles sont dans l'écran et assez grandes, pas que le geste est agréable.
+  Essayé à la main le 29 octobre, en ligne, sur le Mac et sur le téléphone :
+  concluant.
 
 ---
 
