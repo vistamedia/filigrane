@@ -182,6 +182,14 @@ seule fois par séance de prise de vue :
 appareil, même focale équivalente, même définition — reçoit automatiquement
 cette échelle, et ses dimensions sont calculées sans intervention.
 
+> **La quatrième étape est facultative, et c'est important.** La case est
+> décochée par défaut. Le profil n'est pas le mécanisme de la mesure, c'est un
+> raccourci pour une séance où rien ne bouge. Dès lors que la référence figure
+> dans chaque photographie — le cas des œuvres encadrées au mur, qu'on ne
+> photographie jamais deux fois à la même distance —, chaque image porte sa
+> propre échelle et la distance n'a plus d'importance. Le mode d'emploi de
+> terrain est dans [08 — Guide de prise de vue](08-prise-de-vue.md).
+
 ```mermaid
 flowchart LR
     A["Photo d'une feuille<br/>+ règle dans le champ"] --> B["Trait tracé<br/>sur 200 mm connus"]

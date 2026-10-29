@@ -15,6 +15,7 @@ Application de catalogage d'une collection de dessins anciens.
 | Un développeur qui reprend le projet | [Architecture technique](02-architecture-technique.md), puis [Schéma relationnel](01-schema-base-de-donnees.md) |
 | Prêt à travailler la charte graphique | [Texte à donner à Claude Design](05-prompt-charte-graphique.md) |
 | Prêt à travailler l'icône | [Texte à donner à Claude Design — icône](07-prompt-icone.md) |
+| Sur le point de photographier | **[Guide de prise de vue](08-prise-de-vue.md)** |
 
 ---
 
@@ -57,6 +58,13 @@ le dessin actuel, donne le texte à copier dans Claude Design, la liste de ce
 qu'il faut exiger en retour, et la marche à suivre pour l'intégrer — métadonnées
 à retirer et cadrage à vérifier compris.
 
+### [08 — Guide de prise de vue](08-prise-de-vue.md)
+Ce qu'il faut faire appareil en main : les feuilles des cartons en séance, avec
+un profil d'échelle ; les œuvres encadrées au mur, avec une référence dans
+chaque photographie et aucune contrainte de distance. La règle qui prime sur
+toutes les autres — **la photographie est irréversible, la mesure ne l'est
+pas** — et les trois pièges qui coûtent de la précision.
+
 ---
 
 ## Aide-mémoire
@@ -96,3 +104,7 @@ make            # liste toutes les commandes
 - Reste à faire à la main : essayer l'application sur un vrai iPhone, et
   déposer une photo HEIC dans `tests/fixtures/` pour activer le test de
   conversion.
+- **Première séance de prise de vue à venir** : lire
+  [08 — Guide de prise de vue](08-prise-de-vue.md) avant de commencer, et
+  tester en trente secondes si l'EXIF de l'iPhone porte la distance de mise au
+  point — cela décide de la méthode pour les œuvres encadrées.
