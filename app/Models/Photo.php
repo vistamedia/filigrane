@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PhotoKind;
+use App\Enums\ReshootReason;
 use App\Observers\PhotoObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\Storage;
     'px_per_mm',
     'sheet_box',
     'retouch',
+    'reshoot_reason',
+    'reshoot_note',
     'sort_order',
     'processed_at',
     'processing_error',
@@ -46,6 +49,7 @@ class Photo extends Model
             'exif' => 'array',
             'sheet_box' => 'array',
             'retouch' => 'array',
+            'reshoot_reason' => ReshootReason::class,
             'taken_at' => 'datetime',
             'processed_at' => 'datetime',
             'px_per_mm' => 'float',
@@ -102,6 +106,27 @@ class Photo extends Model
     public function isRetouched(): bool
     {
         return $this->retouch !== null;
+    }
+
+    /**
+     * Cliché signalé à refaire. Il reste affiché et utilisable en attendant
+     * le nouveau : on décrit très bien une œuvre derrière un reflet.
+     */
+    public function needsReshoot(): bool
+    {
+        return $this->reshoot_reason !== null;
+    }
+
+    /** « Reflets dans la vitre — fenêtre en haut à gauche ». */
+    public function reshootLabel(): ?string
+    {
+        if (! $this->needsReshoot()) {
+            return null;
+        }
+
+        return collect([$this->reshoot_reason->getLabel(), $this->reshoot_note])
+            ->filter()
+            ->implode(' — ');
     }
 
     /**

@@ -172,6 +172,25 @@ photographie est arrivée couchée.
 
 ---
 
+## Signaler une photographie à refaire
+
+Une photographie floue ou voilée de reflets suffit souvent à décrire le
+dessin, mais mérite d'être reprise un jour. Plutôt que de la noter sur un
+papier :
+
+1. Dans la partie **Photographies**, en bas de la fiche, touchez le petit
+   **drapeau** de la photographie.
+2. Choisissez pourquoi — reflets dans la vitre, flou, trop sombre, œuvre
+   coupée — et, si vous voulez, une précision.
+3. **Signaler.**
+
+La photographie reste là, vous continuez à décrire le dessin. Un bandeau
+orange sous l'image rappelle qu'elle est à refaire, et la fiche rejoint
+l'onglet **À rephotographier** de la page **Dessins** : c'est la liste
+qu'Emmanuel emportera à sa prochaine séance.
+
+---
+
 ## Les mots-clés
 
 Les mots-clés servent à regrouper les dessins comme vous l'entendez : par

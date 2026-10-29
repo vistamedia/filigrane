@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Drawings\RelationManagers;
 
 use App\Enums\PhotoKind;
+use App\Enums\ReshootReason;
 use App\Filament\Pages\MesurerPhoto;
 use App\Filament\Pages\RetoucherPhoto;
 use App\Models\Photo;
@@ -101,6 +102,18 @@ class PhotosRelationManager extends RelationManager
                     ->badge()
                     ->color(fn (Photo $record): string => $record->px_per_mm ? 'success' : 'gray'),
 
+                TextColumn::make('reshoot_reason')
+                    ->label('Prise de vue')
+                    ->badge()
+                    ->color('warning')
+                    ->icon('heroicon-o-flag')
+                    ->formatStateUsing(fn (Photo $record): ?string => $record->needsReshoot()
+                        ? 'À refaire : '.mb_lcfirst($record->reshoot_reason->getLabel())
+                        : null)
+                    ->description(fn (Photo $record): ?string => $record->reshoot_note)
+                    ->placeholder('—')
+                    ->wrap(),
+
                 TextColumn::make('processing_error')
                     ->label('Erreur')
                     ->placeholder('—')
@@ -129,6 +142,62 @@ class PhotosRelationManager extends RelationManager
                             ->title('Illustration de la fiche mise à jour')
                             ->success()
                             ->send();
+                    }),
+
+                // Un cliché raté reste en place : il suffit à décrire l'œuvre en
+                // attendant le nouveau. On note seulement qu'il est à refaire,
+                // et pourquoi.
+                Action::make('a_refaire')
+                    ->label('À refaire')
+                    ->icon('heroicon-o-flag')
+                    ->tooltip('Signaler ce cliché à refaire')
+                    ->iconButton()
+                    ->visible(fn (Photo $record): bool => ! $record->needsReshoot())
+                    ->modalHeading('Cliché à refaire')
+                    ->modalDescription('Il reste affiché en attendant le nouveau. La fiche rejoint l\'onglet « À rephotographier » de la liste des dessins.')
+                    ->modalSubmitActionLabel('Signaler')
+                    ->schema([
+                        // Liste native : sur l'iPhone, c'est la roue de
+                        // sélection du système, la plus sûre au doigt.
+                        Select::make('reshoot_reason')
+                            ->label('Pourquoi')
+                            ->options(ReshootReason::class)
+                            ->required(),
+
+                        TextInput::make('reshoot_note')
+                            ->label('Précision')
+                            ->placeholder('Reflet de la fenêtre en haut à gauche…')
+                            ->maxLength(255),
+                    ])
+                    ->action(function (Photo $record, array $data): void {
+                        $record->forceFill([
+                            'reshoot_reason' => $data['reshoot_reason'],
+                            'reshoot_note' => $data['reshoot_note'] ?: null,
+                        ])->save();
+
+                        $this->dispatch('photographies-modifiees');
+
+                        Notification::make()
+                            ->title('Cliché signalé à refaire')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('refait')
+                    ->label('Ne plus signaler')
+                    ->icon('heroicon-s-flag')
+                    ->color('warning')
+                    ->tooltip(fn (Photo $record): string => 'À refaire : '.$record->reshootLabel().'. Cliquer pour ne plus le signaler.')
+                    ->iconButton()
+                    ->visible(fn (Photo $record): bool => $record->needsReshoot())
+                    ->requiresConfirmation()
+                    ->modalHeading('Ne plus signaler ce cliché')
+                    ->modalDescription('Le cliché a été refait, ou il convient finalement.')
+                    ->modalSubmitActionLabel('Ne plus signaler')
+                    ->action(function (Photo $record): void {
+                        $record->forceFill(['reshoot_reason' => null, 'reshoot_note' => null])->save();
+
+                        $this->dispatch('photographies-modifiees');
                     }),
 
                 Action::make('retoucher')

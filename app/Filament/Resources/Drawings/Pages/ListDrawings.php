@@ -130,6 +130,8 @@ class ListDrawings extends ListRecords
      */
     public function getTabs(): array
     {
+        $aRephotographier = Drawing::query()->needsReshoot()->count();
+
         return [
             'a_decrire' => Tab::make('À décrire')
                 ->icon('heroicon-o-inbox')
@@ -146,6 +148,16 @@ class ListDrawings extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', DrawingStatus::Described)),
 
             'tous' => Tab::make('Tous'),
+
+            // La liste de travail de la prochaine séance de prise de vue.
+            // L'onglet n'existe que tant qu'il a quelque chose à montrer.
+            ...($aRephotographier > 0 ? [
+                'a_rephotographier' => Tab::make('À rephotographier')
+                    ->icon('heroicon-o-flag')
+                    ->badge($aRephotographier)
+                    ->badgeColor('warning')
+                    ->modifyQueryUsing(fn (Builder $query) => $query->needsReshoot()),
+            ] : []),
         ];
     }
 

@@ -267,6 +267,15 @@ de l'aperçu. Compter moins d'une seconde par photographie.
 | Mesure déjà faite | Effacée si la géométrie change ; les dimensions de la fiche restent. |
 | Profils d'échelle | Ne s'appliquent plus (`SeriesScaler::candidates()` l'exclut). |
 
+### Les clichés à refaire
+
+Un cliché raté n'est pas supprimé : il suffit à décrire l'œuvre en attendant
+le nouveau. On le signale (`reshoot_reason`, `reshoot_note`) depuis la liste
+des photographies de la fiche. Le signalement s'affiche sous la photographie,
+sur la vignette de la planche, et réunit les fiches concernées dans l'onglet
+« À rephotographier » (`Drawing::scopeNeedsReshoot()`). Voir
+[D-38](04-decisions-et-alternatives.md#d-38).
+
 ---
 
 ## Stockage des images
@@ -402,7 +411,8 @@ ne sert qu'au panneau.
 ```
 app/
 ├── Console/Commands/     filigrane:compte, :sauvegarder, :menage, :jeu-d-essai
-├── Enums/                DrawingStatus, PhotoKind, DimensionsSource, UserRole
+├── Enums/                DrawingStatus, PhotoKind, DimensionsSource, UserRole,
+│                         ReshootReason
 ├── Filament/
 │   ├── Pages/            StudioPhoto, ImportEnMasse, MesurerPhoto,
 │   │                     RetoucherPhoto, Diaporama
@@ -436,8 +446,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 45 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions. |
-| Playwright `mac` | 52 tests | Connexion, droits, catalogage, import, studio, mesure, retouche, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 49 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire. |
+| Playwright `mac` | 54 tests | Connexion, droits, catalogage, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 

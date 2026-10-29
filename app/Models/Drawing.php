@@ -133,4 +133,15 @@ class Drawing extends Model
             ->whereRaw("TRIM(description) <> ''")
             ->whereRaw("TRIM(description) NOT IN ('<p></p>', '<p><br></p>')");
     }
+
+    /**
+     * Les fiches dont au moins un cliché est à refaire : la liste de travail
+     * de la prochaine séance de prise de vue.
+     *
+     * @param  Builder<static>  $query
+     */
+    public function scopeNeedsReshoot(Builder $query): void
+    {
+        $query->whereHas('photos', fn (Builder $photos) => $photos->whereNotNull('reshoot_reason'));
+    }
 }

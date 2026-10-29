@@ -137,6 +137,21 @@ et note-le. Si tu photographies à l'iPad, rien ne dit que sa focale soit celle
 de l'iPhone : 30 mm pris pour 26 faussent les proportions d'environ 2 % sur un
 cadre levé de 25°.
 
+**Trier en même temps.** Un cliché voilé de reflets, flou ou trop sombre ne se
+rattrape pas : signale-le à refaire — le drapeau dans la liste des
+photographies de la fiche —, avec le motif. Il reste en place pour la
+description. Avant la séance suivante, l'onglet **À rephotographier** de la
+page Dessins donne la liste, et les motifs disent quoi préparer : un autre
+angle pour les reflets, de la lumière pour les étages sombres.
+
+Pour reprendre un cliché, sur la fiche : **Ajouter des photographies** (sur
+l'iPhone, le bouton propose de photographier directement), en choisissant la
+même **nature** que l'ancien — sinon le nouveau arrive comme « détail » —, puis
+supprime l'ancien. Le signalement part avec lui. Si l'ancien servait
+d'illustration, la première photographie restante de la fiche prend le relais
+— le nouveau cliché, quand il était seul ; sinon, l'étoile désigne celle qu'on
+veut.
+
 **Redresser d'abord, mesurer ensuite.** Sur la photographie brute d'un cadre
 pris de biais, l'échelle varie d'un bord à l'autre, et la carte ne vaut que
 là où elle est. Une fois l'image redressée, une seule échelle vaut partout :

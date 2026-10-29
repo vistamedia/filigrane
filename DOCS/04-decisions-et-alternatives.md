@@ -25,7 +25,7 @@ marquées *validée*.
 **Images et mesure**
 [D-05](#d-05) Originaux privés · [D-06](#d-06) Mesure par référence ·
 [D-24](#d-24) HEIC converti côté serveur · [D-36](#d-36) Retouche non destructive ·
-[D-37](#d-37) Proportions par la focale
+[D-37](#d-37) Proportions par la focale · [D-38](#d-38) Clichés à refaire
 
 **Sécurité et comptes**
 [D-12](#d-12) Deux rôles · [D-13](#d-13) Pas de courriel ·
@@ -938,6 +938,45 @@ appareil simulé dont on connaît tout.
 (`zooms`). Si l'on envoyait un jour les photos avec leur EXIF intact, la
 question disparaîtrait d'elle-même : l'outil ne la pose pas quand l'EXIF
 répond.
+
+---
+
+<a id="d-38"></a>
+## D-38 — Un cliché raté se signale, il ne se supprime pas
+
+**Choix.** Chaque photographie peut être signalée **à refaire**, avec un motif
+(reflets dans la vitre, flou, trop sombre, œuvre coupée, autre) et une
+précision libre. Le cliché reste en place. Les fiches concernées forment un
+onglet **À rephotographier** dans la liste des dessins, qui n'apparaît que
+s'il a quelque chose à montrer. Le signalement disparaît avec le cliché : on
+ajoute le nouveau, on supprime l'ancien.
+
+**Pourquoi.** La première séance comptait des clichés pris exprès dans de
+mauvaises conditions, des reflets surtout. Ils ne gênent pas la description
+— on décrit très bien une œuvre derrière un reflet —, mais il faudra les
+refaire, et la question au moment d'y retourner est simple : *lesquels, et
+qu'est-ce qui n'allait pas ?* Le motif répond à la seconde : on ne prépare pas
+de la même façon une vitre qui reflète et un étage mal éclairé.
+
+**Sur la photographie, pas sur la fiche.** Un recto peut être raté et un
+détail réussi. La liste de travail, elle, se présente par fiche, parce que
+c'est une œuvre qu'on va chercher au mur.
+
+**Alternatives.**
+- *Un mot-clé « à rephotographier »* : rien à écrire, puisque les mots-clés
+  existent ([D-08](#d-08)). Mais il s'afficherait dans le diaporama et le
+  catalogue PDF, il désignerait la fiche et non le cliché, et il ne dirait pas
+  pourquoi.
+- *Un cinquième état d'avancement* : l'avancement dit où en est la
+  **description** ; une fiche décrite peut très bien attendre un meilleur
+  cliché. Mêler les deux ferait perdre l'un ou l'autre.
+- *Une action « Remplacer ce cliché »* qui prendrait la place de l'ancien d'un
+  geste — nature, ordre et illustration compris. Plus confortable que
+  « ajouter puis supprimer », à faire si les reprises deviennent nombreuses.
+
+**Coût d'un changement.** Deux colonnes (`reshoot_reason`, `reshoot_note`),
+un énuméré, deux actions. Ajouter un motif : une ligne dans
+`App\Enums\ReshootReason`.
 
 ---
 

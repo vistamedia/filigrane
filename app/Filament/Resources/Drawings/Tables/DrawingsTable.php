@@ -67,8 +67,25 @@ class DrawingsTable
                     TextColumn::make('status')
                         ->label('Avancement')
                         ->badge(),
+
+                    // N'apparaît que sur les fiches concernées : une planche
+                    // où chaque vignette porterait « cliché correct » ne se
+                    // lirait plus.
+                    TextColumn::make('a_refaire')
+                        ->label('Prise de vue')
+                        ->badge()
+                        ->color('warning')
+                        ->icon('heroicon-o-flag')
+                        ->state(fn (Drawing $record): ?string => match (true) {
+                            $record->photos_a_refaire_count === 1 => 'Cliché à refaire',
+                            $record->photos_a_refaire_count > 1 => "{$record->photos_a_refaire_count} clichés à refaire",
+                            default => null,
+                        }),
                 ])->space(2),
             ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'photos as photos_a_refaire_count' => fn (Builder $photos) => $photos->whereNotNull('reshoot_reason'),
+            ]))
             ->contentGrid(['default' => 1, 'sm' => 2, 'lg' => 3, 'xl' => 4, '2xl' => 5])
             // Toute la vignette est cliquable : c'est le geste naturel devant
             // une planche de dessins.

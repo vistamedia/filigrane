@@ -64,6 +64,8 @@ erDiagram
         decimal px_per_mm
         longtext sheet_box "JSON {x,y,w,h}"
         longtext retouch "JSON"
+        varchar reshoot_reason "indexé"
+        varchar reshoot_note
         int sort_order
         timestamp processed_at
         text processing_error
@@ -166,6 +168,8 @@ inscription, filigrane vu par transparence, cadre.
 | `px_per_mm` | `decimal(12,6)` | oui | Nombre de pixels par millimètre réel sur cette photo. |
 | `sheet_box` | `longtext` (JSON) | oui | Rectangle de la feuille, en coordonnées **normalisées** `{x, y, w, h}` ∈ [0,1]. Sur une photo retouchée, se rapporte à l'image redressée. |
 | `retouch` | `longtext` (JSON) | oui | Réglages de retouche : `coins`, `quart`, `focale`, `luminosite`, `contraste`, et la définition du rectangle redressé (`largeur_px`, `hauteur_px`). Voir **D-36**. |
+| `reshoot_reason` | `varchar(20)` *indexé* | oui | Cliché à refaire : `reflections`, `blur`, `dark`, `framing`, `other`. Null : le cliché convient. Voir **D-38**. |
+| `reshoot_note` | `varchar(255)` | oui | Précision libre sur le défaut : « reflet de la fenêtre en haut à gauche ». |
 | `sort_order` | `int unsigned` | non | Ordre d'affichage, réorganisable à la souris. |
 | `processed_at` | `timestamp` | oui | Null tant que les dérivés ne sont pas fabriqués. |
 | `processing_error` | `text` | oui | Message d'échec, conservé pour diagnostic. |
