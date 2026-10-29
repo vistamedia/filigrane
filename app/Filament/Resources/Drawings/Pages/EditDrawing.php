@@ -108,16 +108,35 @@ class EditDrawing extends EditRecord
     }
 
     /**
-     * Enregistrer une fiche laissée « à décrire » signifie qu'on a commencé :
-     * elle passe en cours, sans que personne ait à y penser.
+     * Écrire un artiste ou une description dans une fiche laissée « à
+     * décrire » signifie qu'on a commencé : elle passe en cours, sans que
+     * personne ait à y penser.
+     *
+     * Trois cas n'en sont pas :
+     * - l'avancement vient d'être remis à « à décrire » à la main : le choix
+     *   est délibéré, on le respecte ;
+     * - la description ne contient que « <p></p> », ce que l'éditeur enregistre
+     *   dès qu'on a cliqué dans le champ ;
+     * - le texte était déjà là avant : la fiche a été remise à décrire, et un
+     *   enregistrement sans rapport ne doit pas la refaire passer en cours.
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $avant = $this->getRecord();
         $statut = $data['status'] ?? null;
         $statut = $statut instanceof DrawingStatus ? $statut->value : $statut;
 
-        if ($statut === DrawingStatus::ToDescribe->value
-            && (filled($data['description'] ?? null) || filled($data['artist'] ?? null))) {
+        if ($statut !== DrawingStatus::ToDescribe->value || $avant->status !== DrawingStatus::ToDescribe) {
+            return $data;
+        }
+
+        $description = TexteRiche::enTexte($data['description'] ?? null);
+        $artiste = trim((string) ($data['artist'] ?? ''));
+
+        $commence = ($description !== '' && $description !== TexteRiche::enTexte($avant->description))
+            || ($artiste !== '' && $artiste !== trim((string) $avant->artist));
+
+        if ($commence) {
             $data['status'] = DrawingStatus::InProgress->value;
         }
 

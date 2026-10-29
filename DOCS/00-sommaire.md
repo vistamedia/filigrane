@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 49 tests PHP + 70 tests de bout en bout
+make test       # 54 tests PHP + 70 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »

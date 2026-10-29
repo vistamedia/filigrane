@@ -123,7 +123,8 @@ Dans la partie **Classement**, trois états :
 
 - **À décrire** — on n'y a pas encore touché.
 - **En cours** — commencé. L'application y passe toute seule dès que vous
-  écrivez quelque chose.
+  écrivez un artiste ou une description. Si vous remettez vous-même la fiche
+  à **À décrire**, elle y reste.
 - **Décrit** — terminé.
 
 ---

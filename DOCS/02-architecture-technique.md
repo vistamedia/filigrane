@@ -446,7 +446,7 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 49 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire. |
+| PHPUnit (`tests/Feature`) | 54 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire, avancement automatique. |
 | Playwright `mac` | 54 tests | Connexion, droits, catalogage, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
@@ -502,6 +502,17 @@ qui dit bien la limite d'un test qui partage l'erreur qu'il devrait voir :
    épouse désormais l'image, et le test vise la scène. Au passage, sa hauteur
    est bornée à l'écran : sur un Mac, une photographie en hauteur cachait le
    bas de la feuille sous la ligne de flottaison.
+
+Un dixième, trouvé à l'usage, cousin du cinquième :
+
+10. Une fiche « à décrire » passe d'elle-même « en cours » quand on y écrit un
+    artiste ou une description. La règle testait `filled()`, et « `<p></p>` »
+    est rempli : un simple clic dans la description suffisait. Pire, elle
+    s'appliquait aussi quand on venait de remettre la fiche à décrire à la
+    main, si bien qu'on ne pouvait plus l'y ramener. La règle lit désormais le
+    texte par `TexteRiche`, ne joue que si l'avancement n'a pas été changé à la
+    main, et seulement si l'artiste ou la description viennent d'être écrits
+    (`AvancementTest`).
 
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 
