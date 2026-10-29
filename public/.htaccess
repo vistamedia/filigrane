@@ -1,0 +1,71 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Tout passe en HTTPS.
+    # Ce n'est pas un confort : les cookies de session sont marqués « secure »,
+    # donc une visite en clair ne pourrait jamais rester connectée.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^localhost
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Le navigateur refuse de revenir en clair pendant un an.
+    Header always set Strict-Transport-Security "max-age=31536000"
+
+    # Pas d'interprétation hasardeuse du type de contenu.
+    Header always set X-Content-Type-Options "nosniff"
+
+    # L'application ne doit jamais être encadrée par un autre site.
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Les adresses des photographies ne fuient pas vers l'extérieur.
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Aucun accès au micro ni à la géolocalisation ; la caméra reste permise,
+    # c'est elle qui sert au studio photo.
+    Header always set Permissions-Policy "camera=(self), microphone=(), geolocation=(), interest-cohort=()"
+</IfModule>
+
+# Les dérivés d'images portent un nom unique : ils peuvent être gardés
+# longtemps par le navigateur.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+</IfModule>
+
+# Le service worker et le manifeste doivent être revérifiés à chaque visite,
+# sinon une mise à jour de l'application mettrait des jours à se propager.
+<FilesMatch "^(sw\.js|manifest\.webmanifest)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, must-revalidate"
+    </IfModule>
+</FilesMatch>

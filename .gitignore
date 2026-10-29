@@ -1,0 +1,65 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/css/filament
+/public/fonts-manifest.dev.json
+/public/fonts/filament
+/public/hot
+/public/js/filament
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# --- Filigrane -------------------------------------------------------------
+# Résultats et traces des campagnes de tests.
+/test-results
+/tests/e2e/.rapport
+/tests/e2e/.sessions
+/playwright-report
+/blob-report
+
+# Identifiants et coordonnées de l'hébergement : ils n'ont rien à faire dans
+# un dépôt, et celui-ci est public. Voir .deploiement.env.example.
+/conf.txt
+/.deploiement.env
+
+# Photographies déposées en développement.
+/storage/app/private/photos
+/storage/app/public/photos
+/storage/app/private/livewire-tmp
+
+# Exports en cours de remise (effacés après téléchargement, et chaque nuit).
+/storage/app/private/exports
+
+# Fichiers de contrôle visuel, hors campagne de tests.
+/.verif
+
+# Configuration locale des outils d'assistance : propre au poste, sans intérêt
+# pour quiconque clone le dépôt.
+/.claude
+/CLAUDE.md
+/AGENTS.md
+
+# En revanche on garde :
+#   DOCS/captures/     captures d'écran de la documentation
+#   DOCS/diagrammes/   diagrammes rendus
+#   tests/fixtures/    images de test (régénérables, mais commodes)

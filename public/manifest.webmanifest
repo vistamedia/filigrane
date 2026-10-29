@@ -1,0 +1,61 @@
+{
+  "id": "/",
+  "name": "Filigrane — catalogue de dessins",
+  "short_name": "Filigrane",
+  "description": "Catalogue d'une collection de dessins anciens : photographier, décrire, classer.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FBF8F2",
+  "theme_color": "#FBF8F2",
+  "categories": ["productivity", "education"],
+  "icons": [
+    {
+      "src": "/icones/icone-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icones/icone-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icones/icone-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icones/icone-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icones/icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dessins à décrire",
+      "short_name": "À décrire",
+      "url": "/dessins?tableFilters[status][value]=to_describe",
+      "icons": [{ "src": "/icones/icone-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Studio photo",
+      "short_name": "Photographier",
+      "url": "/studio-photo",
+      "icons": [{ "src": "/icones/icone-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

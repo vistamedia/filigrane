@@ -1,0 +1,47 @@
+# Filigrane — environnement de développement local
+#
+#   make up        démarre tout
+#   make shell     ouvre un shell dans le conteneur PHP
+#   open http://localhost:8080
+
+services:
+  app:
+    build:
+      context: ./docker/app
+    container_name: filigrane-app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: mariadb:11.4
+    container_name: filigrane-db
+    environment:
+      MARIADB_DATABASE: filigrane
+      MARIADB_USER: filigrane
+      MARIADB_PASSWORD: filigrane
+      MARIADB_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: filigrane-mail
+    ports:
+      - "8025:8025"
+
+volumes:
+  dbdata:

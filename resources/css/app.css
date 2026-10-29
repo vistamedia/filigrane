@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+/*
+ * Feuille des pages publiques — aujourd'hui la seule page « À propos ».
+ * Le panneau de catalogage, lui, a sa propre feuille :
+ * resources/css/filament/admin/theme.css.
+ */
+
+@source '../views/**/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-serif: ui-serif, 'New York', Georgia, 'Times New Roman', serif;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    --color-papier: #FBF8F2;
+    --color-encre: #1C1A17;
+    --color-sanguine: #8E462F;
+    --color-sanguine-clair: #A3553E;
+    --color-gris: #6B6358;
+    --color-gris-clair: #A89E90;
+}
+
+html {
+    font-size: 17px;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-papier);
+    color: var(--color-encre);
+    font-family: var(--font-serif);
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--color-encre);
+        color: var(--color-papier);
+    }
+}
+
+*:focus-visible {
+    outline: 3px solid var(--color-sanguine-clair);
+    outline-offset: 3px;
+}

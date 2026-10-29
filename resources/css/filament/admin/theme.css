@@ -1,0 +1,339 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/components/**/*';
+
+/*
+ * Filigrane — habillage du panneau.
+ *
+ * Deux intentions guident ces règles :
+ *
+ *  1. Lisibilité. L'application est utilisée par une personne âgée, sur
+ *     un iPhone comme sur un Mac. Le corps de texte part donc plus grand que
+ *     la valeur par défaut de Filament, et les cibles tactiles sont larges.
+ *
+ *  2. Effacement. Les dessins sont en noir et blanc : l'interface reste
+ *     neutre, papier et encre, avec un seul accent sanguine, pour ne jamais
+ *     concurrencer les reproductions.
+ */
+
+@theme {
+    --font-serif: ui-serif, 'New York', Georgia, 'Times New Roman', serif;
+
+    --color-papier: #FBF8F2;
+    --color-encre: #1C1A17;
+    --color-sanguine: #A3553E;
+}
+
+/* Taille de base du panneau : un cran au-dessus des 16 px habituels. */
+html {
+    font-size: 17px;
+}
+
+/* Fond papier en thème clair, sans toucher au thème sombre. */
+.fi-body:not(.dark) {
+    background-color: var(--color-papier);
+}
+
+/* Titres en romain : on est dans un cabinet de dessins, pas dans un tableur. */
+.fi-header-heading,
+.fi-simple-header-heading,
+.fi-section-header-heading,
+.fi-modal-heading,
+.fi-filigrane-wordmark {
+    font-family: var(--font-serif);
+    letter-spacing: 0.01em;
+    font-weight: 600;
+}
+
+/* La page de connexion est la première impression : on lui laisse de l'air. */
+.fi-simple-header-heading {
+    font-size: 1.5rem;
+    margin-block-start: 0.25rem;
+}
+
+/* Cibles tactiles confortables : 48 px est le minimum sur iPhone. */
+.fi-btn,
+.fi-input,
+.fi-select-input,
+.fi-dropdown-list-item {
+    min-height: 2.75rem;
+}
+
+/* Les cases à cocher, elles, ne s'étirent pas : une case haute de 44 px et
+   large de 16 n'est pas une cible plus facile, seulement un trait blanc. On
+   les agrandit en restant carré. */
+.fi-checkbox-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: none;
+}
+
+.fi-input,
+.fi-select-input {
+    font-size: 1rem;
+}
+
+/* Les deux champs de texte riche sont le cœur du travail : on leur donne de
+   la place et une typographie de lecture. */
+.fi-fo-rich-editor .fi-prose {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    min-height: 14rem;
+}
+
+/* Tableaux : des lignes aérées, faciles à viser au doigt. */
+.fi-ta-row .fi-ta-cell {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+/* Le focus doit rester visible : il sert de repère quand on navigue au clavier
+   ou quand la vue est fatiguée. */
+*:focus-visible {
+    outline: 3px solid var(--color-sanguine);
+    outline-offset: 2px;
+}
+
+/* Dépôt de fichiers en grille : par défaut, le nom du fichier et le message
+   d'erreur se superposent dans la même tuile et deviennent illisibles. On les
+   empile, le nom en haut, le motif du refus en bas. */
+.fi-fo-file-upload .filepond--file-info {
+    inset-block-start: 0.5rem;
+    inset-inline-start: 0.6rem;
+    max-width: calc(100% - 1.2rem);
+}
+
+.fi-fo-file-upload .filepond--file-status {
+    position: absolute;
+    inset-block-end: 0.5rem;
+    inset-inline: 0.6rem;
+    text-align: start;
+    white-space: normal;
+    line-height: 1.35;
+}
+
+.fi-fo-file-upload .filepond--file-status-main,
+.fi-fo-file-upload .filepond--file-status-sub {
+    white-space: normal;
+    text-align: start;
+    color: #fff;
+    opacity: 1;
+}
+
+.fi-fo-file-upload .filepond--file-status-main {
+    font-weight: 600;
+}
+
+/* Vignettes de la galerie : un fin liseré plutôt qu'une ombre, pour évoquer
+   le montage sous passe-partout. */
+.fi-filigrane-vignette {
+    background-color: #fff;
+    border: 1px solid rgb(0 0 0 / 0.08);
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    padding: 0.5rem;
+}
+
+.dark .fi-filigrane-vignette {
+    background-color: rgb(255 255 255 / 0.04);
+    border-color: rgb(255 255 255 / 0.1);
+}
+
+/* La cote d'inventaire se lit comme un numéro de catalogue : romain, espacé,
+   en retrait de ce qu'elle désigne. */
+.fi-filigrane-cote {
+    font-family: var(--font-serif);
+    letter-spacing: 0.09em;
+}
+
+/*
+ * Planche de vignettes.
+ *
+ * En grille, Filament pose la case à cocher de sélection à gauche de la
+ * vignette, hors de la carte : l'alignement se casse et on voit une rangée de
+ * petits rectangles flottants. On la ramène dans le coin de l'image, comme
+ * dans une photothèque, et on rend la carte entière survolable.
+ */
+.fi-ta-content-grid .fi-ta-record {
+    position: relative;
+    border-radius: 0.75rem;
+    transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.fi-ta-content-grid .fi-ta-record:hover {
+    box-shadow: 0 2px 10px rgb(28 26 23 / 0.08);
+}
+
+.fi-ta-content-grid .fi-ta-record-checkbox {
+    position: absolute;
+    inset-block-start: 1rem;
+    inset-inline-start: 1rem;
+    z-index: 10;
+    background-color: rgb(255 255 255 / 0.9);
+}
+
+/* Le bouton « Décrire » occupe toute la largeur de la vignette :
+   une cible large vaut mieux qu'une cible bien placée. */
+.fi-ta-content-grid .fi-ta-actions {
+    margin-block-start: 0.75rem;
+}
+
+.fi-ta-content-grid .fi-ta-actions .fi-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/*
+ * Diaporama.
+ *
+ * Une scène sombre et un cartouche sur fond de papier : une reproduction en
+ * noir et blanc se détache mieux du noir que du crème, et le commentaire se
+ * lit mieux sur le crème que sur le noir. Chacun son fond.
+ */
+.fi-filigrane-scene {
+    /* Assez haute pour que le dessin domine, assez basse pour que les
+       premières lignes du commentaire restent sous les yeux. */
+    height: min(54vh, 700px);
+}
+
+@media (max-width: 640px) {
+    .fi-filigrane-scene {
+        height: 46vh;
+    }
+}
+
+.fi-filigrane-diaporama:fullscreen {
+    background-color: var(--color-papier);
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.dark .fi-filigrane-diaporama:fullscreen {
+    background-color: var(--color-encre);
+}
+
+.fi-filigrane-diaporama:fullscreen .fi-filigrane-scene {
+    height: 70vh;
+}
+
+/* Zones de clic sur toute la hauteur de la scène : à viser au doigt comme à
+   la souris, sans avoir à atteindre un petit rond. */
+.fi-filigrane-fleche {
+    position: absolute;
+    inset-block: 0;
+    display: flex;
+    align-items: center;
+    padding-inline: 1rem;
+    color: #fff;
+    opacity: 0.4;
+    transition: opacity 150ms ease, background-color 150ms ease;
+}
+
+.fi-filigrane-fleche:hover,
+.fi-filigrane-fleche:focus-visible {
+    opacity: 1;
+    background-color: rgb(0 0 0 / 0.25);
+}
+
+.fi-filigrane-compteur {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+}
+
+.fi-filigrane-cartouche {
+    max-width: 68ch;
+    margin-inline: auto;
+    padding: 1.75rem 0 2.5rem;
+}
+
+.fi-filigrane-titre {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-block-start: 0.15rem;
+}
+
+.fi-filigrane-intertitre {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gray-500);
+    margin-block-end: 0.35rem;
+}
+
+/* Le texte riche réaffiché hors de l'éditeur : ni Tailwind ni Filament ne
+   stylent le balisage injecté, il faut donc le décrire ici. */
+.fi-filigrane-prose {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+}
+
+.fi-filigrane-prose p + p,
+.fi-filigrane-prose ul,
+.fi-filigrane-prose ol,
+.fi-filigrane-prose blockquote {
+    margin-block-start: 0.85em;
+}
+
+.fi-filigrane-prose ul,
+.fi-filigrane-prose ol {
+    padding-inline-start: 1.4em;
+}
+
+.fi-filigrane-prose ul {
+    list-style: disc;
+}
+
+.fi-filigrane-prose ol {
+    list-style: decimal;
+}
+
+.fi-filigrane-prose h2,
+.fi-filigrane-prose h3 {
+    font-weight: 600;
+    margin-block-start: 1.2em;
+}
+
+.fi-filigrane-prose blockquote {
+    border-inline-start: 3px solid var(--color-gray-300);
+    padding-inline-start: 1em;
+    font-style: italic;
+}
+
+.fi-filigrane-prose a {
+    color: var(--color-primary-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.fi-filigrane-note {
+    border-inline-start: 3px solid var(--color-primary-200);
+    padding-inline-start: 1rem;
+}
+
+.dark .fi-filigrane-note {
+    border-color: var(--color-primary-800);
+}
+
+.fi-filigrane-mot {
+    border: 1px solid var(--color-gray-300);
+    border-radius: 9999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+
+.dark .fi-filigrane-mot {
+    border-color: var(--color-gray-700);
+    color: var(--color-gray-400);
+}
+
+[x-cloak] {
+    display: none !important;
+}
