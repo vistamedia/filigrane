@@ -526,6 +526,16 @@ regardait pas :
     vide, une vignette cochée s'entoure d'un trait sanguine, et le test vérifie
     désormais la couleur de la case.
 
+Un douzième, signalé à l'usage le lendemain :
+
+12. Après un changement d'avancement par lots, les compteurs des onglets ne
+    bougeaient pas avant un changement de page. Filament construit les
+    onglets au début de la requête, avant l'action, et les compteurs étaient
+    calculés à ce moment-là. Ce sont désormais des fonctions, évaluées à
+    l'affichage. Le compteur « Dessins » du menu de gauche, qui vit dans un
+    autre composant, reçoit le signal `refresh-sidebar` après chaque action
+    par lots. Le test de bout en bout vérifie les deux sans recharger la page.
+
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 
 - **Safari sur un vrai iPhone.** Chromium à 390 px vérifie la mise en page, pas

@@ -127,6 +127,11 @@ class ListDrawings extends ListRecords
     /**
      * Les onglets reprennent la façon dont on travaille réellement : on
      * s'occupe d'abord de ce qui reste à décrire.
+     *
+     * Les compteurs sont des fonctions, et non des nombres : Filament construit
+     * les onglets dès le début de la requête, avant qu'une action par lots ne
+     * modifie les fiches. Calculés à ce moment-là, ils s'affichaient périmés
+     * jusqu'au changement de page.
      */
     public function getTabs(): array
     {
@@ -135,12 +140,12 @@ class ListDrawings extends ListRecords
         return [
             'a_decrire' => Tab::make('À décrire')
                 ->icon('heroicon-o-inbox')
-                ->badge(Drawing::where('status', DrawingStatus::ToDescribe)->count() ?: null)
+                ->badge(fn (): ?string => self::compteur(Drawing::where('status', DrawingStatus::ToDescribe)))
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', DrawingStatus::ToDescribe)),
 
             'en_cours' => Tab::make('En cours')
                 ->icon('heroicon-o-pencil')
-                ->badge(Drawing::where('status', DrawingStatus::InProgress)->count() ?: null)
+                ->badge(fn (): ?string => self::compteur(Drawing::where('status', DrawingStatus::InProgress)))
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', DrawingStatus::InProgress)),
 
             'decrits' => Tab::make('Décrits')
@@ -154,11 +159,19 @@ class ListDrawings extends ListRecords
             ...($aRephotographier > 0 ? [
                 'a_rephotographier' => Tab::make('À rephotographier')
                     ->icon('heroicon-o-flag')
-                    ->badge($aRephotographier)
+                    ->badge(fn (): ?string => self::compteur(Drawing::query()->needsReshoot()))
                     ->badgeColor('warning')
                     ->modifyQueryUsing(fn (Builder $query) => $query->needsReshoot()),
             ] : []),
         ];
+    }
+
+    /** Un onglet vide ne porte pas de « 0 » : il n'a rien à signaler. */
+    private static function compteur(Builder $requete): ?string
+    {
+        $nombre = $requete->count();
+
+        return $nombre > 0 ? (string) $nombre : null;
     }
 
     public function getDefaultActiveTab(): string|int|null

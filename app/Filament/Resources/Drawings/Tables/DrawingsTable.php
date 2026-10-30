@@ -24,6 +24,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Livewire\Component;
 
 class DrawingsTable
 {
@@ -180,6 +181,7 @@ class DrawingsTable
                             ->success()
                             ->send();
                     })
+                    ->after(self::rafraichirLeMenu(...))
                     ->deselectRecordsAfterCompletion(),
 
                 BulkActionGroup::make([
@@ -187,22 +189,35 @@ class DrawingsTable
                         ->label('Mettre à la corbeille')
                         ->modalHeading('Mettre les fiches sélectionnées à la corbeille')
                         ->modalDescription('Elles quittent la liste mais restent récupérables.')
-                        ->modalSubmitActionLabel('Mettre à la corbeille'),
+                        ->modalSubmitActionLabel('Mettre à la corbeille')
+                        ->after(self::rafraichirLeMenu(...)),
 
                     RestoreBulkAction::make()
                         ->label('Restaurer')
                         ->modalHeading('Sortir les fiches sélectionnées de la corbeille')
-                        ->modalSubmitActionLabel('Restaurer'),
+                        ->modalSubmitActionLabel('Restaurer')
+                        ->after(self::rafraichirLeMenu(...)),
 
                     ForceDeleteBulkAction::make()
                         ->label('Supprimer définitivement')
                         ->modalHeading('Supprimer définitivement les fiches sélectionnées')
                         ->modalDescription('Les fiches et leurs photographies, originaux compris, seront effacées sans retour possible.')
-                        ->modalSubmitActionLabel('Supprimer définitivement'),
+                        ->modalSubmitActionLabel('Supprimer définitivement')
+                        ->after(self::rafraichirLeMenu(...)),
                 ]),
             ])
             ->emptyStateHeading('Aucun dessin')
             ->emptyStateDescription('Commencez par photographier un dessin ou importer des fichiers.')
             ->emptyStateIcon('heroicon-o-photo');
+    }
+
+    /**
+     * Le compteur « à décrire » du menu de gauche vit dans un autre composant
+     * que la liste : sans ce signal, il ne se mettrait à jour qu'au changement
+     * de page.
+     */
+    private static function rafraichirLeMenu(Component $livewire): void
+    {
+        $livewire->dispatch('refresh-sidebar');
     }
 }

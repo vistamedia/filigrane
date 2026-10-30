@@ -102,6 +102,15 @@ test.describe('Catalogage d\'un dessin', () => {
         await page.goto('/dessins');
         await onglet(page, 'Tous').click();
 
+        // Le nombre de fiches à décrire s'affiche deux fois : sur l'onglet et
+        // dans le menu de gauche.
+        const compteurs = [
+            onglet(page, 'À décrire').locator('.fi-badge'),
+            page.locator('.fi-sidebar-item', { hasText: 'Dessins' }).locator('.fi-badge'),
+        ];
+        const aDecrire = Number(await compteurs[0].innerText());
+        await expect(compteurs[1]).toHaveText(String(aDecrire));
+
         // Le bouton n'apparaît qu'une fois des fiches cochées.
         const bouton = page.getByRole('button', { name: 'Changer l\'avancement' });
         await expect(bouton).toBeHidden();
@@ -124,6 +133,15 @@ test.describe('Catalogage d\'un dessin', () => {
 
         for (const artiste of ['Lot, premier', 'Lot, second']) {
             await expect(page.locator('.fi-ta-record', { hasText: artiste })).toContainText('Décrit');
+        }
+
+        // Les deux compteurs suivent sans qu'on recharge la page.
+        for (const compteur of compteurs) {
+            if (aDecrire > 2) {
+                await expect(compteur).toHaveText(String(aDecrire - 2));
+            } else {
+                await expect(compteur).toHaveCount(0);
+            }
         }
 
         expect(erreurs).toEqual([]);
