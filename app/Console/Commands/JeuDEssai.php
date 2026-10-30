@@ -78,6 +78,8 @@ class JeuDEssai extends Command
             'description' => '<p>Projet de dessus-de-porte à la plume et lavis gris : une cartouche rocaille encadrant un motif de trophée. Le tracé à la règle et au compas est encore apparent sous le lavis.</p>',
             'note' => '<p>Encadré, salon. Vitre à dépoussiérer.</p>',
             'tags' => ['Encadré — salon'],
+            // Une vue au mur, prise d'en bas : de quoi montrer la retouche.
+            'vue_au_mur' => true,
         ],
         [
             'artist' => 'Jean-Baptiste Oudry',
@@ -105,12 +107,15 @@ class JeuDEssai extends Command
         }
 
         $source = base_path('tests/fixtures/dessin-recto.jpg');
+        $cadre = base_path('tests/fixtures/cadre-en-perspective.jpg');
 
-        if (! is_readable($source)) {
-            $this->error("Image de référence introuvable : {$source}");
-            $this->line('Lancez d\'abord : php scripts/generer-images-test.php');
+        foreach ([$source, $cadre] as $image) {
+            if (! is_readable($image)) {
+                $this->error("Image de référence introuvable : {$image}");
+                $this->line('Lancez d\'abord : php scripts/generer-images-test.php');
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
         }
 
         $nombre = min((int) $this->option('nombre'), count(self::PLANCHES));
@@ -125,6 +130,10 @@ class JeuDEssai extends Command
             ]);
 
             $importeur->import($dessin, $source, 'dessin-recto.jpg', ['kind' => PhotoKind::Recto]);
+
+            if ($planche['vue_au_mur'] ?? false) {
+                $importeur->import($dessin, $cadre, 'cadre-en-perspective.jpg', ['kind' => PhotoKind::Frame]);
+            }
 
             $dessin->tags()->sync(
                 collect($planche['tags'])

@@ -16,10 +16,14 @@ const MOTDEPASSE = process.env.FILIGRANE_MOTDEPASSE ?? 'filigrane';
 const SORTIE = 'public/apercus';
 
 const VUES = [
-    { nom: 'dessins', chemin: '/dessins', hauteur: 880 },
-    { nom: 'fiche', chemin: null, hauteur: 880 },
-    { nom: 'diaporama', chemin: '/diaporama', hauteur: 980 },
+    { nom: 'dessins', hauteur: 880, ouvrir: (page) => page.goto(`${BASE}/dessins`) },
+    { nom: 'fiche', hauteur: 880, ouvrir: ouvrirUneFiche },
+    { nom: 'diaporama', hauteur: 980, ouvrir: (page) => page.goto(`${BASE}/diaporama`) },
+    { nom: 'retouche', hauteur: 960, ouvrir: redresserUnCadre },
 ];
+
+/* Les coins exacts du cadre de l'image fabriquée (scripts/generer-images-test.php). */
+const CADRE = JSON.parse(await readFile('tests/fixtures/cadre-en-perspective.json', 'utf8'));
 
 /*
  * JPEG et non PNG : ces images partent sur Internet, et une capture
@@ -46,21 +50,54 @@ await page.waitForURL(/\/$|\/dessins/);
 for (const vue of VUES) {
     page.setViewportSize({ width: 1440, height: vue.hauteur });
 
-    if (vue.chemin) {
-        await page.goto(`${BASE}${vue.chemin}`);
-    } else {
-        // La fiche d'un dessin décrit : on y arrive par la planche.
-        await page.goto(`${BASE}/dessins`);
-        await page.locator('.fi-tabs-item', { hasText: 'Décrits' }).click();
-        await page.getByRole('link', { name: 'Décrire' }).first().click();
-        await page.waitForURL(/\/decrire/);
-    }
+    await vue.ouvrir(page);
 
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${SORTIE}/${vue.nom}.jpg`, ...FORMAT });
 
     console.log(`✓ ${SORTIE}/${vue.nom}.jpg`);
+}
+
+/** La fiche d'un dessin décrit : on y arrive par la planche. */
+async function ouvrirUneFiche(page) {
+    await page.goto(`${BASE}/dessins`);
+    await page.locator('.fi-tabs-item', { hasText: 'Décrits' }).click();
+    await page.getByRole('link', { name: 'Décrire' }).first().click();
+    await page.waitForURL(/\/decrire/);
+}
+
+/**
+ * La retouche d'un cadre photographié d'en bas : les quatre pastilles sur ses
+ * coins, l'aperçu redressé à côté, la lumière réglée par « Automatique ».
+ */
+async function redresserUnCadre(page) {
+    await page.goto(`${BASE}/dessins`);
+    await page.locator('.fi-tabs-item', { hasText: 'Décrits' }).click();
+    await page.locator('.fi-ta-record', { hasText: 'Vers 1750' }).getByRole('link', { name: 'Décrire' }).click();
+    await page.waitForURL(/\/decrire/);
+
+    await page.locator('.fi-ta-row', { hasText: 'Encadrement' }).getByRole('link', { name: 'Retoucher' }).click();
+    await page.getByRole('heading', { name: /Retoucher FIL-/ }).waitFor();
+
+    const scene = await page.locator('[x-ref="scene"]').boundingBox();
+    const coins = ['supérieur gauche', 'supérieur droit', 'inférieur droit', 'inférieur gauche'];
+
+    for (const [i, coin] of coins.entries()) {
+        const pastille = await page.getByRole('button', { name: `Coin ${coin} de l'œuvre` }).boundingBox();
+        const [fx, fy] = CADRE.coins[i];
+
+        await page.mouse.move(pastille.x + pastille.width / 2, pastille.y + pastille.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(scene.x + scene.width * fx, scene.y + scene.height * fy, { steps: 8 });
+        await page.mouse.up();
+    }
+
+    // Le clic fait défiler la page jusqu'au bouton : on remonte ensuite, pour
+    // que l'image et son aperçu figurent dans la capture.
+    await page.getByRole('button', { name: 'Automatique' }).click();
+    await page.mouse.move(0, 0);
+    await page.evaluate(() => window.scrollTo(0, 0));
 }
 
 /*

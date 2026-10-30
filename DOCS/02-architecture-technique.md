@@ -397,9 +397,12 @@ cellule de tableur.
 ## Présentation publique
 
 `/a-propos` est la seule page lisible sans compte. Elle présente le projet et
-crédite l'auteur ; elle ne montre **aucune donnée réelle** — les trois aperçus
-sont pris sur le jeu d'essai (`filigrane:jeu-d-essai`, puis `make apercus`), et
-un test vérifie qu'aucun numéro d'inventaire n'y figure.
+crédite l'auteur ; elle ne montre **aucune donnée réelle** — les aperçus sont
+pris sur le jeu d'essai (`filigrane:jeu-d-essai`, puis `make apercus`), et un
+test vérifie qu'aucun numéro d'inventaire n'y figure. Celui de la retouche part
+de l'image fabriquée `tests/fixtures/cadre-en-perspective.jpg`, jointe à une
+fiche d'essai comme vue au mur : le script y pose les quatre pastilles sur les
+coins connus du cadre.
 
 Elle a sa propre feuille de style, `resources/css/app.css` : le thème Filament
 ne sert qu'au panneau.

@@ -146,16 +146,43 @@
                 <h2 class="text-2xl font-semibold">Redresser un cadre accroché trop haut</h2>
 
                 <p class="mt-4 text-lg leading-relaxed">
-                    La première séance de prise de vue l'a montré : une œuvre
-                    accrochée haut se photographie d'en bas, et arrive en
-                    trapèze, entre deux cadres voisins. Quatre pastilles posées
-                    sur ses coins suffisent à la remettre d'aplomb. Pas à lui
-                    rendre ses proportions.
+                    Une partie de la collection est encadrée, accrochée aux murs
+                    sur quatre étages. La première séance de prise de vue, une
+                    trentaine de clichés, l'a montré : les cadres du haut ne
+                    s'atteignent pas. On les photographie d'en bas, avec la
+                    lumière qu'on a, et ils arrivent en trapèze, entre deux
+                    cadres voisins.
                 </p>
 
                 <p class="mt-4 text-lg leading-relaxed">
-                    Un même trapèze peut venir d'un cadre allongé vu de face
-                    comme d'un cadre plus haut vu très en biais. Ce qui tranche,
+                    D'où un outil de retouche bâti comme celui de la mesure :
+                    quatre pastilles à poser sur les coins de l'œuvre — le
+                    cadre, le passe-partout ou la feuille, selon ce qu'on veut
+                    garder. Le même geste redresse et recadre, et les cadres
+                    voisins disparaissent. Une loupe suit le doigt pour placer
+                    chaque coin avec précision, un quart de tour rattrape une
+                    photo prise couchée, et un bouton «&nbsp;Automatique&nbsp;» éclaircit
+                    une œuvre restée dans l'ombre.
+                </p>
+
+                <figure class="mt-8">
+                    <img
+                        src="/apercus/retouche.jpg"
+                        alt="L'outil de retouche : à gauche, la photographie, avec quatre pastilles bleues sur les coins du cadre ; à droite, l'aperçu du cadre redressé."
+                        loading="lazy"
+                        class="w-full rounded-xl border border-encre/10 shadow-sm dark:border-papier/10"
+                    >
+                    <figcaption class="mt-3 text-center text-base text-gris dark:text-gris-clair">
+                        Sur une image de démonstration : un cadre de 30 × 40 cm
+                        photographié d'en bas et de côté, puis redressé.
+                    </figcaption>
+                </figure>
+
+                <p class="mt-8 text-lg leading-relaxed">
+                    Quatre coins suffisent à remettre une œuvre d'aplomb. Pas à
+                    lui rendre ses proportions. Un même trapèze peut venir d'un
+                    cadre allongé vu de face comme d'un cadre plus haut vu très
+                    en biais. Ce qui tranche,
                     c'est la focale de l'appareil, et le seul fait certain :
                     les côtés d'un cadre sont perpendiculaires. C'est la
                     méthode de Zhang et He. Sur une prise de vue simulée — un
@@ -166,11 +193,19 @@
 
                 <p class="mt-4 text-lg leading-relaxed">
                     L'aperçu suit le doigt sans attendre le serveur : le
-                    navigateur applique lui-même la même transformation. Et
-                    rien n'est jamais écrit sur la photographie d'origine. Une
-                    retouche n'est qu'une liste de réglages, d'où l'on
-                    refabrique les images affichées. On la reprend ou on
-                    l'annule quand on veut.
+                    navigateur applique lui-même la même transformation, sur un
+                    Mac comme sur un téléphone. Et rien n'est jamais écrit sur
+                    la photographie d'origine. Une retouche n'est qu'une liste
+                    de réglages, d'où l'on refabrique les images affichées. On
+                    la reprend ou on l'annule quand on veut.
+                </p>
+
+                <p class="mt-4 text-lg leading-relaxed">
+                    Restent les clichés qu'aucune retouche ne sauve : un reflet
+                    dans la vitre, une image floue. Ceux-là se signalent d'un
+                    drapeau, avec leur motif. Ils restent en place pour la
+                    description, et la liste de la prochaine séance se constitue
+                    d'elle-même.
                 </p>
             </article>
 
