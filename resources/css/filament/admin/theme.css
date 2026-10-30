@@ -175,7 +175,19 @@ html:not(.dark) .fi-body {
     inset-block-start: 1rem;
     inset-inline-start: 1rem;
     z-index: 10;
+}
+
+/* Le fond blanc détache la case de l'image, mais seulement tant qu'elle est
+   vide : cochée, elle doit prendre la couleur du thème, sans quoi la coche,
+   blanche elle aussi, disparaît. */
+.fi-ta-content-grid .fi-ta-record-checkbox:not(:checked) {
     background-color: rgb(255 255 255 / 0.9);
+}
+
+/* Une fiche cochée se repère d'un coup d'œil, même loin de sa case. */
+.fi-ta-content-grid .fi-ta-record.fi-selected {
+    outline: 2px solid var(--color-sanguine);
+    outline-offset: -1px;
 }
 
 /* Le bouton « Décrire » occupe toute la largeur de la vignette :

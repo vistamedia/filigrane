@@ -38,7 +38,7 @@ près, poser des mots-clés, parcourir la collection en diaporama, l'exporter en
 tableur ou en catalogue PDF, récupérer une fiche effacée.
 
 ### [04 — Décisions et alternatives](04-decisions-et-alternatives.md)
-Trente-huit décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
+Trente-neuf décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
 et ce qu'il en coûterait de changer d'avis — y compris une décision **revenue**
 (D-18, le réglage de taille du texte). **C'est le document à ouvrir quand
 quelque chose te paraît discutable.**
@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 54 tests PHP + 70 tests de bout en bout
+make test       # 57 tests PHP + 71 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -115,5 +115,9 @@ make            # liste toutes les commandes
   [D-37](04-decisions-et-alternatives.md#d-37)) ; et le **signalement des
   clichés à refaire**, réunis dans l'onglet « À rephotographier » de la liste
   des dessins (voir [D-38](04-decisions-et-alternatives.md#d-38)).
+- Ajouté le 30 octobre : le **changement d'avancement par lots** depuis la
+  liste des dessins (voir [D-39](04-decisions-et-alternatives.md#d-39)). Au
+  passage, deux défauts corrigés : une fiche ne pouvait plus revenir « à
+  décrire », et la coche des vignettes sélectionnées était invisible.
 - Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
   activer le test de conversion.

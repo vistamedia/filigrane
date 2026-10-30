@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\DrawingStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\Drawings\Pages\EditDrawing;
+use App\Filament\Resources\Drawings\Pages\ListDrawings;
 use App\Models\Drawing;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,7 +14,8 @@ use Tests\TestCase;
 
 /**
  * Le passage automatique de « à décrire » à « en cours » à l'enregistrement
- * de la fiche, et surtout ce qui ne doit pas le déclencher.
+ * de la fiche, et surtout ce qui ne doit pas le déclencher ; puis le
+ * changement d'avancement par lots, depuis la liste des dessins.
  */
 class AvancementTest extends TestCase
 {
@@ -85,5 +87,55 @@ class AvancementTest extends TestCase
         // Compléter la description, en revanche, c'est reprendre le travail.
         $statut = $this->enregistrer($dessin, ['description' => '<p>Paysage à la sanguine, rehauts de craie.</p>']);
         $this->assertSame(DrawingStatus::InProgress, $statut);
+    }
+
+    private function changerParLots(array $dessins, DrawingStatus $statut): void
+    {
+        Livewire::test(ListDrawings::class)
+            ->set('activeTab', 'tous')
+            ->callTableBulkAction('avancement', $dessins, data: ['status' => $statut->value])
+            ->assertHasNoFormErrors()
+            ->assertNotified();
+    }
+
+    public function test_plusieurs_fiches_passent_a_decrit_d_un_coup_et_chacune_est_horodatee(): void
+    {
+        $premier = Drawing::create(['status' => DrawingStatus::ToDescribe]);
+        $second = Drawing::create(['status' => DrawingStatus::InProgress]);
+        $laissee = Drawing::create(['status' => DrawingStatus::ToDescribe]);
+
+        $this->changerParLots([$premier, $second], DrawingStatus::Described);
+
+        foreach ([$premier, $second] as $dessin) {
+            $dessin->refresh();
+            $this->assertSame(DrawingStatus::Described, $dessin->status);
+            $this->assertNotNull($dessin->described_at);
+        }
+
+        $this->assertSame(DrawingStatus::ToDescribe, $laissee->refresh()->status);
+    }
+
+    public function test_une_fiche_deja_decrite_garde_sa_date(): void
+    {
+        $ancienne = Drawing::create(['status' => DrawingStatus::ToDescribe]);
+        $ancienne->update(['status' => DrawingStatus::Described]);
+        $ancienne->forceFill(['described_at' => now()->subMonth()])->saveQuietly();
+        $date = $ancienne->refresh()->described_at;
+
+        $this->changerParLots([$ancienne, Drawing::create([])], DrawingStatus::Described);
+
+        $this->assertEquals($date, $ancienne->refresh()->described_at);
+    }
+
+    public function test_remettre_des_fiches_a_decrire_efface_leur_date(): void
+    {
+        $dessin = Drawing::create(['status' => DrawingStatus::ToDescribe]);
+        $dessin->update(['status' => DrawingStatus::Described]);
+
+        $this->changerParLots([$dessin], DrawingStatus::ToDescribe);
+
+        $dessin->refresh();
+        $this->assertSame(DrawingStatus::ToDescribe, $dessin->status);
+        $this->assertNull($dessin->described_at);
     }
 }

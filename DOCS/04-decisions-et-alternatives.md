@@ -14,7 +14,8 @@ marquées *validée*.
 [D-01](#d-01) Nom · [D-02](#d-02) Pas de hors-ligne · [D-03](#d-03) Traitement synchrone ·
 [D-04](#d-04) Application à la racine · [D-25](#d-25) Deux chemins de prise de vue ·
 [D-27](#d-27) Charte provisoire · [D-30](#d-30) Diaporama côté navigateur ·
-[D-31](#d-31) Deux exports · [D-35](#d-35) Page publique
+[D-31](#d-31) Deux exports · [D-35](#d-35) Page publique ·
+[D-39](#d-39) Avancement par lots
 
 **Données**
 [D-07](#d-07) Artiste en texte libre · [D-08](#d-08) Mots-clés libres ·
@@ -977,6 +978,36 @@ c'est une œuvre qu'on va chercher au mur.
 **Coût d'un changement.** Deux colonnes (`reshoot_reason`, `reshoot_note`),
 un énuméré, deux actions. Ajouter un motif : une ligne dans
 `App\Enums\ReshootReason`.
+
+---
+
+<a id="d-39"></a>
+## D-39 — L'avancement se change par lots, fiche par fiche
+
+**Choix.** Dans la liste des dessins, une action **Changer l'avancement**
+s'applique aux fiches cochées. Elle est posée à part, et non dans le menu des
+actions groupées, pour se voir dès qu'on coche. Elle enregistre chaque fiche
+l'une après l'autre, et laisse de côté celles qui sont déjà dans l'état choisi.
+
+**Pourquoi.** Demandé à l'usage, après la première séance : une série de
+fiches se termine ou se remet à décrire d'un coup. Fiche par fiche, parce que
+l'observateur des dessins doit voir passer chaque changement : il horodate
+le passage à « Décrit », efface cette date au retour, et note qui a modifié.
+Les fiches déjà dans l'état choisi sont écartées pour qu'une fiche décrite le
+mois dernier ne prenne pas la date du jour.
+
+**Alternatives.**
+- *Une seule requête* `UPDATE … WHERE id IN (…)` : instantanée, mais elle
+  passe sous l'observateur. Plus de date de description, plus d'auteur de la
+  modification. Pour quelques dizaines de fiches, le gain ne se voit pas.
+- *Une modification par lots générale* (mots-clés, période, artiste) : utile
+  le jour où une série entière recevra le même mot-clé, mais chaque champ pose
+  sa question — ajouter ou remplacer les mots-clés ? écraser un artiste déjà
+  saisi ? On s'en tient à ce qui a été demandé.
+
+**Coût d'un changement.** Une action dans
+`App\Filament\Resources\Drawings\Tables\DrawingsTable`. Une autre action par
+lots, sur un autre champ, se pose à côté sur le même modèle.
 
 ---
 

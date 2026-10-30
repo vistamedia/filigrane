@@ -88,6 +88,47 @@ test.describe('Catalogage d\'un dessin', () => {
         await expect(page.getByLabel('Numéro d\'inventaire')).not.toHaveValue(premier);
     });
 
+    test('l\'avancement de plusieurs fiches se change d\'un coup depuis la liste', async ({ page }) => {
+        const erreurs = surveillerLesErreurs(page);
+
+        for (const artiste of ['Lot, premier', 'Lot, second']) {
+            await page.goto('/dessins');
+            await page.getByRole('link', { name: 'Nouvelle fiche' }).click();
+            await page.getByLabel('Artiste').fill(artiste);
+            await boutonSoumettre(page, 'Créer').click();
+            await expect(page).toHaveURL(/\/decrire/);
+        }
+
+        await page.goto('/dessins');
+        await onglet(page, 'Tous').click();
+
+        // Le bouton n'apparaît qu'une fois des fiches cochées.
+        const bouton = page.getByRole('button', { name: 'Changer l\'avancement' });
+        await expect(bouton).toBeHidden();
+
+        for (const artiste of ['Lot, premier', 'Lot, second']) {
+            await page.locator('.fi-ta-record', { hasText: artiste }).getByRole('checkbox').check();
+        }
+
+        // Cochée, la case doit quitter le fond blanc qui la détache de
+        // l'image : la coche est blanche, elle y devenait invisible.
+        await expect(page.locator('.fi-ta-record', { hasText: 'Lot, premier' }).getByRole('checkbox'))
+            .not.toHaveCSS('background-color', 'rgba(255, 255, 255, 0.9)');
+
+        await bouton.click();
+        const modale = page.getByRole('dialog');
+        await modale.getByText('Décrit', { exact: true }).click();
+        await modale.getByRole('button', { name: 'Appliquer' }).click();
+
+        await expect(page.getByText('2 fiches passées à « Décrit »')).toBeVisible();
+
+        for (const artiste of ['Lot, premier', 'Lot, second']) {
+            await expect(page.locator('.fi-ta-record', { hasText: artiste })).toContainText('Décrit');
+        }
+
+        expect(erreurs).toEqual([]);
+    });
+
     test('un mot-clé se crée depuis la fiche et se retrouve dans la liste', async ({ page }) => {
         await page.goto('/dessins');
         await page.getByRole('link', { name: 'Nouvelle fiche' }).click();

@@ -232,6 +232,19 @@ d'inventaire, les artistes et les périodes.
 Le champ **Rechercher** tout en haut de l'écran, lui, cherche partout dans
 l'application.
 
+### Changer l'avancement de plusieurs fiches d'un coup
+
+1. Cochez les fiches concernées : la petite case dans le coin de chaque
+   vignette. Une fiche cochée s'entoure d'un trait rouge. La case tout en haut
+   de la planche coche toute la page.
+2. Le bouton **Changer l'avancement** apparaît en haut de la planche. Sur le
+   téléphone, remontez jusqu'à lui.
+3. Choisissez **À décrire**, **En cours** ou **Décrit**, puis **Appliquer**.
+
+Le message dit combien de fiches ont changé. Celles qui étaient déjà dans
+l'état choisi ne sont pas touchées : une fiche décrite le mois dernier garde
+sa date.
+
 ---
 
 ## Regarder la collection : le diaporama

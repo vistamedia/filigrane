@@ -5,11 +5,14 @@ namespace App\Filament\Resources\Drawings\Tables;
 use App\Enums\DrawingStatus;
 use App\Filament\Resources\Drawings\DrawingResource;
 use App\Models\Drawing;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\ImageColumn;
@@ -20,6 +23,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class DrawingsTable
 {
@@ -140,6 +144,44 @@ class DrawingsTable
                     ->color('gray'),
             ])
             ->toolbarActions([
+                // Hors du menu groupé, pour qu'on la voie dès qu'on a coché
+                // des fiches : c'est le geste courant, la corbeille l'exception.
+                BulkAction::make('avancement')
+                    ->label('Changer l\'avancement')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('gray')
+                    ->modalHeading('Changer l\'avancement des fiches sélectionnées')
+                    ->modalSubmitActionLabel('Appliquer')
+                    ->schema([
+                        ToggleButtons::make('status')
+                            ->label('Nouvel avancement')
+                            ->options(DrawingStatus::class)
+                            ->inline()
+                            ->required(),
+                    ])
+                    ->authorizeIndividualRecords('update')
+                    ->action(function (Collection $records, array $data): void {
+                        $statut = $data['status'] instanceof DrawingStatus ? $data['status'] : DrawingStatus::from($data['status']);
+
+                        // Fiche par fiche, et non par une seule requête :
+                        // l'observateur doit horodater chaque passage à
+                        // « Décrit » et noter qui a fait le changement.
+                        $changees = $records
+                            ->reject(fn (Drawing $dessin): bool => $dessin->status === $statut)
+                            ->each(fn (Drawing $dessin) => $dessin->update(['status' => $statut]))
+                            ->count();
+
+                        Notification::make()
+                            ->title(match ($changees) {
+                                0 => "Rien à changer : les fiches étaient déjà « {$statut->getLabel()} »",
+                                1 => "1 fiche passée à « {$statut->getLabel()} »",
+                                default => "{$changees} fiches passées à « {$statut->getLabel()} »",
+                            })
+                            ->success()
+                            ->send();
+                    })
+                    ->deselectRecordsAfterCompletion(),
+
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->label('Mettre à la corbeille')

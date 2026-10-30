@@ -446,8 +446,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 54 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire, avancement automatique. |
-| Playwright `mac` | 54 tests | Connexion, droits, catalogage, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 57 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire, avancement automatique et par lots. |
+| Playwright `mac` | 55 tests | Connexion, droits, catalogage et avancement par lots, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
@@ -513,6 +513,18 @@ Un dixième, trouvé à l'usage, cousin du cinquième :
     texte par `TexteRiche`, ne joue que si l'avancement n'a pas été changé à la
     main, et seulement si l'artiste ou la description viennent d'être écrits
     (`AvancementTest`).
+
+Un onzième, trouvé en regardant une capture du changement d'avancement par
+lots, et non par le test qui le couvrait — le test cochait, comptait, et ne
+regardait pas :
+
+11. Pour détacher la case à cocher de l'image, le thème lui donnait un fond
+    blanc, y compris une fois cochée. La coche de Filament est blanche : sur
+    les vignettes, une case cochée ne se distinguait plus d'une case vide.
+    Cela durait depuis la mise en planche, sans gêner tant que la sélection
+    ne servait qu'à la corbeille. Le fond blanc ne vaut plus que pour une case
+    vide, une vignette cochée s'entoure d'un trait sanguine, et le test vérifie
+    désormais la couleur de la case.
 
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 
