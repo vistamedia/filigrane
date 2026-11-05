@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\DrawingStatus;
+use App\Enums\Location;
 use App\Enums\PhotoKind;
 use App\Models\Drawing;
 use App\Models\Tag;
@@ -36,6 +37,7 @@ class JeuDEssai extends Command
             'description' => '<p>Vue de ruines antiques animée de quelques figures, à la <strong>sanguine</strong> sur papier vergé. La main est rapide, presque sténographique dans les lointains, et se resserre sur les deux personnages assis au premier plan.</p><p>Le trait de construction reste visible sous le lavis, ce qui plaide pour une étude prise sur le motif plutôt que pour une feuille d\'atelier.</p>',
             'note' => '<p>Comparer avec les feuilles du carton 3, même papier, même filigrane au raisin.</p>',
             'tags' => ['Paysage', 'École française'],
+            'location' => Location::Box2,
         ],
         [
             'artist' => 'Anonyme',
@@ -43,6 +45,7 @@ class JeuDEssai extends Command
             'description' => '<p>Étude de draperie à la <em>pierre noire</em>, rehauts de craie blanche sur papier bleuté passé. Le drapé tombe en plis cassés, d\'une écriture large qui cherche le volume plus que le détail.</p><p>Angle inférieur droit restauré anciennement.</p>',
             'note' => '',
             'tags' => ['Étude de draperie'],
+            'location' => Location::Box2,
         ],
         [
             'artist' => 'École italienne',
@@ -50,6 +53,7 @@ class JeuDEssai extends Command
             'description' => '<p>Tête d\'homme barbu tournée vers la gauche, à la plume et encre brune. Les hachures croisées, serrées sous la pommette, sont caractéristiques des ateliers bolonais.</p><ul><li>Filigrane : croissant dans un cercle</li><li>Collé en plein sur un montage ancien</li></ul>',
             'note' => '<p>Montage à conserver : il porte une inscription à la plume, en partie effacée.</p>',
             'tags' => ['Portrait', 'École italienne'],
+            'location' => Location::Box1,
         ],
         [
             'artist' => 'Anonyme',
@@ -57,6 +61,7 @@ class JeuDEssai extends Command
             'description' => '<p>Paysage boisé traversé d\'un chemin creux, mine de plomb sur papier vélin. Feuille d\'une grande douceur, entièrement construite par valeurs, sans aucun trait de contour.</p>',
             'note' => '',
             'tags' => ['Paysage'],
+            'location' => Location::Box2,
         ],
         [
             'artist' => 'Entourage de Charles Le Brun',
@@ -64,6 +69,7 @@ class JeuDEssai extends Command
             'description' => '<p>Étude de bras levé, pierre noire et craie blanche sur papier gris-bleu. La mise au carreau, encore lisible, indique une feuille destinée au report sur une composition de grand format.</p><p>Deux reprises du poignet, l\'une abandonnée, témoignent d\'une recherche en cours.</p>',
             'note' => '<p>Vérifier auprès du département des Arts graphiques s\'il existe un morceau correspondant.</p>',
             'tags' => ['École française'],
+            'location' => Location::Box3,
         ],
         [
             'artist' => 'Anonyme',
@@ -71,13 +77,15 @@ class JeuDEssai extends Command
             'description' => '<p>Académie d\'homme assis, sanguine. Exercice d\'école, d\'une exécution appliquée, où le modelé des épaules est mieux venu que celui des jambes.</p>',
             'note' => '',
             'tags' => ['École française'],
+            'location' => Location::Box3,
         ],
         [
             'artist' => 'Anonyme',
             'period' => 'Vers 1750',
             'description' => '<p>Projet de dessus-de-porte à la plume et lavis gris : une cartouche rocaille encadrant un motif de trophée. Le tracé à la règle et au compas est encore apparent sous le lavis.</p>',
             'note' => '<p>Encadré, salon. Vitre à dépoussiérer.</p>',
-            'tags' => ['Encadré — salon'],
+            'tags' => [],
+            'location' => Location::LivingRoom,
             // Une vue au mur, prise d'en bas : de quoi montrer la retouche.
             'vue_au_mur' => true,
         ],
@@ -86,7 +94,8 @@ class JeuDEssai extends Command
             'period' => '1740',
             'description' => '<p>Étude de chien couché, pierre noire rehaussée de blanc sur papier bleu. Signée en bas à droite, d\'une écriture fine et penchée.</p><p>La feuille a été pliée en deux dans le sens de la hauteur ; le pli, visible en lumière rasante, ne traverse pas le sujet.</p>',
             'note' => '<p>Pièce la plus importante du fonds, à mon sens. À faire voir.</p>',
-            'tags' => ['École française', 'Carton 1'],
+            'tags' => ['École française'],
+            'location' => Location::Box1,
         ],
     ];
 
@@ -127,6 +136,7 @@ class JeuDEssai extends Command
                 'description' => $planche['description'],
                 'note' => $planche['note'],
                 'status' => DrawingStatus::Described,
+                'location' => $planche['location'] ?? null,
             ]);
 
             $importeur->import($dessin, $source, 'dessin-recto.jpg', ['kind' => PhotoKind::Recto]);

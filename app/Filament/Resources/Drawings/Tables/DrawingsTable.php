@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Drawings\Tables;
 
 use App\Enums\DrawingStatus;
+use App\Enums\Location;
 use App\Filament\Resources\Drawings\DrawingResource;
+use App\Filament\Resources\Drawings\Schemas\DrawingForm;
 use App\Models\Drawing;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -69,6 +71,14 @@ class DrawingsTable
                         ->color('gray')
                         ->searchable(),
 
+                    // Là où l'on ira le chercher : discret, comme la période.
+                    TextColumn::make('location')
+                        ->label('Emplacement')
+                        ->state(fn (Drawing $record): ?string => $record->locationLabel())
+                        ->icon('heroicon-o-map-pin')
+                        ->size(TextSize::Small)
+                        ->color('gray'),
+
                     TextColumn::make('status')
                         ->label('Avancement')
                         ->badge(),
@@ -102,6 +112,11 @@ class DrawingsTable
                 SelectFilter::make('status')
                     ->label('Avancement')
                     ->options(DrawingStatus::class)
+                    ->multiple(),
+
+                SelectFilter::make('location')
+                    ->label('Emplacement')
+                    ->options(Location::class)
                     ->multiple(),
 
                 SelectFilter::make('tags')
@@ -182,6 +197,44 @@ class DrawingsTable
                             ->send();
                     })
                     ->after(self::rafraichirLeMenu(...))
+                    ->deselectRecordsAfterCompletion(),
+
+                BulkAction::make('emplacement')
+                    ->label('Changer l\'emplacement')
+                    ->icon('heroicon-o-map-pin')
+                    ->color('gray')
+                    ->modalHeading('Changer l\'emplacement des fiches sélectionnées')
+                    ->modalSubmitActionLabel('Appliquer')
+                    ->schema(DrawingForm::champsEmplacement(obligatoire: true, libelle: 'Nouvel emplacement'))
+                    ->authorizeIndividualRecords('update')
+                    ->action(function (Collection $records, array $data): void {
+                        $emplacement = $data['location'] instanceof Location ? $data['location'] : Location::from($data['location']);
+                        $precision = $emplacement === Location::Other && filled($data['location_other'] ?? null)
+                            ? trim($data['location_other'])
+                            : null;
+
+                        // Fiche par fiche, comme pour l'avancement : l'auteur
+                        // de la modification est noté sur chacune.
+                        $changees = $records
+                            ->reject(fn (Drawing $dessin): bool => $dessin->location === $emplacement
+                                && $dessin->location_other === $precision)
+                            ->each(fn (Drawing $dessin) => $dessin->update([
+                                'location' => $emplacement,
+                                'location_other' => $precision,
+                            ]))
+                            ->count();
+
+                        $libelle = Location::libelle($emplacement, $precision);
+
+                        Notification::make()
+                            ->title(match ($changees) {
+                                0 => "Rien à changer : les fiches étaient déjà à l'emplacement « {$libelle} »",
+                                1 => "1 fiche placée à l'emplacement « {$libelle} »",
+                                default => "{$changees} fiches placées à l'emplacement « {$libelle} »",
+                            })
+                            ->success()
+                            ->send();
+                    })
                     ->deselectRecordsAfterCompletion(),
 
                 BulkActionGroup::make([

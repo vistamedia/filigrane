@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\DrawingStatus;
+use App\Enums\Location;
 use App\Models\Drawing;
 use App\Services\InventoryNumberGenerator;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,18 @@ class DrawingObserver
         foreach ($drawing->photos()->get() as $photo) {
             $photo->delete();
         }
+    }
+
+    /**
+     * La précision n'a de sens que pour « Autre » : quand on choisit une
+     * pièce de la liste, l'ancienne précision ne doit pas rester en réserve
+     * et ressurgir le jour où l'on repasserait à « Autre ».
+     */
+    public function saving(Drawing $drawing): void
+    {
+        $drawing->location_other = $drawing->location === Location::Other && filled($drawing->location_other)
+            ? trim($drawing->location_other)
+            : null;
     }
 
     public function updating(Drawing $drawing): void

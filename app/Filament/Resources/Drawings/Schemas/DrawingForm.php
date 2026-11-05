@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Drawings\Schemas;
 
 use App\Enums\DimensionsSource;
 use App\Enums\DrawingStatus;
+use App\Enums\Location;
 use App\Livewire\VisionneusePhotos;
 use App\Models\Drawing;
 use App\Models\Tag;
@@ -14,6 +15,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -163,8 +165,10 @@ class DrawingForm
                             ->placeholder('sujet, école, emplacement…')
                             ->maxLength(50),
                     ])
-                    ->helperText('Créez-les au fil de l\'eau : sujet, école, emplacement, provenance…')
+                    ->helperText('Créez-les au fil de l\'eau : sujet, école, provenance…')
                     ->columnSpanFull(),
+
+                ...self::champsEmplacement(),
 
                 TextInput::make('height_mm')
                     ->label('Hauteur')
@@ -188,6 +192,35 @@ class DrawingForm
                     ->placeholder('Non renseignée')
                     ->columnSpanFull(),
             ]);
+    }
+
+    /**
+     * L'emplacement et, pour « Autre », sa précision. Les mêmes champs
+     * servent sur la fiche, dans l'action par lots et dans l'import en masse.
+     *
+     * @return array<int, Select|TextInput>
+     */
+    public static function champsEmplacement(bool $obligatoire = false, string $libelle = 'Emplacement'): array
+    {
+        return [
+            Select::make('location')
+                ->label($libelle)
+                ->options(Location::class)
+                ->placeholder('Non renseigné')
+                ->required($obligatoire)
+                ->live(),
+
+            TextInput::make('location_other')
+                ->label('Précisez l\'emplacement')
+                ->placeholder('Par exemple : grenier')
+                ->maxLength(255)
+                ->visible(fn (Get $get): bool => self::estAutre($get('location'))),
+        ];
+    }
+
+    private static function estAutre(mixed $emplacement): bool
+    {
+        return $emplacement === Location::Other || $emplacement === Location::Other->value;
     }
 
     /** @var array<string, array<int, string>> */

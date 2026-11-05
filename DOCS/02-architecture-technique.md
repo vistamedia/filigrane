@@ -415,7 +415,7 @@ ne sert qu'au panneau.
 app/
 ├── Console/Commands/     filigrane:compte, :sauvegarder, :menage, :jeu-d-essai
 ├── Enums/                DrawingStatus, PhotoKind, DimensionsSource, UserRole,
-│                         ReshootReason
+│                         ReshootReason, Location
 ├── Filament/
 │   ├── Pages/            StudioPhoto, ImportEnMasse, MesurerPhoto,
 │   │                     RetoucherPhoto, Diaporama
@@ -449,8 +449,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 57 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire, avancement automatique et par lots. |
-| Playwright `mac` | 55 tests | Connexion, droits, catalogage et avancement par lots, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 63 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire, avancement automatique et par lots, emplacement. |
+| Playwright `mac` | 56 tests | Connexion, droits, catalogage, avancement et emplacement par lots, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 

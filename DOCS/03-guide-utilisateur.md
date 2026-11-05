@@ -127,6 +127,15 @@ Dans la partie **Classement**, trois états :
   à **À décrire**, elle y reste.
 - **Décrit** — terminé.
 
+### L'emplacement
+
+Toujours dans **Classement** : où se trouve le dessin. Carton 1, 2 ou 3, ou
+l'une des pièces de la maison. Si l'endroit n'est pas dans la liste,
+choisissez **Autre** : un champ apparaît pour le préciser, « grenier » par
+exemple.
+
+Sur la planche, l'emplacement s'affiche sous la période de chaque vignette.
+
 ---
 
 ## Regarder une photographie de près
@@ -195,15 +204,15 @@ qu'Emmanuel emportera à sa prochaine séance.
 ## Les mots-clés
 
 Les mots-clés servent à regrouper les dessins comme vous l'entendez : par
-sujet, par école, par provenance, par emplacement — « Carton 3 », « Encadré,
-salon ».
+sujet, par école, par provenance. L'emplacement, lui, a son propre champ
+(voir plus haut).
 
 **Pour en poser un sur une fiche :** dans la partie **Classement**, cliquez
 dans le champ **Mots-clés** et choisissez dans la liste.
 
 **Pour en créer un nouveau :** cliquez sur le **+** à droite du champ, écrivez
 le mot, et validez. Vous pouvez aussi indiquer une *famille* — « sujet »,
-« école », « emplacement » — pour vous y retrouver quand ils se multiplieront.
+« école », « provenance » — pour vous y retrouver quand ils se multiplieront.
 
 Il n'y a pas de liste imposée. Créez-les au fur et à mesure, selon ce que la
 collection vous suggère.
@@ -225,6 +234,7 @@ d'inventaire, les artistes et les périodes.
 **Les filtres** (le bouton en forme d'entonnoir) permettent de n'afficher que :
 
 - un certain avancement,
+- un ou plusieurs emplacements,
 - un ou plusieurs mots-clés,
 - les fiches **sans photographie**,
 - les fiches dont les **dimensions manquent**.
@@ -232,18 +242,18 @@ d'inventaire, les artistes et les périodes.
 Le champ **Rechercher** tout en haut de l'écran, lui, cherche partout dans
 l'application.
 
-### Changer l'avancement de plusieurs fiches d'un coup
+### Changer l'avancement ou l'emplacement de plusieurs fiches d'un coup
 
 1. Cochez les fiches concernées : la petite case dans le coin de chaque
    vignette. Une fiche cochée s'entoure d'un trait rouge. La case tout en haut
    de la planche coche toute la page.
-2. Le bouton **Changer l'avancement** apparaît en haut de la planche. Sur le
-   téléphone, remontez jusqu'à lui.
-3. Choisissez **À décrire**, **En cours** ou **Décrit**, puis **Appliquer**.
+2. Deux boutons apparaissent en haut de la planche : **Changer l'avancement**
+   et **Changer l'emplacement**. Sur le téléphone, remontez jusqu'à eux.
+3. Choisissez le nouvel avancement ou le nouvel emplacement, puis
+   **Appliquer**.
 
-Le message dit combien de fiches ont changé. Celles qui étaient déjà dans
-l'état choisi ne sont pas touchées : une fiche décrite le mois dernier garde
-sa date.
+Le message dit combien de fiches ont changé. Celles qui y étaient déjà ne
+sont pas touchées : une fiche décrite le mois dernier garde sa date.
 
 ---
 

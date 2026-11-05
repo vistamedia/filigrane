@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\PhotoKind;
+use App\Filament\Resources\Drawings\Schemas\DrawingForm;
 use App\Models\Drawing;
 use App\Services\PhotoImporter;
 use BackedEnum;
@@ -120,6 +121,10 @@ class ImportEnMasse extends Page
                             ->label('Période (appliquée à toutes les fiches)')
                             ->placeholder('Laisser vide si inconnue')
                             ->maxLength(255),
+
+                        // Un import correspond souvent à un carton ou à une
+                        // pièce : autant le dire une fois pour toutes.
+                        ...DrawingForm::champsEmplacement(libelle: 'Emplacement (appliqué à toutes les fiches)'),
                     ]),
             ])
             ->statePath('data');
@@ -212,6 +217,8 @@ class ImportEnMasse extends Page
         $dessin = Drawing::create(array_filter([
             'artist' => $etat['artist'] ?? null,
             'period' => $etat['period'] ?? null,
+            'location' => $etat['location'] ?? null,
+            'location_other' => $etat['location_other'] ?? null,
         ]));
 
         if ($groupee) {
@@ -239,6 +246,8 @@ class ImportEnMasse extends Page
             'kind' => $this->data['kind'] ?? PhotoKind::Recto->value,
             'artist' => $this->data['artist'] ?? null,
             'period' => $this->data['period'] ?? null,
+            'location' => $this->data['location'] ?? null,
+            'location_other' => $this->data['location_other'] ?? null,
         ]);
     }
 }

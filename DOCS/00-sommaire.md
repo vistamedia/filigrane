@@ -38,9 +38,9 @@ près, poser des mots-clés, parcourir la collection en diaporama, l'exporter en
 tableur ou en catalogue PDF, récupérer une fiche effacée.
 
 ### [04 — Décisions et alternatives](04-decisions-et-alternatives.md)
-Trente-neuf décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
-et ce qu'il en coûterait de changer d'avis — y compris une décision **revenue**
-(D-18, le réglage de taille du texte). **C'est le document à ouvrir quand
+Quarante décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
+et ce qu'il en coûterait de changer d'avis — y compris deux décisions **revenues**
+(D-18, le réglage de taille du texte ; D-09, l'emplacement par mots-clés). **C'est le document à ouvrir quand
 quelque chose te paraît discutable.**
 
 ### [05 — Charte graphique](05-prompt-charte-graphique.md)
@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 57 tests PHP + 71 tests de bout en bout
+make test       # 63 tests PHP + 72 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -119,5 +119,9 @@ make            # liste toutes les commandes
   liste des dessins (voir [D-39](04-decisions-et-alternatives.md#d-39)). Au
   passage, deux défauts corrigés : une fiche ne pouvait plus revenir « à
   décrire », et la coche des vignettes sélectionnées était invisible.
+- Ajouté le 5 novembre, avant le premier import en masse : l'**emplacement**
+  de chaque dessin (cartons, pièces, ou « Autre » avec une précision), sur la
+  fiche, par lots depuis la liste et en option de l'import (voir
+  [D-40](04-decisions-et-alternatives.md#d-40), qui remplace D-09).
 - Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
   activer le test de conversion.

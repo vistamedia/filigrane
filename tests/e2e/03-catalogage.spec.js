@@ -147,6 +147,56 @@ test.describe('Catalogage d\'un dessin', () => {
         expect(erreurs).toEqual([]);
     });
 
+    test('l\'emplacement se donne sur la fiche, puis se change par lots', async ({ page }) => {
+        const erreurs = surveillerLesErreurs(page);
+
+        for (const artiste of ['Rangé, premier', 'Rangé, second']) {
+            await page.goto('/dessins');
+            await page.getByRole('link', { name: 'Nouvelle fiche' }).click();
+            await page.getByLabel('Artiste').fill(artiste);
+            await boutonSoumettre(page, 'Créer').click();
+            await expect(page).toHaveURL(/\/decrire/);
+        }
+
+        // Sur la fiche : « Autre » demande une précision, et lui seul.
+        const emplacement = page.getByLabel('Emplacement', { exact: true });
+        const precision = page.getByLabel('Précisez l\'emplacement');
+        await expect(precision).toHaveCount(0);
+
+        await emplacement.selectOption({ label: 'Autre' });
+        await precision.fill('grenier');
+        await boutonSoumettre(page, 'Enregistrer').click();
+        await expect(page.getByText('Fiche enregistrée')).toBeVisible();
+
+        await page.reload();
+        await expect(emplacement).toHaveValue('other');
+        await expect(precision).toHaveValue('grenier');
+
+        // Dans la liste, la vignette dit où aller chercher le dessin.
+        await page.goto('/dessins');
+        await onglet(page, 'Tous').click();
+        await expect(page.locator('.fi-ta-record', { hasText: 'Rangé, second' })).toContainText('grenier');
+
+        for (const artiste of ['Rangé, premier', 'Rangé, second']) {
+            await page.locator('.fi-ta-record', { hasText: artiste }).getByRole('checkbox').check();
+        }
+
+        await page.getByRole('button', { name: 'Changer l\'emplacement' }).click();
+        const modale = page.getByRole('dialog', { name: 'Changer l\'emplacement des fiches sélectionnées' });
+        await modale.getByLabel('Nouvel emplacement').selectOption({ label: 'Grand salon' });
+        await modale.getByRole('button', { name: 'Appliquer' }).click();
+
+        await expect(page.getByText('2 fiches placées à l\'emplacement « Grand salon »')).toBeVisible();
+
+        for (const artiste of ['Rangé, premier', 'Rangé, second']) {
+            const carte = page.locator('.fi-ta-record', { hasText: artiste });
+            await expect(carte).toContainText('Grand salon');
+            await expect(carte).not.toContainText('grenier');
+        }
+
+        expect(erreurs).toEqual([]);
+    });
+
     test('un mot-clé se crée depuis la fiche et se retrouve dans la liste', async ({ page }) => {
         await page.goto('/dessins');
         await page.getByRole('link', { name: 'Nouvelle fiche' }).click();

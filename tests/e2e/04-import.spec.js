@@ -17,6 +17,7 @@ test.describe('Import en masse', () => {
             .toHaveCount(3, { timeout: 90_000 });
 
         await page.getByLabel('Artiste (appliqué à toutes les fiches)').fill('Anonyme');
+        await page.getByLabel('Emplacement (appliqué à toutes les fiches)').selectOption({ label: 'Carton 2' });
         await page.getByRole('button', { name: 'Importer', exact: true }).click();
 
         // Les images sont traitées une par une : la progression avance.
@@ -30,6 +31,9 @@ test.describe('Import en masse', () => {
         await page.goto('/dessins');
         await onglet(page, 'À décrire').click();
         await expect(page.getByText('Anonyme').first()).toBeVisible();
+
+        // Les trois fiches sont rangées au même endroit.
+        await expect(page.locator('.fi-ta-record', { hasText: 'Carton 2' })).toHaveCount(3);
 
         expect(erreurs).toEqual([]);
     });

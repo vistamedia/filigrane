@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\DimensionsSource;
 use App\Enums\DrawingStatus;
+use App\Enums\Location;
 use App\Observers\DrawingObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -25,6 +26,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'height_mm',
     'dimensions_source',
     'status',
+    'location',
+    'location_other',
     'cover_photo_id',
     'described_at',
 ])]
@@ -37,6 +40,7 @@ class Drawing extends Model
     {
         return [
             'status' => DrawingStatus::class,
+            'location' => Location::class,
             'dimensions_source' => DimensionsSource::class,
             'described_at' => 'datetime',
             'width_mm' => 'integer',
@@ -98,6 +102,12 @@ class Drawing extends Model
         return $this->dimensions_source
             ? $label.' ('.$this->dimensions_source->shortLabel().')'
             : $label;
+    }
+
+    /** « Grand salon », la précision donnée pour « Autre », ou null. */
+    public function locationLabel(): ?string
+    {
+        return Location::libelle($this->location, $this->location_other);
     }
 
     /**

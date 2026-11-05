@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Location;
 use App\Enums\PhotoKind;
 use App\Models\Drawing;
 use App\Models\Tag;
@@ -38,7 +39,7 @@ class ExportTest extends TestCase
 
     public function test_le_tableur_est_relisible_et_porte_les_bonnes_colonnes(): void
     {
-        $dessin = $this->dessinDecrit();
+        $dessin = $this->dessinDecrit(['location' => Location::LivingRoom]);
         $dessin->tags()->attach(Tag::create(['name' => 'Paysage'])->id);
 
         $chemin = storage_path('app/private/essai-tableur.xlsx');
@@ -77,10 +78,11 @@ class ExportTest extends TestCase
         $this->assertSame(300, $largeur);
 
         // Et la description perd son balisage sans perdre ses paragraphes.
-        $this->assertStringContainsString('Vue de ruines à la sanguine.', $lignes[1][8]);
-        $this->assertStringContainsString("\n", $lignes[1][8]);
-        $this->assertStringNotContainsString('<strong>', $lignes[1][8]);
+        $this->assertStringContainsString('Vue de ruines à la sanguine.', $lignes[1][9]);
+        $this->assertStringContainsString("\n", $lignes[1][9]);
+        $this->assertStringNotContainsString('<strong>', $lignes[1][9]);
         $this->assertSame('Paysage', $lignes[1][6]);
+        $this->assertSame('Grand salon', $lignes[1][7]);
     }
 
     public function test_le_tableur_suit_le_filtre_qu_on_lui_donne(): void

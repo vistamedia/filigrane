@@ -19,9 +19,10 @@ marquées *validée*.
 
 **Données**
 [D-07](#d-07) Artiste en texte libre · [D-08](#d-08) Mots-clés libres ·
-[D-09](#d-09) Emplacement par mots-clés · [D-10](#d-10) Pas d'historique ·
+[D-09](#d-09) Emplacement par mots-clés *(revenue)* · [D-10](#d-10) Pas d'historique ·
 [D-11](#d-11) Pas d'index plein texte · [D-19](#d-19) Numéros non recyclés ·
-[D-20](#d-20) Corbeille · [D-28](#d-28) Millimètres entiers
+[D-20](#d-20) Corbeille · [D-28](#d-28) Millimètres entiers ·
+[D-40](#d-40) Emplacement en liste fixe
 
 **Images et mesure**
 [D-05](#d-05) Originaux privés · [D-06](#d-06) Mesure par référence ·
@@ -228,7 +229,11 @@ le formulaire. Une à deux heures par critère.
 ---
 
 <a id="d-09"></a>
-## D-09 — L'emplacement physique passe par les mots-clés
+## D-09 — L'emplacement physique passe par les mots-clés *revenue*
+
+**Revenue le 5 novembre 2026**, avant le premier import en masse :
+l'emplacement est désormais un champ de la fiche. Voir [D-40](#d-40). Ce qui
+suit est la décision d'origine.
 
 **Choix.** Pas de table d'emplacements. « Carton 3 », « Encadré — salon » sont
 des mots-clés de la famille *emplacement*.
@@ -1008,6 +1013,46 @@ mois dernier ne prenne pas la date du jour.
 **Coût d'un changement.** Une action dans
 `App\Filament\Resources\Drawings\Tables\DrawingsTable`. Une autre action par
 lots, sur un autre champ, se pose à côté sur le même modèle.
+
+---
+
+<a id="d-40"></a>
+## D-40 — L'emplacement est un champ, choisi dans une liste fixe *validée*
+
+**Choix.** Chaque fiche porte un emplacement : Carton 1, 2 ou 3, Chambre Lise,
+Chambre Max, Grand salon, Salle à manger, Grand bureau, Petit bureau, Couloir,
+ou **Autre**, avec une précision libre. Il se donne sur la fiche, par lots
+depuis la liste (**Changer l'emplacement**), ou d'un coup pour tout un import
+en masse. Il se filtre dans la liste, s'affiche sur les vignettes et sort dans
+le tableur. La précision s'efface dès qu'on choisit une valeur de la liste.
+
+**Pourquoi.** Demandé avant le premier import : les feuilles arrivent carton
+par carton, les cadres pièce par pièce. [D-09](#d-09) confiait l'emplacement
+aux mots-clés. Mais un dessin n'est qu'à un endroit à la fois, ce qu'un
+mot-clé n'empêche pas (« Carton 1 » et « Grand salon » sur la même fiche), et
+un mot-clé ne se donne ni par lots ni à l'import.
+
+**Une liste dans le code, et non une table.** Les cartons et les pièces sont
+connus. Une liste fixe ne connaît pas de fautes de frappe, et le cas imprévu
+passe par « Autre ».
+
+**Ce qui ne le montre pas.** Ni le diaporama ni le catalogue PDF : ils
+montrent les œuvres, pas la maison.
+
+**Alternatives.**
+- *Garder les mots-clés* : rien à écrire, mais rien n'empêche deux
+  emplacements sur une fiche, et ni l'action par lots ni l'import ne les
+  connaissent.
+- *Une table `locations` modifiable dans l'interface*, comme les mots-clés :
+  une pièce s'ajouterait sans déploiement, et les noms des pièces ne
+  figureraient pas dans le code, donc pas dans le dépôt public. Un écran de
+  plus, pour une liste qui a peu de chances de bouger.
+- *Une hiérarchie* (pièce, meuble, carton, chemise), utile pour un récolement
+  ou un déménagement : prématurée.
+
+**Coût d'un changement.** Ajouter un emplacement : une ligne dans
+`App\Enums\Location`, sans migration. Passer à une table : une demi-journée,
+avec une migration qui reprend les valeurs existantes, précisions comprises.
 
 ---
 

@@ -37,6 +37,8 @@ erDiagram
         int height_mm
         varchar dimensions_source "estimated | measured | manual"
         varchar status "to_describe | in_progress | described"
+        varchar location "box_1 … hallway | other"
+        varchar location_other "précision pour other"
         bigint cover_photo_id FK
         timestamp described_at
         bigint created_by_id FK
@@ -121,6 +123,8 @@ C'est la table centrale. Une ligne par feuille de la collection.
 | `width_mm` / `height_mm` | `int unsigned` | oui | Dimensions de la feuille, en **millimètres entiers**. |
 | `dimensions_source` | `varchar(20)` | oui | `estimated` (calculée depuis la photo), `measured` (relevée), `manual`. |
 | `status` | `varchar(20)` *indexé* | non | `to_describe` → `in_progress` → `described`. |
+| `location` | `varchar(20)` *indexé* | oui | Où se trouve le dessin : `box_1` à `box_3` (cartons), une pièce de la maison, ou `other`. Liste dans `App\Enums\Location`. |
+| `location_other` | `varchar(255)` | oui | Précision libre, pour `other` seulement : vidée dès qu'on choisit une valeur de la liste. |
 | `cover_photo_id` | `bigint` FK → `photos` | oui | Photo servant de vignette. `ON DELETE SET NULL`. |
 | `described_at` | `timestamp` | oui | Horodatage du passage en « décrit ». |
 | `created_by_id`, `updated_by_id` | FK → `users` | oui | Qui a créé, qui a modifié en dernier. `ON DELETE SET NULL`. |
@@ -143,6 +147,11 @@ La bascule vers une table dédiée reste possible : voir la décision **D-07**.
 **Pourquoi un `status` et non un simple booléen ?**
 Parce que « commencé mais pas fini » est l'état le plus fréquent d'un
 catalogage, et qu'il faut pouvoir retrouver ces fiches-là en priorité.
+
+**Pourquoi une liste fixe pour `location`, plus une précision ?**
+Parce que les cartons et les pièces sont connus, et qu'une liste se filtre et
+s'attribue par lots sans fautes de frappe. Le cas imprévu passe par `other` et
+sa précision, sans migration. Voir la décision **D-40**.
 
 ---
 
@@ -217,9 +226,9 @@ un catalogue y reste des années.
 
 | Colonne | Rôle |
 |---|---|
-| `tags.name` | Unique. « Paysage », « École française », « Carton 3 ». |
+| `tags.name` | Unique. « Paysage », « École française ». |
 | `tags.slug` | Dérivé automatiquement du nom. |
-| `tags.family` | Regroupement facultatif : `sujet`, `école`, `emplacement`, `provenance`. |
+| `tags.family` | Regroupement facultatif : `sujet`, `école`, `provenance`. |
 
 La table pivot `drawing_tag` a une clé primaire composite `(drawing_id, tag_id)` :
 un même mot-clé ne peut pas être posé deux fois sur la même fiche.
@@ -230,8 +239,8 @@ se créent au fil de l'eau, sans migration ; le champ `family` permet de les
 ranger quand ils se multiplient. Si un critère s'impose durablement, il pourra
 devenir une colonne : voir la décision **D-08**.
 
-L'emplacement physique (carton nº, mur) passe aussi par les mots-clés, par
-choix explicite — voir **D-09**.
+L'emplacement physique est passé des mots-clés à une colonne de `drawings`
+— voir **D-40**, qui remplace **D-09**.
 
 ---
 
@@ -265,7 +274,7 @@ nettoyages de `/tmp` de l'hébergeur.
 | Absent | Pourquoi | Où c'est discuté |
 |---|---|---|
 | Table `artists` | Les attributions sont incertaines par nature. | D-07 |
-| Table `locations` | Les mots-clés suffisent tant que le classement n'est pas arrêté. | D-09 |
+| Table `locations` | La liste des cartons et des pièces est connue : elle tient dans un énuméré. | D-40 |
 | Historique des modifications | Deux utilisateurs, pas de conflit d'édition attendu. | D-10 |
 | Index *full-text* | 250 fiches : une recherche `LIKE` répond en quelques millisecondes. | D-11 |
 | File d'attente active | Les images sont traitées pendant la requête d'envoi. | D-03 |

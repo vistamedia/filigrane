@@ -54,6 +54,11 @@ C'est le cas confortable. Tu installes un poste et tu n'en bouges plus.
 
 À partir de là, toutes les photographies suivantes sont mesurées seules.
 
+**Un import par carton.** Si les feuilles arrivent par l'**Import en masse**,
+importe-les carton par carton : l'option **Emplacement** des options range
+d'un coup toutes les fiches créées (« Carton 1 »…). Une erreur se rattrape
+depuis la liste des dessins, par **Changer l'emplacement**.
+
 **Ce qui ne doit plus changer** — sinon le profil cesse de s'appliquer, et
 c'est voulu :
 
