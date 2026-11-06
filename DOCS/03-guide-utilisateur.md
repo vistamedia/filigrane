@@ -107,15 +107,27 @@ souligner, et de faire des listes.
 
 ### Enregistrer
 
-Deux boutons, et ils ne font pas la même chose :
+Trois boutons, et ils ne font pas la même chose :
 
 - **Enregistrer** (en bas) — garde ce que vous avez écrit et vous laisse sur la
   fiche. Utilisez-le pour faire une pause.
+- **Retour à la liste** (en haut, à gauche) — garde ce que vous avez écrit,
+  sans rien changer à l'avancement, et revient à la liste **telle que vous
+  l'aviez laissée** : même onglet, mêmes filtres, même page. Utile sur la
+  tablette en paysage, où le menu de gauche est replié.
 - **Décrit — passer au suivant** (en haut, en vert) — garde ce que vous avez
   écrit, marque la fiche comme terminée, et ouvre **directement le dessin
   suivant**. C'est le bouton du travail à la chaîne.
 
-> L'application vous prévient si vous quittez une page sans avoir enregistré.
+Sur une fiche où ni l'artiste ni la description ne sont écrits, **Décrit —
+passer au suivant** demande d'abord confirmation. Un appui de trop, donné
+juste après le précédent, déclarait sinon décrite la fiche suivante sans
+qu'on l'ait vue. Pour passer une fiche sans la marquer, utilisez **Retour à la
+liste**.
+
+> Sur le Mac, l'application vous prévient si vous quittez une page sans avoir
+> enregistré. Safari sur la tablette ne le fait pas : préférez **Retour à la
+> liste** au menu de gauche quand vous avez écrit quelque chose.
 
 ### L'avancement
 

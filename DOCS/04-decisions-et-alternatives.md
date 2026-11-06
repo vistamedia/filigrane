@@ -15,7 +15,7 @@ marquées *validée*.
 [D-04](#d-04) Application à la racine · [D-25](#d-25) Deux chemins de prise de vue ·
 [D-27](#d-27) Charte provisoire · [D-30](#d-30) Diaporama côté navigateur ·
 [D-31](#d-31) Deux exports · [D-35](#d-35) Page publique ·
-[D-39](#d-39) Avancement par lots
+[D-39](#d-39) Avancement par lots · [D-42](#d-42) Quitter une fiche
 
 **Données**
 [D-07](#d-07) Artiste en texte libre · [D-08](#d-08) Mots-clés libres ·
@@ -1093,6 +1093,44 @@ l'interface.
 
 **Coût d'un changement.** Remettre un bouton de téléchargement : une action
 de dix lignes dans `PhotosRelationManager`, à réserver au Mac.
+
+---
+
+## D-42 — Quitter une fiche : retour à la liste enregistré, « décrit » confirmé si rien n'est écrit
+
+**Choix.** La fiche gagne un bouton **Retour à la liste**, en tête de ses
+actions. Il enregistre la fiche, sans toucher à l'avancement, puis ramène à la
+liste telle qu'on l'avait quittée : onglet, filtres, recherche et page vivent
+dans l'adresse de la liste, que la fiche retient quand on en vient. Les fiches
+enchaînées (« Décrit — passer au suivant », retouche) ne l'effacent pas.
+
+**Décrit — passer au suivant** demande confirmation sur une fiche où ni
+l'artiste ni la description ne sont écrits.
+
+**Pourquoi.** Sur sa tablette, tenue en paysage, l'utilisatrice n'a pas le
+menu de gauche : il fallait l'ouvrir pour retrouver la liste. Le seul bouton
+visible pour quitter une fiche était donc « Décrit — passer au suivant ».
+Le 5 novembre au soir, seize fiches importées l'après-midi ont été déclarées
+décrites. Quatre l'ont été sans artiste ni description (FIL-0034, FIL-0039,
+FIL-0040, FIL-0042), dont FIL-0042 deux secondes après FIL-0041 : un second
+appui, tombé sur la fiche suivante.
+
+**Pourquoi enregistrer en revenant.** Safari sur iPad n'affiche pas
+l'avertissement de Filament quand on quitte une page avec une saisie en cours.
+Un simple lien perdrait sans bruit une description à moitié écrite.
+
+**Alternatives.**
+- *Un simple lien vers la liste* : plus prévisible, mais une saisie non
+  enregistrée disparaît sur la tablette.
+- *Ramener toujours à l'onglet « À décrire »* : rien à retenir, mais on perd
+  son filtre et sa page.
+- *Refuser « Décrit » sur une fiche vide* : certaines feuilles n'appellent
+  peut-être aucune description, et c'est à l'utilisatrice d'en juger.
+- *Un bouton « Passer au suivant » sans marquer* : un bouton de plus à côté
+  d'un autre presque identique, à confondre sur une tablette.
+
+**Coût d'un changement.** Faire du retour un simple lien : une ligne. Ôter la
+confirmation : deux lignes dans `EditDrawing`.
 
 ---
 

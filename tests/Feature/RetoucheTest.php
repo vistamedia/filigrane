@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\DrawingStatus;
 use App\Enums\UserRole;
 use App\Filament\Pages\RetoucherPhoto;
 use App\Models\Calibration;
@@ -341,6 +342,29 @@ class RetoucheTest extends TestCase
 
         // La retouche, elle, n'a pas bougé.
         $this->assertSame($this->cadre['coins'], $photo->retouch['coins']);
+    }
+
+    public function test_retoucher_a_la_chaine_ne_touche_pas_a_l_avancement_des_fiches(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => UserRole::Curator]));
+
+        $premiere = $this->importer();
+        $seconde = $this->importer();
+        $seconde->drawing->update(['status' => DrawingStatus::InProgress]);
+
+        Livewire::withQueryParams(['photo' => $premiere->id])
+            ->test(RetoucherPhoto::class)
+            ->call('enregistrer', $this->reglages(), true)
+            ->assertRedirect(RetoucherPhoto::getUrl(['photo' => $seconde->id]));
+
+        Livewire::withQueryParams(['photo' => $seconde->id])
+            ->test(RetoucherPhoto::class)
+            ->call('enregistrer', $this->reglages(), true);
+
+        $this->assertTrue($premiere->refresh()->isRetouched());
+        $this->assertTrue($seconde->refresh()->isRetouched());
+        $this->assertSame(DrawingStatus::ToDescribe, $premiere->drawing->refresh()->status);
+        $this->assertSame(DrawingStatus::InProgress, $seconde->drawing->refresh()->status);
     }
 
     public function test_un_profil_d_echelle_ne_s_applique_pas_a_une_photographie_redressee(): void

@@ -18,6 +18,31 @@ class EditDrawing extends EditRecord
 {
     protected static string $resource = DrawingResource::class;
 
+    /** Clé de session : la liste des dessins telle qu'on l'a quittée. */
+    private const LISTE = 'filigrane.liste-des-dessins';
+
+    public function mount(int | string $record): void
+    {
+        parent::mount($record);
+
+        $this->retenirLaListe();
+    }
+
+    /**
+     * Onglet, filtres, recherche et page de la liste vivent dans son adresse.
+     * On la retient quand on en vient, pour que « Retour à la liste » y
+     * ramène, et non sur l'onglet par défaut. Les fiches enchaînées par
+     * « Décrit — passer au suivant » ou une retouche ne l'effacent pas.
+     */
+    private function retenirLaListe(): void
+    {
+        $precedente = (string) request()->headers->get('referer');
+
+        if (rtrim(strtok($precedente, '?#') ?: '', '/') === rtrim(DrawingResource::getUrl('index'), '/')) {
+            session([self::LISTE => $precedente]);
+        }
+    }
+
     public function getTitle(): string
     {
         return $this->getRecord()->inventory_number;
@@ -35,12 +60,37 @@ class EditDrawing extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            // Sur la tablette tenue en paysage, le menu latéral est replié :
+            // sans ce bouton, il fallait passer par le menu pour retrouver
+            // la liste. On enregistre d'abord : Safari sur iPad ne prévient
+            // pas qu'une saisie va être perdue quand on quitte la page.
+            Action::make('liste')
+                ->label('Retour à la liste')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->action(function (): void {
+                    $this->save(shouldRedirect: false);
+
+                    $this->redirect(session(self::LISTE, DrawingResource::getUrl('index')));
+                }),
+
             // Le geste le plus fréquent : « j'ai fini celui-là, au suivant ».
+            // Sur une fiche où rien n'est écrit, on demande confirmation : un
+            // second appui, donné trop vite, tombait sur la fiche suivante et
+            // la déclarait décrite sans qu'on l'ait vue.
             Action::make('terminer')
                 ->label('Décrit — passer au suivant')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->visible(fn (Drawing $record): bool => $record->status !== DrawingStatus::Described)
+                ->requiresConfirmation()
+                // Un titre de fenêtre suffit à Filament pour l'ouvrir : c'est
+                // donc la fenêtre elle-même qu'on masque quand la fiche est
+                // commencée.
+                ->modalHidden(fn (): bool => ! $this->rienNEstEcrit())
+                ->modalHeading(fn (Drawing $record): string => "{$record->inventory_number} n'a ni artiste ni description")
+                ->modalDescription('La marquer comme décrite quand même ? Pour quitter la fiche sans la marquer, utilisez « Retour à la liste ».')
+                ->modalSubmitActionLabel('Marquer décrite')
                 ->action(function (Drawing $record): void {
                     $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
 
@@ -100,6 +150,28 @@ class EditDrawing extends EditRecord
                 ->modalDescription('La fiche et ses photographies, originaux compris, seront effacées sans retour possible.')
                 ->modalSubmitActionLabel('Supprimer définitivement'),
         ];
+    }
+
+    /**
+     * Ni artiste ni description dans le formulaire, tel qu'il est à l'écran.
+     * Pendant la saisie, l'éditeur tient la description sous forme de
+     * document (un tableau de nœuds), et non de HTML : on en lit le texte.
+     */
+    private function rienNEstEcrit(): bool
+    {
+        $description = $this->data['description'] ?? null;
+
+        if (is_array($description)) {
+            $texte = '';
+            array_walk_recursive($description, function (mixed $valeur, string | int $cle) use (&$texte): void {
+                $texte .= $cle === 'text' ? (string) $valeur : '';
+            });
+            $descriptionVide = trim($texte) === '';
+        } else {
+            $descriptionVide = TexteRiche::estVide($description);
+        }
+
+        return $descriptionVide && blank(trim((string) ($this->data['artist'] ?? '')));
     }
 
     protected function getSavedNotificationTitle(): ?string

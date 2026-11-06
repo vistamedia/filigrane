@@ -24,6 +24,9 @@ test.describe('Catalogage d\'un dessin', () => {
         await page.getByRole('button', { name: 'Ajouter des photographies' }).click();
 
         const modale = page.getByRole('dialog');
+        // FilePond remplace le champ natif : tant qu'il n'est pas monté, un
+        // fichier déposé sur le champ passe inaperçu.
+        await expect(modale.locator('.filepond--root')).toBeVisible();
         await modale.locator('input[type="file"]').setInputFiles([
             fixture('dessin-recto.jpg'),
             fixture('dessin-verso.jpg'),
@@ -77,7 +80,10 @@ test.describe('Catalogage d\'un dessin', () => {
 
         await page.goto('/dessins');
         await onglet(page, 'À décrire').click();
-        await page.getByRole('link', { name: 'Décrire' }).first().click();
+        // Une fiche où l'artiste est écrit : sur une fiche vide, le bouton
+        // demande d'abord confirmation (test suivant).
+        await page.locator('.fi-ta-record', { hasText: 'Premier essai' })
+            .getByRole('link', { name: 'Décrire', exact: true }).click();
 
         const premier = await page.getByLabel('Numéro d\'inventaire').inputValue();
 
@@ -86,6 +92,59 @@ test.describe('Catalogage d\'un dessin', () => {
         // On arrive directement sur une autre fiche.
         await expect(page.getByText(/au tour de FIL-/)).toBeVisible();
         await expect(page.getByLabel('Numéro d\'inventaire')).not.toHaveValue(premier);
+    });
+
+    test('une fiche vide ne passe pas « décrite » sans confirmation', async ({ page }) => {
+        await page.goto('/dessins');
+        await page.getByRole('link', { name: 'Nouvelle fiche' }).click();
+        await boutonSoumettre(page, 'Créer').click();
+        await expect(page).toHaveURL(/\/decrire/);
+        const fiche = page.url();
+
+        // Un appui de trop, donné trop vite après le précédent, tombait sur
+        // la fiche suivante et la déclarait décrite sans qu'on l'ait vue.
+        await page.getByRole('button', { name: 'Décrit — passer au suivant' }).click();
+        const modale = page.locator('.fi-modal-window', { hasText: 'ni artiste ni description' });
+        await expect(modale).toBeVisible();
+        await modale.getByRole('button', { name: 'Annuler' }).click();
+
+        await expect(modale).toBeHidden();
+        expect(page.url()).toBe(fiche);
+        await expect(page.getByRole('radio', { name: 'À décrire' })).toBeChecked();
+
+        // Dès qu'on y a écrit, plus de question.
+        await page.locator('.fi-fo-rich-editor').first().locator('[contenteditable="true"]')
+            .fill('Esquisse de paysage, pierre noire.');
+        await page.getByRole('button', { name: 'Décrit — passer au suivant' }).click();
+        await expect(page.getByText(/Fiche enregistrée/)).toBeVisible();
+        await expect(page.locator('.fi-modal-window', { hasText: 'ni artiste ni description' })).toHaveCount(0);
+    });
+
+    test('« Retour à la liste » ramène à l\'onglet quitté, sans perdre la saisie', async ({ page }) => {
+        const erreurs = surveillerLesErreurs(page);
+
+        await page.goto('/dessins');
+        await page.getByRole('link', { name: 'Nouvelle fiche' }).click();
+        await page.getByLabel('Artiste').fill('Retour, essai');
+        await boutonSoumettre(page, 'Créer').click();
+        await expect(page).toHaveURL(/\/decrire/);
+
+        await page.goto('/dessins');
+        await onglet(page, 'Tous').click();
+        await expect(page).toHaveURL(/tab=tous/);
+        await page.locator('.fi-ta-record', { hasText: 'Retour, essai' })
+            .getByRole('link', { name: 'Décrire', exact: true }).click();
+        await expect(page).toHaveURL(/\/decrire/);
+
+        // Une saisie laissée sans enregistrer : Safari sur iPad ne
+        // prévient pas qu'elle va être perdue.
+        await page.getByLabel('Période').fill('Vers 1700');
+        await page.getByRole('button', { name: 'Retour à la liste' }).click();
+
+        await expect(page).toHaveURL(/\/dessins\?.*tab=tous/);
+        await expect(page.locator('.fi-ta-record', { hasText: 'Retour, essai' })).toContainText('Vers 1700');
+
+        expect(erreurs).toEqual([]);
     });
 
     test('l\'avancement de plusieurs fiches se change d\'un coup depuis la liste', async ({ page }) => {

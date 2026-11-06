@@ -458,8 +458,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 65 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement. |
-| Playwright `mac` | 57 tests | Connexion, droits, catalogage, avancement et emplacement par lots, import, studio, mesure, retouche et reprise après le ménage, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 71 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide. |
+| Playwright `mac` | 59 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import, studio, mesure, retouche et reprise après le ménage, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
