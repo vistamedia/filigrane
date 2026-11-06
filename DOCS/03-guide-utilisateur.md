@@ -142,13 +142,27 @@ Sur la planche, l'emplacement s'affiche sous la période de chaque vignette.
 
 **Cliquez sur la photographie** : elle s'ouvre en plein écran, sur fond noir.
 
-- Sur l'iPhone, écartez deux doigts pour agrandir, comme sur une photo.
+- Sur la tablette et sur l'iPhone, écartez deux doigts pour agrandir, comme
+  sur une photo.
+- Touchez l'image, ou cliquez dessus sur le Mac : elle s'affiche à sa taille
+  réelle, à l'endroit visé, et l'on s'y déplace en faisant glisser. Touchez à
+  nouveau pour revenir à la taille de l'écran.
 - S'il y a plusieurs photographies (le recto, le verso, un détail), les boutons
   **Précédente** et **Suivante** passent de l'une à l'autre.
 - **Fermer**, en haut à droite, revient à la fiche.
 
-Le lien **Pleine résolution**, sous l'image, ouvre la photographie d'origine,
-dans toute sa finesse. C'est utile pour lire une signature ou une inscription.
+Le lien **Pleine résolution**, sous l'image, ouvre de la même façon la
+photographie d'origine, dans toute sa finesse et sans retouche. C'est utile
+pour lire une signature ou une inscription. Le bouton **Pleine résolution**,
+en haut de l'écran noir, passe de l'une à l'autre. Dans la liste des
+photographies, en bas de la fiche, le bouton loupe **Original** fait de même
+pour chacune.
+
+L'original met un instant à arriver : il pèse plus lourd. En attendant,
+l'écran affiche « Chargement de l'original… ».
+
+Pour **enregistrer l'original** sur l'appareil : appui long sur l'image sur la
+tablette ou sur l'iPhone, clic droit sur le Mac.
 
 ---
 

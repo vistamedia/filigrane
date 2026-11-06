@@ -31,16 +31,33 @@
                     {{-- La scène épouse exactement l'image : les coordonnées des
                          pastilles se rapportent à la photographie, pas à son
                          encadrement. Sa hauteur reste dans l'écran, pour qu'une
-                         photographie en hauteur ne cache pas ses coins du bas. --}}
+                         photographie en hauteur ne cache pas ses coins du bas.
+                         Ses proportions sont fixées d'avance : tant que l'image
+                         arrive, les pastilles sont déjà à leur place. --}}
                     <div
                         x-ref="scene"
                         class="relative mx-auto select-none"
-                        style="touch-action: none; max-width: min(100%, calc(75vh * {{ $this->photo->width_px / max(1, $this->photo->height_px) }}));"
+                        style="touch-action: none; aspect-ratio: {{ max(1, (int) $this->photo->width_px) }} / {{ max(1, (int) $this->photo->height_px) }}; max-width: min(100%, calc(75vh * {{ $this->photo->width_px / max(1, $this->photo->height_px) }}));"
                         x-on:pointermove="deplacer($event)"
                         x-on:pointerup.window="prise = null"
                         x-on:pointercancel.window="prise = null"
                     >
-                        <img x-ref="source" src="{{ $this->photo->rawWebUrl() }}" alt="" class="block w-full" draggable="false">
+                        <img
+                            x-ref="source"
+                            src="{{ $this->photo->rawWebUrl() }}"
+                            alt=""
+                            class="block w-full"
+                            draggable="false"
+                            x-on:error="introuvable = true"
+                        >
+
+                        <div
+                            x-show="introuvable"
+                            x-cloak
+                            class="absolute inset-0 z-10 flex items-center justify-center p-6 text-center text-base font-medium text-gray-700 dark:text-gray-200"
+                        >
+                            La photographie n'a pas pu être chargée. Rechargez la page dans un instant.
+                        </div>
 
                         <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
                             {{-- Ce qui sera coupé est assombri. --}}
@@ -256,9 +273,15 @@
                 taille: { l: 0, h: 0 },
                 largeurDispo: 300,
                 enCours: false,
+                introuvable: false,
 
                 init() {
                     this.$nextTick(() => this.mesurerApercu());
+
+                    // Une image en échec avant l'arrivée d'Alpine n'émet plus
+                    // d'événement : on regarde où elle en est.
+                    const source = this.$refs.source;
+                    if (source.complete && source.naturalWidth === 0) this.introuvable = true;
                 },
 
                 saisir(event, i) {

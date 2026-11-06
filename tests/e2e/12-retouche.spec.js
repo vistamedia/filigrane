@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test';
+import { execFile } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { promisify } from 'node:util';
 import { fixture, surveillerLesErreurs } from './aide.js';
+
+const executer = promisify(execFile);
 
 /**
  * Retouche d'une photographie d'œuvre encadrée.
@@ -118,12 +123,23 @@ test('quatre coins posés sur le cadre suffisent à le redresser', async ({ page
     expect(erreurs).toEqual([]);
 });
 
-test('la retouche se reprend là où on l\'avait laissée', async ({ page }) => {
+test('la retouche se reprend là où on l\'avait laissée, même après le ménage de nuit', async ({ page }) => {
+    // Le ménage effaçait la photographie d'origine mise de côté : le
+    // lendemain, l'outil n'affichait plus qu'une bande vide.
+    await executer('docker', ['compose', 'exec', '-T', 'app', 'php', 'artisan', 'filigrane:menage'], {
+        cwd: path.resolve(import.meta.dirname, '../..'),
+    });
+
     await page.goto(fiche);
     await page.getByRole('link', { name: 'Reprendre la retouche' }).click();
 
+    const source = page.locator('[x-ref="source"]');
+    await expect(source).toHaveJSProperty('complete', true);
+    expect(await source.evaluate((img) => img.naturalWidth)).toBeGreaterThan(0);
+
     // Chaque poignée est revenue sur son coin du cadre.
     const scene = await page.locator('[x-ref="scene"]').boundingBox();
+    expect(scene.height).toBeGreaterThan(200);
 
     for (const [i, etiquette] of POIGNEES.entries()) {
         const poignee = await page.getByRole('button', { name: etiquette }).boundingBox();
@@ -132,6 +148,48 @@ test('la retouche se reprend là où on l\'avait laissée', async ({ page }) => 
         expect(Math.abs(poignee.x + poignee.width / 2 - (scene.x + scene.width * fx))).toBeLessThan(3);
         expect(Math.abs(poignee.y + poignee.height / 2 - (scene.y + scene.height * fy))).toBeLessThan(3);
     }
+});
+
+test('l\'original s\'affiche dans l\'application, jamais dans un nouvel onglet', async ({ page, context }) => {
+    const erreurs = surveillerLesErreurs(page);
+    await page.goto(fiche);
+
+    const visionneuse = page.getByRole('dialog', { name: 'Photographie en grand' });
+    const image = visionneuse.locator('img');
+
+    // Depuis le panneau d'images de la fiche…
+    await page.getByRole('button', { name: 'Pleine résolution, sans retouche' }).click();
+    await expect(visionneuse).toBeVisible();
+    await expect(visionneuse.getByText('Original en pleine résolution, sans retouche')).toBeVisible();
+    await expect(image).toHaveAttribute('src', /\/photos\/\d+\/original$/);
+
+    // …c'est bien l'original, pas la version web réduite.
+    await expect(image).toHaveJSProperty('complete', true);
+    expect(await image.evaluate((img) => img.naturalWidth)).toBe(3024);
+
+    // Un clic l'agrandit à sa taille réelle, un autre la remet à l'écran.
+    const ecran = page.viewportSize();
+    await image.click();
+    expect((await image.boundingBox()).width).toBeGreaterThan(ecran.width);
+    await image.click();
+    expect((await image.boundingBox()).height).toBeLessThan(ecran.height);
+
+    await visionneuse.getByRole('button', { name: 'Fermer' }).click();
+    await expect(visionneuse).toBeHidden();
+
+    // …et depuis la liste des photographies.
+    await page.getByRole('button', { name: 'Original', exact: true }).first().click();
+    await expect(visionneuse).toBeVisible();
+    await expect(image).toHaveAttribute('src', /\/photos\/\d+\/original$/);
+
+    // On est resté sur la fiche, dans le même onglet.
+    expect(context.pages()).toHaveLength(1);
+    expect(page.url()).toBe(fiche);
+
+    await page.keyboard.press('Escape');
+    await expect(visionneuse).toBeHidden();
+
+    expect(erreurs).toEqual([]);
 });
 
 test('on revient à la photographie d\'origine en un geste', async ({ page }) => {

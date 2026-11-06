@@ -33,7 +33,7 @@ class DerivativeMaker
         $width = $image->width();
         $height = $image->height();
 
-        $web = $this->encodeWeb($image->scaleDown(width: (int) config('filigrane.web_width', 2400)));
+        $web = $this->encodeWeb($this->scaleForWeb($image));
 
         return [
             'web' => $web,
@@ -41,6 +41,15 @@ class DerivativeMaker
             'width' => $width,
             'height' => $height,
         ];
+    }
+
+    /**
+     * La version web seule, identique à celle de l'import : de quoi
+     * refabriquer celle qu'une retouche avait mise de côté.
+     */
+    public function web(string $sourcePath): string
+    {
+        return $this->encodeWeb($this->scaleForWeb($this->decodeOriented($sourcePath)));
     }
 
     /**
@@ -64,6 +73,11 @@ class DerivativeMaker
     public function decodeOriented(string $sourcePath): ImageInterface
     {
         return $this->manager->decodePath($sourcePath)->orient();
+    }
+
+    private function scaleForWeb(ImageInterface $image): ImageInterface
+    {
+        return $image->scaleDown(width: (int) config('filigrane.web_width', 2400));
     }
 
     public function encodeWeb(ImageInterface $image): string

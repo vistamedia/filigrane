@@ -85,12 +85,20 @@ class Menage extends Command
      * Cela ne devrait plus arriver — les observateurs s'en chargent — mais une
      * interruption au mauvais moment peut en laisser, et personne ne va
      * inspecter un dossier de stockage à la main.
+     *
+     * Chaque chemin d'image que la table des photographies connaît doit
+     * figurer ici. La version web d'origine d'une photographie retouchée
+     * (raw_web_path) y a longtemps manqué : le ménage l'effaçait chaque nuit,
+     * et l'outil de retouche n'avait plus rien à montrer le lendemain.
      */
     private function imagesOrphelines(bool $simulation): void
     {
         $connus = [
             'local' => Photo::pluck('original_path')->filter()->flip(),
-            'public' => Photo::pluck('web_path')->merge(Photo::pluck('thumb_path'))->filter()->flip(),
+            'public' => collect(['web_path', 'raw_web_path', 'thumb_path'])
+                ->flatMap(fn (string $colonne) => Photo::pluck($colonne))
+                ->filter()
+                ->flip(),
         ];
 
         $efface = 0;

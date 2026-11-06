@@ -37,6 +37,18 @@ class RetoucherPhoto extends Page
     public function mount(): void
     {
         $this->photo = Photo::with('drawing')->findOrFail(request()->query('photo'));
+
+        // Sans la photographie d'origine, il n'y a rien sur quoi replacer
+        // les coins : on la refabrique si elle a disparu. En cas d'échec, la
+        // page le dit au lieu de montrer un cadre vide.
+        try {
+            app(RetouchePhoto::class)->retablirLaVersionDOrigine($this->photo);
+        } catch (Throwable $exception) {
+            Log::error('Photographie d\'origine impossible à refabriquer', [
+                'photo' => $this->photo->id,
+                'erreur' => $exception->getMessage(),
+            ]);
+        }
     }
 
     public function getHeading(): string

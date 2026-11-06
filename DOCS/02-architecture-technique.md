@@ -262,7 +262,7 @@ de l'aperçu. Compter moins d'une seconde par photographie.
 |---|---|
 | Version web, miniature | Retouchées, sous un nom neuf (le cache du navigateur dure un an). |
 | Diaporama, catalogue PDF, planche | Suivent, puisqu'ils lisent la version web. |
-| Lien « Pleine résolution » | Toujours l'original, sans retouche. |
+| Lien « Pleine résolution » | Toujours l'original, sans retouche, dans la visionneuse de la fiche ([D-41](04-decisions-et-alternatives.md#d-41)). |
 | Outil de mesure | Travaille sur l'image redressée : `Photo::workingSize()` donne sa définition. |
 | Mesure déjà faite | Effacée si la géométrie change ; les dimensions de la fiche restent. |
 | Profils d'échelle | Ne s'appliquent plus (`SeriesScaler::candidates()` l'exclut). |
@@ -293,7 +293,10 @@ reconstruisent à partir de l'original.
 
 Une photographie retouchée garde en plus sa **version web d'origine**
 (`raw_web_path`) : c'est sur elle que l'outil replace les coins. Environ 1 Mo
-de plus par photographie retouchée.
+de plus par photographie retouchée. Le ménage de nuit doit la connaître, comme
+tout chemin d'image de la table (voir le défaut n° 13 plus bas). Si elle
+manque malgré tout, la page de retouche la refabrique depuis l'original en
+s'ouvrant.
 
 Les noms de fichiers sont des ULID : impossibles à deviner, triables par date
 de création.
@@ -316,6 +319,12 @@ hors-ligne et les icônes. Il ne touche jamais aux requêtes `POST` — rejouer 
 enregistrement depuis un cache corromprait une fiche. Et il ne met en cache
 aucune photographie : 250 dessins dépasseraient vite le quota accordé à Safari
 sur iOS.
+
+**Rien ne s'ouvre hors de l'application.** Installée, l'application n'a ni
+onglets ni bouton de retour. Un lien en `target="_blank"` ou un téléchargement
+y laisse l'utilisatrice devant un écran sans issue. L'original d'une
+photographie s'affiche donc dans la visionneuse de la fiche
+([D-41](04-decisions-et-alternatives.md#d-41)).
 
 **Installation.** Sur iPhone : Safari → Partager → « Sur l'écran d'accueil ».
 Sur Mac : Chrome → icône d'installation dans la barre d'adresse, ou Safari →
@@ -449,8 +458,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 63 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, clichés à refaire, avancement automatique et par lots, emplacement. |
-| Playwright `mac` | 56 tests | Connexion, droits, catalogage, avancement et emplacement par lots, import, studio, mesure, retouche, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 65 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement. |
+| Playwright `mac` | 57 tests | Connexion, droits, catalogage, avancement et emplacement par lots, import, studio, mesure, retouche et reprise après le ménage, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
@@ -539,6 +548,34 @@ Un douzième, signalé à l'usage le lendemain :
     autre composant, reçoit le signal `refresh-sidebar` après chaque action
     par lots. Le test de bout en bout vérifie les deux sans recharger la page.
 
+Deux autres, signalés à l'usage le 6 novembre. Le premier ne se montrait que
+le lendemain, et aucun test ne vivait jusque-là :
+
+13. Le ménage de nuit (`filigrane:menage`, à 4 h 40) efface les images que la
+    table des photographies ne connaît pas. Sa liste comptait la version web et
+    la miniature, mais pas la version web d'origine qu'une retouche met de côté
+    (`raw_web_path`), venue avec l'outil de retouche. Il l'effaçait donc chaque
+    nuit : le lendemain, « Reprendre la retouche » n'affichait qu'une bande
+    vide où s'empilaient les pastilles. Les 69 photographies retouchées en
+    production l'avaient perdue ; leurs originaux étaient intacts, et elles ont
+    été refabriquées. Le ménage connaît désormais les trois chemins. La page de
+    retouche refabrique une version d'origine manquante
+    (`RetouchePhoto::retablirLaVersionDOrigine()`), et la scène prend d'avance
+    les proportions de la photographie. Le test de bout en bout lance le vrai
+    ménage entre la retouche et sa reprise.
+14. Le lien « Pleine résolution » ouvrait l'original dans un nouvel onglet. Le
+    bouton « Original » de la liste des photographies, lui, le téléchargeait,
+    dans un nouvel onglet lui aussi. Sur la tablette, l'application installée
+    n'a pas d'onglets : on restait devant l'image, sans retour possible.
+    L'original s'ouvre désormais dans la visionneuse de la fiche
+    ([D-41](04-decisions-et-alternatives.md#d-41)), et le test vérifie qu'on
+    reste sur la même page, dans le même onglet.
+
+Au passage, la visionneuse gardait la liste des photographies de son premier
+affichage. Une photographie ajoutée depuis ne s'y ouvrait pas, et un clic sur
+l'image principale montrait toujours la première, même quand l'illustration
+choisie était une autre. Les deux sont corrigés.
+
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 
 - **Safari sur un vrai iPhone.** Chromium à 390 px vérifie la mise en page, pas
@@ -552,6 +589,9 @@ Un douzième, signalé à l'usage le lendemain :
 - **Les proportions d'une vraie œuvre redressée.** Le test prouve le calcul sur
   un appareil simulé ; reste à le confronter à un cadre de dimensions connues,
   photographié d'en bas.
+- **L'original dans la visionneuse, sur la tablette.** Chromium vérifie qu'on
+  reste dans la page, pas le pincement de Safari ni l'appui long qui
+  enregistre l'image. À essayer sur l'iPad.
 - **Le glisser des pastilles au doigt, dans Safari.** Chromium vérifie que les
   pastilles sont dans l'écran et assez grandes, pas que le geste est agréable.
   Essayé à la main le 29 octobre, en ligne, sur le Mac et sur le téléphone :

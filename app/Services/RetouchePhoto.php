@@ -151,6 +151,35 @@ class RetouchePhoto
     }
 
     /**
+     * La version web d'origine, mise de côté à la première retouche, est le
+     * fond sur lequel l'outil replace les coins. Si elle manque, on la
+     * refabrique depuis l'original, qui n'est jamais touché.
+     *
+     * Elle a manqué pour de bon : jusqu'au 6 novembre 2026, le ménage de nuit
+     * la prenait pour une orpheline (voir DOCS/02, défaut n° 13).
+     *
+     * @return bool vrai si elle a dû être refabriquée
+     */
+    public function retablirLaVersionDOrigine(Photo $photo): bool
+    {
+        $public = Storage::disk(config('filigrane.derivatives_disk'));
+
+        if (! $photo->isRetouched()
+            || ($photo->raw_web_path && $public->exists($photo->raw_web_path))
+            || ! $photo->originalExists()) {
+            return false;
+        }
+
+        $original = Storage::disk(config('filigrane.originals_disk'))->path($photo->original_path);
+        [$chemin] = $this->cheminsNeufs($photo);
+
+        $public->put($chemin, $this->derivatives->web($original));
+        $photo->forceFill(['raw_web_path' => $chemin])->save();
+
+        return true;
+    }
+
+    /**
      * Même formule que les filtres CSS brightness() puis contrast() de
      * l'aperçu : ce qu'on voit à l'écran est ce qu'on obtient.
      */
@@ -173,17 +202,29 @@ class RetouchePhoto
      */
     private function ecrire(Photo $photo, string $web, ?string $thumb = null): array
     {
-        $base = pathinfo($photo->original_path, PATHINFO_FILENAME).'-'.Str::lower(Str::random(8));
-        $dossier = now()->format('Y/m');
-
-        $webPath = trim(config('filigrane.web_path'), '/')."/{$dossier}/{$base}.jpg";
-        $thumbPath = trim(config('filigrane.thumb_path'), '/')."/{$dossier}/{$base}.jpg";
+        [$webPath, $thumbPath] = $this->cheminsNeufs($photo);
 
         $public = Storage::disk(config('filigrane.derivatives_disk'));
         $public->put($webPath, $web);
         $public->put($thumbPath, $thumb ?? $this->derivatives->thumbnail($web));
 
         return [$webPath, $thumbPath];
+    }
+
+    /**
+     * Un nom jamais servi, pour la version web et pour la miniature.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function cheminsNeufs(Photo $photo): array
+    {
+        $base = pathinfo($photo->original_path, PATHINFO_FILENAME).'-'.Str::lower(Str::random(8));
+        $dossier = now()->format('Y/m');
+
+        return [
+            trim(config('filigrane.web_path'), '/')."/{$dossier}/{$base}.jpg",
+            trim(config('filigrane.thumb_path'), '/')."/{$dossier}/{$base}.jpg",
+        ];
     }
 
     /**

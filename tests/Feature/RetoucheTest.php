@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
+use App\Filament\Pages\RetoucherPhoto;
 use App\Models\Calibration;
 use App\Models\Drawing;
 use App\Models\Photo;
+use App\Models\User;
 use App\Services\PhotoImporter;
 use App\Services\RetouchePhoto;
 use App\Services\SeriesScaler;
@@ -13,6 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Imagick;
 use InvalidArgumentException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class RetoucheTest extends TestCase
@@ -288,6 +292,55 @@ class RetoucheTest extends TestCase
         foreach ($chemins as $chemin) {
             Storage::disk('public')->assertMissing($chemin);
         }
+    }
+
+    public function test_le_menage_de_nuit_garde_la_photographie_d_origine_mise_de_cote(): void
+    {
+        $photo = $this->importer();
+        app(RetouchePhoto::class)->appliquer($photo, $this->reglages());
+        $photo->refresh();
+
+        Storage::disk('public')->put('photos/web/2026/11/orpheline.jpg', 'sans fiche');
+
+        $this->artisan('filigrane:menage')->assertSuccessful();
+
+        // Le ménage la prenait pour une orpheline : le lendemain d'une
+        // retouche, il n'y avait plus rien à reprendre.
+        foreach ([$photo->web_path, $photo->raw_web_path, $photo->thumb_path] as $chemin) {
+            Storage::disk('public')->assertExists($chemin);
+        }
+
+        Storage::disk('local')->assertExists($photo->original_path);
+        Storage::disk('public')->assertMissing('photos/web/2026/11/orpheline.jpg');
+    }
+
+    public function test_une_photographie_d_origine_disparue_est_refabriquee_a_l_ouverture_de_la_retouche(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => UserRole::Curator]));
+
+        $photo = $this->importer();
+        app(RetouchePhoto::class)->appliquer($photo, $this->reglages());
+        $photo->refresh();
+
+        $perdue = $photo->raw_web_path;
+        Storage::disk('public')->delete($perdue);
+
+        Livewire::withQueryParams(['photo' => $photo->id])
+            ->test(RetoucherPhoto::class)
+            ->assertOk();
+
+        $photo->refresh();
+        $this->assertNotSame($perdue, $photo->raw_web_path);
+        Storage::disk('public')->assertExists($photo->raw_web_path);
+
+        // C'est bien la photographie telle qu'elle a été prise, mur compris,
+        // et non la version retouchée.
+        $brute = new Imagick();
+        $brute->readImageBlob(Storage::disk('public')->get($photo->raw_web_path));
+        $this->assertSame([2400, 3200], [$brute->getImageWidth(), $brute->getImageHeight()]);
+
+        // La retouche, elle, n'a pas bougé.
+        $this->assertSame($this->cadre['coins'], $photo->retouch['coins']);
     }
 
     public function test_un_profil_d_echelle_ne_s_applique_pas_a_une_photographie_redressee(): void

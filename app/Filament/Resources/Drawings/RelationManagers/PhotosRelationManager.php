@@ -214,13 +214,16 @@ class PhotosRelationManager extends RelationManager
                     ->iconButton()
                     ->url(fn (Photo $record): string => MesurerPhoto::getUrl(['photo' => $record->id])),
 
+                // L'original s'ouvre dans la visionneuse de la fiche, en haut de
+                // la page. Un téléchargement ou un nouvel onglet laissait, sur
+                // la tablette, l'application installée sur un écran sans
+                // retour possible.
                 Action::make('original')
                     ->label('Original')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->tooltip('Télécharger la photo en pleine résolution')
+                    ->icon('heroicon-o-magnifying-glass-plus')
+                    ->tooltip('Voir la photo en pleine résolution')
                     ->iconButton()
-                    ->url(fn (Photo $record): string => route('photos.download', $record))
-                    ->openUrlInNewTab(),
+                    ->actionJs(fn (Photo $record): string => "\$dispatch('voir-photo', { id: {$record->id}, original: true })"),
 
                 EditAction::make()->iconButton(),
 

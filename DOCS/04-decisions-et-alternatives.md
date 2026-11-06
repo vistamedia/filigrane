@@ -27,7 +27,8 @@ marquées *validée*.
 **Images et mesure**
 [D-05](#d-05) Originaux privés · [D-06](#d-06) Mesure par référence ·
 [D-24](#d-24) HEIC converti côté serveur · [D-36](#d-36) Retouche non destructive ·
-[D-37](#d-37) Proportions par la focale · [D-38](#d-38) Clichés à refaire
+[D-37](#d-37) Proportions par la focale · [D-38](#d-38) Clichés à refaire ·
+[D-41](#d-41) L'original s'affiche dans l'application
 
 **Sécurité et comptes**
 [D-12](#d-12) Deux rôles · [D-13](#d-13) Pas de courriel ·
@@ -1053,6 +1054,45 @@ montrent les œuvres, pas la maison.
 **Coût d'un changement.** Ajouter un emplacement : une ligne dans
 `App\Enums\Location`, sans migration. Passer à une table : une demi-journée,
 avec une migration qui reprend les valeurs existantes, précisions comprises.
+
+---
+
+## D-41 — L'original s'affiche dans l'application, jamais dans un onglet
+
+**Choix.** Le lien **Pleine résolution** du panneau d'images et le bouton
+**Original** de la liste des photographies ouvrent tous deux l'original dans la
+visionneuse de la fiche, sur fond noir, avec **Fermer** en haut à droite. La
+version web reste à l'écran le temps que l'original arrive. Un clic, ou une
+touche du doigt, montre l'image à sa taille réelle, à l'endroit visé ; le
+pincement agrandit sur la tablette. Plus aucune photographie ne s'ouvre dans
+un nouvel onglet ni ne se télécharge. Seuls les liens qu'on écrit soi-même
+dans une description, vers un autre site, s'ouvrent encore à part.
+
+**Pourquoi.** Sur sa tablette, l'utilisatrice se sert de l'application
+installée, qui n'a ni onglets ni bouton de retour. Le lien ouvrait l'original
+dans un nouvel onglet : elle restait devant l'image, sans moyen de revenir à la
+fiche. Le bouton « Original », lui, téléchargeait le fichier. Sur iPad, un
+téléchargement depuis une application installée mène à un écran tout aussi
+fermé (WebKit,
+[bogue 290847](https://bugs.webkit.org/show_bug.cgi?id=290847)).
+
+**Ce qu'on y perd.** Le bouton de téléchargement. Pour enregistrer un original,
+un appui long sur l'image (tablette, téléphone) ou un clic droit (Mac) suffit.
+La route `/photos/{id}/telecharger` reste en place, sans lien dans
+l'interface.
+
+**Alternatives.**
+- *Garder le téléchargement sur le Mac, le cacher sur la tablette* : il faut
+  deviner l'appareil et le mode d'affichage. Un piège de plus pour un usage
+  rare.
+- *Ouvrir l'original dans Safari*, hors de l'application : on y perd la
+  session, donc l'accès à l'original, qui exige d'être connecté.
+- *Une visionneuse avec zoom progressif* (molette, glisser) : plus agréable
+  sur le Mac, mais une bibliothèque de plus pour un geste que la tablette fait
+  déjà.
+
+**Coût d'un changement.** Remettre un bouton de téléchargement : une action
+de dix lignes dans `PhotosRelationManager`, à réserver au Mac.
 
 ---
 
