@@ -130,7 +130,9 @@ mur et les cadres voisins autour. Sur la fiche, **Redresser, recadrer** :
 4. **Enregistrer**, ou **Enregistrer, puis la suivante** pour enchaîner les
    photographies pas encore retouchées.
 
-L'original n'est jamais touché : on reprend ou on annule quand on veut.
+L'original n'est jamais touché : on reprend ou on annule quand on veut, même
+des jours plus tard. Et la retouche ne change rien à l'avancement des fiches :
+une fiche « à décrire » le reste.
 
 **Le zoom compte.** Quatre coins disent comment redresser, pas quelles sont
 les vraies proportions de l'œuvre : un trapèze donné peut venir d'un cadre
