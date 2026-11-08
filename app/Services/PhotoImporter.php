@@ -6,6 +6,7 @@ use App\Enums\PhotoKind;
 use App\Jobs\ProcessPhoto;
 use App\Models\Drawing;
 use App\Models\Photo;
+use App\Support\ExifReader;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -16,6 +17,18 @@ use RuntimeException;
  */
 class PhotoImporter
 {
+    /** Ce que les champs d'envoi acceptent. */
+    public const TYPES_DEPOSABLES = [
+        'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
+        'image/tiff', 'image/avif', 'image/x-adobe-dng', 'image/dng',
+    ];
+
+    /**
+     * Les navigateurs ne s'accordent pas sur le type d'un .dng, et certains
+     * n'en donnent aucun : on le leur nomme d'après l'extension.
+     */
+    public const TYPES_PAR_EXTENSION = ['dng' => 'image/x-adobe-dng'];
+
     /**
      * @param  array{kind?: PhotoKind|string, caption?: string|null}  $attributes
      */
@@ -35,17 +48,36 @@ class PhotoImporter
             throw new RuntimeException("Format d'image non pris en charge : {$mime}");
         }
 
-        $originalPath = $this->storeOriginal($sourcePath, $mime);
+        // Un DNG est développé en JPEG, qui devient l'original (D-43). Ses
+        // métadonnées sont lues avant : le JPEG développé n'en a plus.
+        $exifDuBrut = null;
+        $developpe = null;
 
-        $photo = $drawing->photos()->create([
-            'kind' => $attributes['kind'] ?? $this->defaultKind($drawing),
-            'caption' => $attributes['caption'] ?? null,
-            'original_path' => $originalPath,
-            'original_name' => $originalName ? Str::limit(basename($originalName), 250, '') : null,
-            'mime' => $mime,
-            'size_bytes' => filesize($sourcePath) ?: null,
-            'sort_order' => ($drawing->photos()->max('sort_order') ?? -1) + 1,
-        ]);
+        if (DeveloppementRaw::estUnDng($sourcePath, $originalName, $mime)) {
+            $exifDuBrut = $this->exifDuBrut($sourcePath);
+            $developpe = app(DeveloppementRaw::class)->developper($sourcePath);
+            $sourcePath = $developpe;
+            $mime = 'image/jpeg';
+        }
+
+        try {
+            $originalPath = $this->storeOriginal($sourcePath, $mime);
+
+            $photo = $drawing->photos()->create([
+                'kind' => $attributes['kind'] ?? $this->defaultKind($drawing),
+                'caption' => $attributes['caption'] ?? null,
+                'original_path' => $originalPath,
+                'original_name' => $originalName ? Str::limit(basename($originalName), 250, '') : null,
+                'mime' => $mime,
+                'size_bytes' => filesize($sourcePath) ?: null,
+                'exif' => $exifDuBrut,
+                'sort_order' => ($drawing->photos()->max('sort_order') ?? -1) + 1,
+            ]);
+        } finally {
+            if ($developpe) {
+                @unlink($developpe);
+            }
+        }
 
         if (config('filigrane.image_processing') === 'queue') {
             ProcessPhoto::dispatch($photo);
@@ -91,6 +123,21 @@ class PhotoImporter
         }
 
         return $path;
+    }
+
+    /**
+     * Métadonnées du DNG, à garder sur la photographie : la focale sert à la
+     * retouche, la date au classement. L'orientation, elle, ne vaut plus : le
+     * JPEG développé est déjà à l'endroit.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function exifDuBrut(string $chemin): ?array
+    {
+        $exif = ExifReader::read($chemin);
+        unset($exif['orientation']);
+
+        return $exif ?: null;
     }
 
     /**

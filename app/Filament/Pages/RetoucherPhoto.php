@@ -91,6 +91,19 @@ class RetoucherPhoto extends Page
     }
 
     /**
+     * La photographie entière, pour le calcul des proportions dans la page :
+     * où l'original se trouve dedans, et sa taille (voir Photo::fullFrame).
+     *
+     * @return array{x: int, y: int, l: int, h: int}
+     */
+    public function cadreEntier(): array
+    {
+        $cadre = $this->photo->fullFrame();
+
+        return ['x' => $cadre['x'], 'y' => $cadre['y'], 'l' => $cadre['largeur_px'], 'h' => $cadre['hauteur_px']];
+    }
+
+    /**
      * @return array<int, array{label: string, focale: int}>
      */
     public function zooms(): array
@@ -135,6 +148,7 @@ class RetoucherPhoto extends Page
             'focale' => ['required', 'numeric', 'between:10,300'],
             'luminosite' => ['required', 'numeric', 'between:0.5,2'],
             'contraste' => ['required', 'numeric', 'between:0.5,2'],
+            'alleger' => ['sometimes', 'boolean'],
         ]);
 
         if ($validateur->fails()) {
@@ -173,7 +187,9 @@ class RetoucherPhoto extends Page
 
         Notification::make()
             ->title('Photographie retouchée')
-            ->body('L\'original est conservé tel quel.')
+            ->body(($reglages['alleger'] ?? false) && $this->photo->refresh()->isTrimmed()
+                ? 'L\'original est allégé : seule l\'œuvre et une marge autour sont conservées.'
+                : 'L\'original est conservé tel quel.')
             ->success()
             ->send();
 

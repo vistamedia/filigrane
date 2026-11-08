@@ -118,6 +118,10 @@ sequenceDiagram
     N->>L: envoi d'un fichier (une requête par image)
     L->>I: import(fiche, chemin, nom)
     I->>I: type MIME vérifié
+    opt un DNG (ProRAW)
+        I->>I: EXIF lues dans le DNG
+        I->>I: développé en JPEG pleine définition (libraw)
+    end
     I->>I: original copié tel quel sur le disque privé
     I->>L: ligne « photos » créée
     I->>J: traitement (synchrone par défaut)
@@ -250,6 +254,22 @@ rapport largeur / hauteur du rectangle photographié, à partir des coins et de
 la focale (méthode de Zhang et He). Le même calcul est réécrit en JavaScript
 dans la page, pour l'aperçu. Voir [D-37](04-decisions-et-alternatives.md#d-37).
 
+Ce calcul suppose le centre optique au centre de la photographie, et tire la
+focale en pixels de sa diagonale. Sur un **original allégé**, ni l'un ni
+l'autre ne sont ceux de la partie gardée : les coins sont donc reportés dans
+la photographie entière, grâce à `original_trim` (`Photo::fullFrame()`), avant
+le calcul. Sans ce report, une retouche reprise sur un original allégé
+trouvait 0,79 au lieu de 0,75 pour un cadre de 300 × 400 mm.
+
+**Alléger l'original.** Case de la page de retouche, jamais cochée d'office
+mais retenue d'une photographie à la suivante. À l'enregistrement, l'original
+est rogné au rectangle des coins, élargi d'une marge de 4 % du plus grand
+côté de la photographie entière, et réécrit en JPEG pleine définition. La
+version web d'origine est refaite à partir de lui. L'ancien original n'est
+effacé qu'une fois la photographie enregistrée. Rien n'est rogné s'il y a
+moins d'un dixième à gagner, et réenregistrer la même retouche ne rogne pas
+davantage. Voir [D-44](04-decisions-et-alternatives.md#d-44).
+
 **Le rendu.** `Imagick::distortImage(DISTORTION_PERSPECTIVE)` envoie les quatre
 coins sur un rectangle aux dimensions de la version web, directement — on ne
 fabrique pas une image pleine définition pour la réduire ensuite. La lumière
@@ -283,13 +303,24 @@ sur la vignette de la planche, et réunit les fiches concernées dans l'onglet
 | | Original | Version web | Vignette |
 |---|---|---|---|
 | Disque | privé (`storage/app/private`) | public | public |
-| Format | tel quel (HEIC, JPEG, TIFF…) | JPEG progressif | JPEG |
-| Taille | inchangée | 2 400 px de large au plus | 600 × 600 |
+| Format | tel quel (HEIC, JPEG, TIFF…) ; un DNG est développé en JPEG | JPEG progressif | JPEG |
+| Taille | inchangée, sauf original allégé | 2 400 px de large au plus | 600 × 600 |
 | Accès | route authentifiée `/photos/{id}/original` | statique, par Apache | statique, par Apache |
 
 L'original est l'unique copie de référence de l'œuvre : il n'est jamais
 recompressé ni réorienté. Les dérivés, eux, sont jetables — ils se
 reconstruisent à partir de l'original.
+
+Deux exceptions, voulues :
+- **Un DNG** (ProRAW d'iPhone, 48 Mpx, 66 Mo) est développé à l'import en
+  JPEG pleine définition, qualité 92 : environ 5 Mo
+  ([D-43](04-decisions-et-alternatives.md#d-43)). Ses métadonnées sont lues
+  dans le DNG et gardées dans `exif`, car le JPEG développé n'en a plus.
+  Compter 6 secondes de développement sur le serveur.
+- **Un original allégé** depuis la retouche est rogné autour de l'œuvre
+  ([D-44](04-decisions-et-alternatives.md#d-44)). Sur une photo prise d'un peu
+  loin, où l'œuvre occupe le tiers de l'image, cela divise encore le poids
+  par deux ou trois.
 
 Une photographie retouchée garde en plus sa **version web d'origine**
 (`raw_web_path`) : c'est sur elle que l'outil replace les coins. Environ 1 Mo
@@ -302,7 +333,9 @@ Les noms de fichiers sont des ULID : impossibles à deviner, triables par date
 de création.
 
 **Ordre de grandeur.** 250 dessins, 400 photographies de 12 Mpx : environ
-1,5 Go d'originaux, 150 Mo de dérivés.
+1,5 Go d'originaux, 150 Mo de dérivés. En ProRAW gardé tel quel, les mêmes
+400 photographies auraient pesé 26 Go ; développées, environ 2 Go, et moins
+encore une fois allégées.
 
 ---
 
@@ -466,8 +499,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 72 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
-| Playwright `mac` | 59 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import, studio, mesure, retouche et reprise après le ménage, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 79 tests | Numérotation, chaîne de traitement des images, développement des DNG, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
+| Playwright `mac` | 61 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import (DNG compris), studio, mesure, retouche, reprise après le ménage, allègement, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
@@ -605,6 +638,12 @@ choisie était une autre. Les deux sont corrigés.
 - **La conversion HEIC.** ImageMagick sait lire ce format mais pas l'écrire :
   impossible de fabriquer une image de test. Déposez une vraie photo d'iPhone
   dans `tests/fixtures/dessin-iphone.heic` et le test dédié s'activera.
+- **Un vrai ProRAW.** Les tests utilisent un petit DNG synthétique
+  (`scripts/generer-dng-test.php`) : un vrai pèse 66 Mo et montre un dessin de
+  la collection, il n'a rien à faire dans un dépôt public. Essayé à la main le
+  8 novembre sur un ProRAW d'iPhone 15 Pro : développé en 2 s en local, 6 s
+  sur le serveur, 4,6 Mo, à l'endroit, et un rendu à peine plus clair que
+  celui d'Apple.
 - **La qualité d'une vraie mesure**, sur un vrai dessin, avec une vraie règle.
 - **Les proportions d'une vraie œuvre redressée.** Le test prouve le calcul sur
   un appareil simulé ; reste à le confronter à un cadre de dimensions connues,

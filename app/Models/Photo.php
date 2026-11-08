@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Storage;
     'px_per_mm',
     'sheet_box',
     'retouch',
+    'original_trim',
     'reshoot_reason',
     'reshoot_note',
     'sort_order',
@@ -49,6 +50,7 @@ class Photo extends Model
             'exif' => 'array',
             'sheet_box' => 'array',
             'retouch' => 'array',
+            'original_trim' => 'array',
             'reshoot_reason' => ReshootReason::class,
             'taken_at' => 'datetime',
             'processed_at' => 'datetime',
@@ -106,6 +108,28 @@ class Photo extends Model
     public function isRetouched(): bool
     {
         return $this->retouch !== null;
+    }
+
+    /** L'original a été rogné, pour de bon, autour de l'œuvre (D-44). */
+    public function isTrimmed(): bool
+    {
+        return $this->original_trim !== null;
+    }
+
+    /**
+     * Où se trouve l'original dans la photographie entière, et la taille de
+     * celle-ci. Pour un original jamais allégé : à l'origine, à sa taille.
+     *
+     * @return array{x: int, y: int, largeur_px: int, hauteur_px: int}
+     */
+    public function fullFrame(): array
+    {
+        return [
+            'x' => (int) ($this->original_trim['x'] ?? 0),
+            'y' => (int) ($this->original_trim['y'] ?? 0),
+            'largeur_px' => (int) ($this->original_trim['largeur_px'] ?? $this->width_px ?? 0),
+            'hauteur_px' => (int) ($this->original_trim['hauteur_px'] ?? $this->height_px ?? 0),
+        ];
     }
 
     /**

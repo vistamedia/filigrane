@@ -14,7 +14,8 @@ Ce document-ci ne dit que ce qu'il faut faire, et dans quel ordre.
 
 Tu ne vas pas redécrocher cinquante cadres ni ressortir deux cents feuilles
 d'un carton. En revanche, l'original de chaque photographie est conservé, et le
-bouton **Mesurer** reste disponible sur la fiche indéfiniment.
+bouton **Mesurer** reste disponible sur la fiche indéfiniment — sauf ce qu'un
+original allégé a retiré (voir « Alléger l'original »).
 
 Donc : **mets une référence de longueur dans le champ, toujours.** Même quand
 tu penses ne pas en avoir besoin. Cela ne coûte rien au moment du déclenchement
@@ -127,12 +128,47 @@ mur et les cadres voisins autour. Sur la fiche, **Redresser, recadrer** :
    le cadre, le passe-partout ou la feuille.
 2. Le **zoom** que l'appareil affichait au déclenchement : 1×, 2×, 3×…
 3. Au besoin, **Automatique** pour la lumière.
-4. **Enregistrer**, ou **Enregistrer, puis la suivante** pour enchaîner les
+4. Au besoin, **Alléger l'original** (voir plus bas).
+5. **Enregistrer**, ou **Enregistrer, puis la suivante** pour enchaîner les
    photographies pas encore retouchées.
 
-L'original n'est jamais touché : on reprend ou on annule quand on veut, même
-des jours plus tard. Et la retouche ne change rien à l'avancement des fiches :
-une fiche « à décrire » le reste.
+Sans allègement, l'original n'est jamais touché : on reprend ou on annule
+quand on veut, même des jours plus tard. Et la retouche ne change rien à
+l'avancement des fiches : une fiche « à décrire » le reste.
+
+### Alléger l'original
+
+Quand l'œuvre n'occupe qu'une partie de la photo, le reste (la table, la
+chemise, le mur) n'a pas à être stocké. Coche **Alléger l'original** avant
+d'enregistrer : l'original est rogné autour des quatre pastilles, avec une
+marge, à pleine définition. La case dit quelle part de la photo disparaît, et
+reste cochée pour les suivantes.
+
+C'est **irréversible** pour cette photo. Avant de cocher :
+- **Mesure d'abord**, ou place les pastilles de façon à garder la carte ou la
+  règle : posée à côté de l'œuvre, elle partirait avec le reste.
+- Une **annotation** sur la chemise ou au dos du montage, hors des pastilles,
+  partirait aussi.
+
+On peut toujours reprendre les coins dans la marge, la lumière et le quart de
+tour. « Revenir à la photographie d'origine » ramène à ce qui a été gardé.
+
+---
+
+## Les photos en ProRAW (DNG)
+
+Les fichiers **.DNG** de l'iPhone se déposent comme les autres, dans l'import
+en masse ou sur une fiche. Le serveur les développe en JPEG pleine définition
+(48 Mpx) : 66 Mo deviennent 4 à 6 Mo, sans perte visible, et c'est ce JPEG qui
+est gardé. L'appareil, la focale et la date suivent.
+
+- Compte environ 6 secondes par fichier à l'import, et l'envoi de 66 Mo par
+  photo : un carton de 50 photos, c'est 3 Go à envoyer.
+- Le DNG lui-même n'est **pas gardé** par Filigrane. Si tu veux pouvoir le
+  redévelopper un jour, archive le dossier ailleurs (disque externe, Photos).
+- Le ProRAW ne sert que si tu comptes retravailler l'exposition ou les
+  couleurs. Sinon, le format habituel (HEIC, « Haute efficacité ») suffit en
+  général pour un catalogue, avec dix fois moins à envoyer.
 
 **Le zoom compte.** Quatre coins disent comment redresser, pas quelles sont
 les vraies proportions de l'œuvre : un trapèze donné peut venir d'un cadre

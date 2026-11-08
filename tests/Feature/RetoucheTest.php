@@ -344,6 +344,125 @@ class RetoucheTest extends TestCase
         $this->assertSame($this->cadre['coins'], $photo->retouch['coins']);
     }
 
+    public function test_alleger_rogne_l_original_autour_de_l_oeuvre_et_garde_les_vraies_proportions(): void
+    {
+        $photo = $this->importer();
+        [$ancienOriginal, $ancienneBrute] = [$photo->original_path, $photo->web_path];
+
+        app(RetouchePhoto::class)->appliquer($photo, $this->reglages(['alleger' => true]));
+        $photo->refresh();
+
+        // L'original ne garde que le cadre et une marge : bien moins que les
+        // 3024 × 4032 pixels de la photographie entière, à pleine définition.
+        $this->assertTrue($photo->isTrimmed());
+        $this->assertLessThan(0.6, ($photo->width_px * $photo->height_px) / (3024 * 4032));
+        $this->assertSame('image/jpeg', $photo->mime);
+        Storage::disk('local')->assertMissing($ancienOriginal);
+        Storage::disk('local')->assertExists($photo->original_path);
+
+        $gardee = new Imagick();
+        $gardee->readImageBlob(Storage::disk('local')->get($photo->original_path));
+        $this->assertSame([$photo->width_px, $photo->height_px], [$gardee->getImageWidth(), $gardee->getImageHeight()]);
+
+        // On sait où cette partie se trouvait dans la photographie entière.
+        $this->assertSame([3024, 4032], [$photo->original_trim['largeur_px'], $photo->original_trim['hauteur_px']]);
+        $this->assertGreaterThan(0, $photo->original_trim['x']);
+        $this->assertSame(['width' => 3024, 'height' => 4032], array_combine(
+            ['width', 'height'],
+            [$photo->fullFrame()['largeur_px'], $photo->fullFrame()['hauteur_px']],
+        ));
+
+        // La version web d'origine suit l'original : l'ancienne, avec le mur
+        // entier, est effacée.
+        Storage::disk('public')->assertMissing($ancienneBrute);
+        $brute = new Imagick();
+        $brute->readImageBlob(Storage::disk('public')->get($photo->raw_web_path));
+        $this->assertEqualsWithDelta($photo->width_px / $photo->height_px, $brute->getImageWidth() / $brute->getImageHeight(), 0.01);
+
+        // Le cadre redressé a toujours ses proportions de 300 × 400 mm…
+        $this->assertEqualsWithDelta(0.75, $photo->workingSize()['width'] / $photo->workingSize()['height'], 0.005);
+
+        // …et une retouche reprise sur l'original allégé les retrouve : le
+        // calcul se fait dans la photographie entière, dont le centre et la
+        // diagonale ne sont pas ceux de la partie gardée.
+        foreach ($photo->retouch['coins'] as [$x, $y]) {
+            $this->assertTrue($x > 0 && $x < 1 && $y > 0 && $y < 1);
+        }
+
+        app(RetouchePhoto::class)->appliquer($photo, $this->reglages(['coins' => $photo->retouch['coins'], 'luminosite' => 1.1]));
+        $photo->refresh();
+
+        $this->assertEqualsWithDelta(0.75, $photo->workingSize()['width'] / $photo->workingSize()['height'], 0.005);
+    }
+
+    public function test_alleger_deux_fois_avec_les_memes_coins_ne_rogne_pas_davantage(): void
+    {
+        $photo = $this->importer();
+        $service = app(RetouchePhoto::class);
+
+        $service->appliquer($photo, $this->reglages(['alleger' => true]));
+        $photo->refresh();
+        [$original, $dimensions] = [$photo->original_path, [$photo->width_px, $photo->height_px]];
+
+        // La case reste cochée d'une photographie à l'autre : réenregistrer
+        // la même retouche ne doit pas grignoter la marge.
+        $service->appliquer($photo, $this->reglages(['coins' => $photo->retouch['coins'], 'alleger' => true]));
+        $photo->refresh();
+
+        $this->assertSame($original, $photo->original_path);
+        $this->assertSame($dimensions, [$photo->width_px, $photo->height_px]);
+    }
+
+    public function test_alleger_ne_fait_rien_quand_il_n_y_a_rien_a_retirer(): void
+    {
+        $photo = $this->importer();
+        $original = $photo->original_path;
+
+        app(RetouchePhoto::class)->appliquer($photo, $this->reglages([
+            'coins' => [[0.02, 0.02], [0.98, 0.02], [0.98, 0.98], [0.02, 0.98]],
+            'alleger' => true,
+        ]));
+        $photo->refresh();
+
+        $this->assertTrue($photo->isRetouched());
+        $this->assertFalse($photo->isTrimmed());
+        $this->assertSame($original, $photo->original_path);
+        Storage::disk('local')->assertExists($original);
+    }
+
+    public function test_annuler_apres_allegement_revient_a_la_partie_gardee(): void
+    {
+        $photo = $this->importer();
+        $service = app(RetouchePhoto::class);
+
+        $service->appliquer($photo, $this->reglages(['alleger' => true]));
+        $photo->refresh();
+        $dimensions = [$photo->width_px, $photo->height_px];
+
+        $service->annuler($photo);
+        $photo->refresh();
+
+        // Il n'y a plus de photographie entière à retrouver : on revient à ce
+        // qui a été gardé, sans retouche.
+        $this->assertFalse($photo->isRetouched());
+        $this->assertTrue($photo->isTrimmed());
+        $this->assertSame($dimensions, [$photo->width_px, $photo->height_px]);
+        Storage::disk('local')->assertExists($photo->original_path);
+    }
+
+    public function test_alleger_depuis_la_page_de_retouche(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => UserRole::Curator]));
+        $photo = $this->importer();
+
+        Livewire::withQueryParams(['photo' => $photo->id])
+            ->test(RetoucherPhoto::class)
+            ->call('enregistrer', $this->reglages(['alleger' => true]))
+            ->assertNotified('Photographie retouchée');
+
+        $this->assertTrue($photo->refresh()->isTrimmed());
+    }
+
     public function test_retoucher_a_la_chaine_ne_touche_pas_a_l_avancement_des_fiches(): void
     {
         $this->actingAs(User::factory()->create(['role' => UserRole::Curator]));

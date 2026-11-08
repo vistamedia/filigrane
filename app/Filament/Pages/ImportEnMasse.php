@@ -87,13 +87,14 @@ class ImportEnMasse extends Page
                             ->label('Photographies')
                             ->multiple()
                             ->image()
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/tiff', 'image/avif'])
+                            ->acceptedFileTypes(PhotoImporter::TYPES_DEPOSABLES)
+                            ->mimeTypeMap(PhotoImporter::TYPES_PAR_EXTENSION)
                             ->maxSize(100 * 1024)
                             ->maxFiles(300)
                             ->storeFiles(false)
                             ->panelLayout('grid')
                             ->required()
-                            ->helperText('JPEG, PNG, WebP, TIFF ou HEIC. Les originaux sont conservés intacts ; seules les versions de consultation sont fabriquées.'),
+                            ->helperText('JPEG, PNG, WebP, TIFF, HEIC, ou DNG (ProRAW). Les originaux sont conservés intacts, sauf les DNG, développés en JPEG pleine définition, dix fois plus légers.'),
                     ]),
 
                 Section::make('Options')

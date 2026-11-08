@@ -284,7 +284,7 @@ Relevé le 28 octobre 2026, utile le jour où quelque chose change.
 | | |
 |---|---|
 | PHP | 8.4.27, en ligne de commande comme côté web (LiteSpeed) |
-| Imagick | présent, **avec les délégués HEIC, HEIF et AVIF** |
+| Imagick | présent, **avec les délégués HEIC, HEIF et AVIF** ; ImageMagick 7.1 lit aussi le DNG (libraw) : 6 s pour un ProRAW de 48 Mpx, relevé le 8 novembre 2026 |
 | Extensions | `exif`, `gd`, `intl`, `zip`, `fileinfo`, `mbstring`, `pdo_mysql`, `openssl` |
 | MariaDB | 11.4.13 |
 | Envoi de fichiers | 512 Mo, **20 fichiers au plus par requête** |

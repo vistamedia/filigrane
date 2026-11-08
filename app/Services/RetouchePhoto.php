@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Photo;
 use App\Support\Perspective;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Imagick;
@@ -29,7 +30,10 @@ class RetouchePhoto
     public function __construct(private DerivativeMaker $derivatives) {}
 
     /**
-     * @param  array{coins: array<int, array{0: float, 1: float}>, quart: int, focale: float, luminosite: float, contraste: float}  $reglages
+     * Avec « alleger », l'original lui-même est rogné autour des coins, avec
+     * une marge : le reste de la photographie est perdu (D-44).
+     *
+     * @param  array{coins: array<int, array{0: float, 1: float}>, quart: int, focale: float, luminosite: float, contraste: float, alleger?: bool}  $reglages
      */
     public function appliquer(Photo $photo, array $reglages): void
     {
@@ -42,12 +46,15 @@ class RetouchePhoto
         $contraste = round((float) $reglages['contraste'], 3);
 
         // Des réglages neutres ne sont pas une retouche : on revient à la
-        // photographie telle qu'elle a été prise.
+        // photographie telle qu'elle a été prise. Il n'y a alors rien à
+        // alléger non plus : les coins sont aux bords.
         if ($this->sontNeutres($coinsNormalises, $quart, $luminosite, $contraste)) {
             $this->annuler($photo);
 
             return;
         }
+
+        Perspective::verifier($coinsNormalises);
 
         $original = Storage::disk(config('filigrane.originals_disk'))->path($photo->original_path);
         $image = $this->derivatives->decodeOriented($original);
@@ -57,11 +64,35 @@ class RetouchePhoto
         $largeur = $imagick->getImageWidth();
         $hauteur = $imagick->getImageHeight();
 
+        $cadre = $photo->isTrimmed()
+            ? $photo->fullFrame()
+            : ['x' => 0, 'y' => 0, 'largeur_px' => $largeur, 'hauteur_px' => $hauteur];
+
+        $allegement = ($reglages['alleger'] ?? false)
+            ? $this->alleger($photo, $imagick, $coinsNormalises, $cadre)
+            : null;
+
+        if ($allegement) {
+            // L'image en mémoire n'est plus que la partie gardée : les coins
+            // s'y rapportent désormais.
+            $coinsNormalises = $allegement['coins'];
+            $cadre = $allegement['cadre'];
+            $largeur = $imagick->getImageWidth();
+            $hauteur = $imagick->getImageHeight();
+        }
+
         $coins = array_map(fn (array $coin): array => [$coin[0] * $largeur, $coin[1] * $hauteur], $coinsNormalises);
 
-        // Une focale lue dans l'EXIF l'emporte sur celle qu'on a déclarée.
+        // Les vraies proportions se calculent dans la photographie entière :
+        // son centre est le centre optique, et la focale se rapporte à sa
+        // diagonale. Une focale lue dans l'EXIF l'emporte sur celle déclarée.
         $focale = (float) ($photo->exif['focal_35mm'] ?? $reglages['focale']);
-        $rapport = Perspective::proportions($coins, $largeur, $hauteur, $focale);
+        $rapport = Perspective::proportions(
+            array_map(fn (array $coin): array => [$coin[0] + $cadre['x'], $coin[1] + $cadre['y']], $coins),
+            $cadre['largeur_px'],
+            $cadre['hauteur_px'],
+            $focale,
+        );
 
         // Le rectangle redressé, en pleine définition : aucun côté n'est
         // raccourci par rapport à ce que montre la photographie.
@@ -112,15 +143,130 @@ class RetouchePhoto
             ? [$photo->web_path, $photo->thumb_path]
             : [$photo->thumb_path];
 
-        $photo->forceFill([
+        $champs = [
             'raw_web_path' => $photo->raw_web_path ?? $photo->web_path,
             'web_path' => $webPath,
             'thumb_path' => $thumbPath,
             'retouch' => $retouche,
             ...$this->mesureAEffacer($photo, $retouche),
-        ])->save();
+        ];
 
-        Storage::disk(config('filigrane.derivatives_disk'))->delete(array_filter($perimes));
+        // Allégé, l'original change, et sa version web d'origine avec lui :
+        // l'ancienne montrerait encore la table.
+        if ($allegement) {
+            $perimes[] = $photo->raw_web_path ?? $photo->web_path;
+
+            $champs = [
+                ...$champs,
+                ...Arr::except($allegement['photo'], ['brute']),
+                'raw_web_path' => $this->ecrireBrute($photo, $allegement['photo']['brute']),
+            ];
+        }
+
+        $photo->forceFill($champs)->save();
+
+        Storage::disk(config('filigrane.derivatives_disk'))->delete(array_filter(array_unique($perimes)));
+
+        // L'ancien original ne part qu'une fois la photographie enregistrée :
+        // une erreur plus tôt le laisse en place, intact.
+        if ($allegement) {
+            Storage::disk(config('filigrane.originals_disk'))->delete($allegement['ancien']);
+        }
+    }
+
+    /**
+     * Rogne l'image en mémoire autour des coins, avec une marge, et écrit
+     * cette partie comme nouvel original, en JPEG pleine définition. N'efface
+     * rien : c'est l'appelant qui le fait, une fois tout enregistré.
+     *
+     * Renvoie null quand il n'y a presque rien à gagner : moins d'un dixième
+     * de la photographie à retirer.
+     *
+     * @param  array{x: int, y: int, largeur_px: int, hauteur_px: int}  $cadre  la photographie entière
+     * @return array{coins: array, cadre: array, ancien: string, photo: array<string, mixed>}|null
+     */
+    private function alleger(Photo $photo, Imagick $imagick, array $coins, array $cadre): ?array
+    {
+        $largeur = $imagick->getImageWidth();
+        $hauteur = $imagick->getImageHeight();
+
+        // La marge se mesure sur la photographie entière : rapportée à
+        // l'original déjà allégé, elle rétrécirait à chaque passage, et la
+        // même retouche, enregistrée deux fois, rognerait encore.
+        $marge = (float) config('filigrane.marge_allegement', 0.04) * max($cadre['largeur_px'], $cadre['hauteur_px']);
+
+        $xs = array_map(fn (array $coin): float => $coin[0] * $largeur, $coins);
+        $ys = array_map(fn (array $coin): float => $coin[1] * $hauteur, $coins);
+
+        $x0 = (int) max(0, floor(min($xs) - $marge));
+        $y0 = (int) max(0, floor(min($ys) - $marge));
+        $l = (int) min($largeur, ceil(max($xs) + $marge)) - $x0;
+        $h = (int) min($hauteur, ceil(max($ys) + $marge)) - $y0;
+
+        if ($l * $h > 0.9 * $largeur * $hauteur) {
+            return null;
+        }
+
+        $imagick->cropImage($l, $h, $x0, $y0);
+        $imagick->setImagePage(0, 0, 0, 0);
+
+        // L'image est déjà à l'endroit : une orientation laissée dans l'EXIF
+        // la ferait tourner une seconde fois. Le profil de couleur, lui, reste.
+        $jpeg = clone $imagick;
+        if ($jpeg->getImageProfiles('exif', false) !== []) {
+            $jpeg->removeImageProfile('exif');
+        }
+        $jpeg->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
+        $jpeg->setImageFormat('jpeg');
+        $jpeg->setImageCompressionQuality((int) config('filigrane.original_jpeg_quality', 92));
+        $octets = $jpeg->getImageBlob();
+        $jpeg->clear();
+
+        $originaux = Storage::disk(config('filigrane.originals_disk'));
+        $chemin = sprintf(
+            '%s/%s/%s.jpg',
+            trim(config('filigrane.originals_path'), '/'),
+            now()->format('Y/m'),
+            Str::lower((string) Str::ulid()),
+        );
+        $originaux->put($chemin, $octets);
+
+        return [
+            'coins' => array_map(fn (array $coin): array => [
+                round(($coin[0] * $largeur - $x0) / $l, 5),
+                round(($coin[1] * $hauteur - $y0) / $h, 5),
+            ], $coins),
+            'cadre' => [
+                'x' => $cadre['x'] + $x0,
+                'y' => $cadre['y'] + $y0,
+                'largeur_px' => $cadre['largeur_px'],
+                'hauteur_px' => $cadre['hauteur_px'],
+            ],
+            'ancien' => $photo->original_path,
+            'photo' => [
+                'original_path' => $chemin,
+                'mime' => 'image/jpeg',
+                'size_bytes' => strlen($octets),
+                'width_px' => $l,
+                'height_px' => $h,
+                'original_trim' => [
+                    'x' => $cadre['x'] + $x0,
+                    'y' => $cadre['y'] + $y0,
+                    'largeur_px' => $cadre['largeur_px'],
+                    'hauteur_px' => $cadre['hauteur_px'],
+                ],
+                'brute' => $this->derivatives->web($originaux->path($chemin)),
+            ],
+        ];
+    }
+
+    /** Écrit la version web d'origine d'un original allégé, sous un nom neuf. */
+    private function ecrireBrute(Photo $photo, string $octets): string
+    {
+        [$chemin] = $this->cheminsNeufs($photo);
+        Storage::disk(config('filigrane.derivatives_disk'))->put($chemin, $octets);
+
+        return $chemin;
     }
 
     /**

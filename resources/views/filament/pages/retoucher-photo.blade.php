@@ -21,6 +21,8 @@
                 hauteurPx: {{ (int) $this->photo->height_px }},
                 reglages: @js($reglages),
                 focaleExif: @js($focaleExif),
+                cadre: @js($this->cadreEntier()),
+                marge: @js((float) config('filigrane.marge_allegement')),
             })"
             x-on:resize.window="mesurerApercu()"
             class="grid gap-6 lg:grid-cols-3"
@@ -107,6 +109,12 @@
                 <p x-show="!valide" x-cloak class="mt-2 text-base font-medium text-danger-600 dark:text-danger-400">
                     Les pastilles se croisent : replacez chacune au coin qu'indique sa flèche.
                 </p>
+
+                @if ($this->photo->isTrimmed())
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        Original allégé : on ne voit plus que ce qui a été gardé autour de l'œuvre.
+                    </p>
+                @endif
             </div>
 
             {{-- Résultat et réglages. --}}
@@ -197,6 +205,23 @@
                 </x-filament::section>
 
                 <div class="flex flex-col gap-3">
+                    {{-- Irréversible : la case le dit, et chiffre ce qui part. --}}
+                    <label
+                        class="flex cursor-pointer items-start gap-3 rounded-lg p-3 ring-1 ring-gray-950/10 dark:ring-white/20"
+                        x-bind:class="alleger && 'bg-warning-50 dark:bg-warning-400/10'"
+                    >
+                        <input type="checkbox" x-model="alleger" class="mt-1 h-5 w-5 shrink-0 accent-primary-600">
+                        <span>
+                            <span class="block text-base font-medium">Alléger l'original</span>
+                            <span class="block text-sm text-gray-600 dark:text-gray-300">
+                                Ne garder que l'œuvre et une marge autour. Le reste de la
+                                photographie, règle ou carte posée à côté comprise, est
+                                supprimé pour de bon.
+                                <span x-show="alleger" x-cloak class="font-medium" x-text="libelleAllegement()"></span>
+                            </span>
+                        </span>
+                    </label>
+
                     <x-filament::button
                         size="lg"
                         icon="heroicon-o-check"
@@ -235,7 +260,9 @@
                             outlined
                             icon="heroicon-o-arrow-path"
                             wire:click="annulerRetouche"
-                            wire:confirm="La photographie reviendra telle qu'elle a été prise, et ces réglages seront oubliés. Continuer ?"
+                            wire:confirm="{{ $this->photo->isTrimmed()
+                                ? 'La photographie reviendra telle qu\'elle a été gardée à l\'allègement, et ces réglages seront oubliés. Continuer ?'
+                                : 'La photographie reviendra telle qu\'elle a été prise, et ces réglages seront oubliés. Continuer ?' }}"
                         >
                             Revenir à la photographie d'origine
                         </x-filament::button>
@@ -251,6 +278,12 @@
                 largeurPx: config.largeurPx,
                 hauteurPx: config.hauteurPx,
                 focaleExif: config.focaleExif,
+
+                // La photographie entière, si l'original a été allégé : sa
+                // position dedans, et sa taille (voir Photo::fullFrame).
+                cadre: config.cadre,
+                marge: config.marge,
+                alleger: false,
 
                 // Coordonnées normalisées (0 à 1) sur la photographie, dans
                 // l'ordre de la lecture : haut-gauche, haut-droite,
@@ -277,6 +310,15 @@
 
                 init() {
                     this.$nextTick(() => this.mesurerApercu());
+
+                    // La case reste cochée d'une photographie à la suivante,
+                    // pour alléger tout un carton à la chaîne.
+                    try {
+                        this.alleger = localStorage.getItem('filigrane.alleger') === '1';
+                    } catch {}
+                    this.$watch('alleger', (oui) => {
+                        try { localStorage.setItem('filigrane.alleger', oui ? '1' : '0'); } catch {}
+                    });
 
                     // Une image en échec avant l'arrivée d'Alpine n'émet plus
                     // d'événement : on regarde où elle en est.
@@ -344,8 +386,11 @@
                  * l'aperçu montre ce que le serveur produira.
                  */
                 get proportions() {
+                    // Dans le repère de la photographie entière, centrée sur
+                    // son centre optique, même si l'original a été allégé.
                     const [l, h] = [this.largeurPx, this.hauteurPx];
-                    const [hg, hd, bd, bg] = this.coins.map(([x, y]) => [x * l - l / 2, y * h - h / 2, 1]);
+                    const { x: dx, y: dy, l: L, h: H } = this.cadre;
+                    const [hg, hd, bd, bg] = this.coins.map(([x, y]) => [x * l + dx - L / 2, y * h + dy - H / 2, 1]);
                     const [m1, m2, m3, m4] = [hg, hd, bg, bd];
 
                     const mixte = (a, b, c) => (a[1] * b[2] - a[2] * b[1]) * c[0]
@@ -357,7 +402,7 @@
                     const n2 = [k2 * m2[0] - m1[0], k2 * m2[1] - m1[1], k2 - 1];
                     const n3 = [k3 * m3[0] - m1[0], k3 * m3[1] - m1[1], k3 - 1];
 
-                    const f = (this.focaleExif || this.focale) * Math.hypot(l, h) / 43.2666;
+                    const f = (this.focaleExif || this.focale) * Math.hypot(L, H) / 43.2666;
                     const rapport = Math.sqrt(
                         ((n2[0] ** 2 + n2[1] ** 2) / f ** 2 + n2[2] ** 2)
                         / ((n3[0] ** 2 + n3[1] ** 2) / f ** 2 + n3[2] ** 2),
@@ -384,6 +429,30 @@
                     const sens = r >= 1 ? 'en largeur' : 'en hauteur';
 
                     return `${r.toLocaleString('fr-FR', { maximumFractionDigits: 2 })} (${sens})`;
+                },
+
+                /**
+                 * Part de l'original que l'allègement garderait : le
+                 * rectangle des coins, élargi de la marge. Même calcul que
+                 * RetouchePhoto::alleger().
+                 */
+                get partGardee() {
+                    const [l, h] = [this.largeurPx, this.hauteurPx];
+                    const marge = this.marge * Math.max(this.cadre.l, this.cadre.h);
+                    const xs = this.coins.map(([x]) => x * l);
+                    const ys = this.coins.map(([, y]) => y * h);
+                    const largeur = Math.min(l, Math.max(...xs) + marge) - Math.max(0, Math.min(...xs) - marge);
+                    const hauteur = Math.min(h, Math.max(...ys) + marge) - Math.max(0, Math.min(...ys) - marge);
+
+                    return (largeur * hauteur) / (l * h);
+                },
+
+                libelleAllegement() {
+                    const part = this.partGardee;
+
+                    if (part > 0.9) return 'Les pastilles sont presque aux bords : il n\'y a rien à retirer.';
+
+                    return `Environ ${Math.round((1 - part) * 100)} % de la photographie seront supprimés.`;
                 },
 
                 pourcentage(valeur) {
@@ -592,6 +661,7 @@
                             focale: this.focaleExif || this.focale,
                             luminosite: this.luminosite,
                             contraste: this.contraste,
+                            alleger: this.alleger,
                         }, suivante);
                     } finally {
                         this.enCours = false;

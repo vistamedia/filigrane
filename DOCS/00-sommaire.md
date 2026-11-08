@@ -38,7 +38,7 @@ près, poser des mots-clés, parcourir la collection en diaporama, l'exporter en
 tableur ou en catalogue PDF, récupérer une fiche effacée.
 
 ### [04 — Décisions et alternatives](04-decisions-et-alternatives.md)
-Quarante-deux décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
+Quarante-quatre décisions, chacune avec ce qui a été fait, pourquoi, l'autre option
 et ce qu'il en coûterait de changer d'avis — y compris deux décisions **revenues**
 (D-18, le réglage de taille du texte ; D-09, l'emplacement par mots-clés). **C'est le document à ouvrir quand
 quelque chose te paraît discutable.**
@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 72 tests PHP + 75 tests de bout en bout
+make test       # 79 tests PHP + 77 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -134,5 +134,10 @@ make            # liste toutes les commandes
 - Corrigé le 8 novembre : le service worker resservait l'ancienne icône aux
   navigateurs qui avaient ouvert le site avant son remplacement ; sa version
   suit désormais les fichiers qu'il garde, sous le contrôle d'un test.
+- Ajouté le 8 novembre, après une séance en ProRAW : les **DNG** sont acceptés
+  à l'import et développés en JPEG pleine définition, dix fois plus légers
+  (voir [D-43](04-decisions-et-alternatives.md#d-43)) ; et la case **Alléger
+  l'original** de la retouche rogne l'original autour de l'œuvre, pour de bon
+  (voir [D-44](04-decisions-et-alternatives.md#d-44)).
 - Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
   activer le test de conversion.

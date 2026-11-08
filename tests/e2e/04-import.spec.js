@@ -38,6 +38,26 @@ test.describe('Import en masse', () => {
         expect(erreurs).toEqual([]);
     });
 
+    test('un DNG (ProRAW) est accepté et développé en JPEG', async ({ page }) => {
+        const erreurs = surveillerLesErreurs(page);
+
+        await page.goto('/import');
+        await page.locator('input[type="file"]').setInputFiles([fixture('prise-raw.dng')]);
+
+        await expect(page.locator('[data-filepond-item-state="processing-complete"]'))
+            .toHaveCount(1, { timeout: 90_000 });
+
+        await page.getByRole('button', { name: 'Importer', exact: true }).click();
+        await expect(page.getByText('1 photographie importée')).toBeVisible({ timeout: 120_000 });
+
+        // La vignette est fabriquée : le DNG a bien été lu.
+        const vignette = page.locator('.fi-filigrane-vignette img').first();
+        await expect(vignette).toHaveJSProperty('complete', true);
+        expect(await vignette.evaluate((img) => img.naturalWidth)).toBeGreaterThan(0);
+
+        expect(erreurs).toEqual([]);
+    });
+
     test('le mode « une seule fiche » regroupe les clichés', async ({ page }) => {
         await page.goto('/import');
 

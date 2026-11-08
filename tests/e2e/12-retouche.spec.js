@@ -206,3 +206,37 @@ test('on revient à la photographie d\'origine en un geste', async ({ page }) =>
     expect(await coinDeLaPhoto(page)).toBe('mur');
     await expect(page.getByText('retouchée', { exact: true })).toHaveCount(0);
 });
+
+test('alléger l\'original ne garde que le cadre et sa marge, pour de bon', async ({ page }) => {
+    const erreurs = surveillerLesErreurs(page);
+
+    await page.goto(fiche);
+    await page.getByRole('link', { name: 'Redresser, recadrer' }).click();
+
+    for (const [i, etiquette] of POIGNEES.entries()) {
+        await deplacer(page, etiquette, ...CADRE.coins[i]);
+    }
+
+    // Irréversible : la case n'est jamais cochée d'office, et dit ce qui part.
+    const alleger = page.getByRole('checkbox', { name: /Alléger l'original/ });
+    await expect(alleger).not.toBeChecked();
+    await alleger.check();
+    await expect(page.getByText(/Environ \d+\s%\sde la photographie seront supprimés/)).toBeVisible();
+
+    await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
+    await expect(page).toHaveURL(/\/decrire/, { timeout: 30_000 });
+    await expect(page.getByText('L\'original est allégé')).toBeVisible();
+    await expect(page.getByText('retouchée · original allégé')).toBeVisible();
+
+    // L'original ne fait plus les 3024 × 4032 pixels de la photographie.
+    const definition = await page.locator('.fi-ta').last().getByText(/\d+ × \d+ px/).first().innerText();
+    const [largeur, hauteur] = definition.match(/\d+/g).map(Number);
+    expect(largeur * hauteur).toBeLessThan(3024 * 4032 * 0.6);
+
+    // La case reste cochée d'une photographie à l'autre, pour enchaîner.
+    await page.getByRole('link', { name: 'Reprendre la retouche' }).click();
+    await expect(page.getByRole('checkbox', { name: /Alléger l'original/ })).toBeChecked();
+    await expect(page.getByText('Original allégé : on ne voit plus')).toBeVisible();
+
+    expect(erreurs).toEqual([]);
+});

@@ -92,7 +92,10 @@ class PhotosRelationManager extends RelationManager
                     ->state(fn (Photo $record): string => $record->width_px
                         ? sprintf('%d × %d px', $record->width_px, $record->height_px)
                         : 'en cours de traitement')
-                    ->description(fn (Photo $record): ?string => $record->isRetouched() ? 'retouchée' : null),
+                    ->description(fn (Photo $record): ?string => collect([
+                        $record->isRetouched() ? 'retouchée' : null,
+                        $record->isTrimmed() ? 'original allégé' : null,
+                    ])->filter()->implode(' · ') ?: null),
 
                 TextColumn::make('echelle')
                     ->label('Échelle')
@@ -256,12 +259,13 @@ class PhotosRelationManager extends RelationManager
                     ->label('Fichiers')
                     ->multiple()
                     ->image()
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/tiff', 'image/avif'])
+                    ->acceptedFileTypes(PhotoImporter::TYPES_DEPOSABLES)
+                    ->mimeTypeMap(PhotoImporter::TYPES_PAR_EXTENSION)
                     ->maxSize(100 * 1024)
                     ->maxFiles(40)
                     ->storeFiles(false)
                     ->required()
-                    ->helperText('JPEG, PNG, WebP, TIFF ou HEIC (iPhone). L\'original est conservé tel quel.'),
+                    ->helperText('JPEG, PNG, WebP, TIFF, HEIC (iPhone) ou DNG (ProRAW). L\'original est conservé tel quel ; un DNG est développé en JPEG pleine définition.'),
 
                 Select::make('kind')
                     ->label('Nature de ces photographies')

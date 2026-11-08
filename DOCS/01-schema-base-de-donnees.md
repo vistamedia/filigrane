@@ -66,6 +66,7 @@ erDiagram
         decimal px_per_mm
         longtext sheet_box "JSON {x,y,w,h}"
         longtext retouch "JSON"
+        longtext original_trim "JSON, si allégé"
         varchar reshoot_reason "indexé"
         varchar reshoot_note
         int sort_order
@@ -165,10 +166,10 @@ inscription, filigrane vu par transparence, cadre.
 | `drawing_id` | FK → `drawings` | non | `ON DELETE CASCADE`. |
 | `kind` | `varchar(20)` | non | `recto`, `verso`, `detail`, `frame`, `document`. |
 | `caption` | `varchar(255)` | oui | « Filigrane : raisin, visible par transparence ». |
-| `original_path` | `varchar(255)` | non | Chemin sur le **disque privé**. Le fichier d'origine, octet pour octet. |
+| `original_path` | `varchar(255)` | non | Chemin sur le **disque privé**. Le fichier d'origine, octet pour octet — sauf un DNG, développé en JPEG à l'import (**D-43**), et un original allégé (**D-44**). |
 | `original_name` | `varchar(255)` | oui | Nom du fichier tel que déposé, pour la traçabilité. |
 | `mime`, `size_bytes` | | oui | Renseignés à l'import. |
-| `width_px`, `height_px` | `int unsigned` | oui | Définition de l'**original**, pas du dérivé. Base de tout calcul d'échelle. |
+| `width_px`, `height_px` | `int unsigned` | oui | Définition de l'**original**, pas du dérivé. Base de tout calcul d'échelle. Celle de la partie gardée si l'original a été allégé. |
 | `web_path`, `thumb_path` | `varchar(255)` | oui | Dérivés JPEG sur le disque public, servis en statique par Apache. Retouchés si la photo l'est. |
 | `raw_web_path` | `varchar(255)` | oui | Version web d'avant retouche, gardée pour reprendre la retouche. Null si la photo n'est pas retouchée. |
 | `exif` | `longtext` (JSON) | oui | `camera`, `focal_35mm`, `subject_distance_mm`, `taken_at`, `iso`… |
@@ -177,6 +178,7 @@ inscription, filigrane vu par transparence, cadre.
 | `px_per_mm` | `decimal(12,6)` | oui | Nombre de pixels par millimètre réel sur cette photo. |
 | `sheet_box` | `longtext` (JSON) | oui | Rectangle de la feuille, en coordonnées **normalisées** `{x, y, w, h}` ∈ [0,1]. Sur une photo retouchée, se rapporte à l'image redressée. |
 | `retouch` | `longtext` (JSON) | oui | Réglages de retouche : `coins`, `quart`, `focale`, `luminosite`, `contraste`, et la définition du rectangle redressé (`largeur_px`, `hauteur_px`). Voir **D-36**. |
+| `original_trim` | `longtext` (JSON) | oui | Original allégé : position de la partie gardée dans la photographie entière, et taille de celle-ci (`x`, `y`, `largeur_px`, `hauteur_px`). Le calcul des vraies proportions s'y rapporte. Null : jamais allégé. Voir **D-44**. |
 | `reshoot_reason` | `varchar(20)` *indexé* | oui | Cliché à refaire : `reflections`, `blur`, `dark`, `framing`, `other`. Null : le cliché convient. Voir **D-38**. |
 | `reshoot_note` | `varchar(255)` | oui | Précision libre sur le défaut : « reflet de la fenêtre en haut à gauche ». |
 | `sort_order` | `int unsigned` | non | Ordre d'affichage, réorganisable à la souris. |

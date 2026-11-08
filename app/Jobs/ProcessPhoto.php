@@ -50,7 +50,9 @@ class ProcessPhoto implements ShouldQueue
             $public->put($webPath, $made['web']);
             $public->put($thumbPath, $made['thumb']);
 
-            $exif = ExifReader::read($absolutePath);
+            // Un DNG développé arrive sans EXIF dans son JPEG : on garde
+            // celles que l'import a lues dans le DNG.
+            $exif = ExifReader::read($absolutePath) ?: ($photo->exif ?? []);
 
             $photo->forceFill([
                 'width_px' => $made['width'],

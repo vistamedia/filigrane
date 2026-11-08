@@ -28,7 +28,8 @@ marquées *validée*.
 [D-05](#d-05) Originaux privés · [D-06](#d-06) Mesure par référence ·
 [D-24](#d-24) HEIC converti côté serveur · [D-36](#d-36) Retouche non destructive ·
 [D-37](#d-37) Proportions par la focale · [D-38](#d-38) Clichés à refaire ·
-[D-41](#d-41) L'original s'affiche dans l'application
+[D-41](#d-41) L'original s'affiche dans l'application ·
+[D-43](#d-43) DNG développé à l'import · [D-44](#d-44) Original allégé
 
 **Sécurité et comptes**
 [D-12](#d-12) Deux rôles · [D-13](#d-13) Pas de courriel ·
@@ -549,6 +550,9 @@ allège le serveur, mais fait perdre la qualité et les métadonnées d'origine.
 
 **Coût d'un changement.** Déconseillé. L'original est la pièce d'archive.
 
+Le DNG, lui, n'est pas gardé tel quel : il est développé en JPEG à l'import
+([D-43](#d-43)).
+
 **À vérifier.** Aucune image HEIC n'a pu être fabriquée pour les tests —
 ImageMagick lit ce format mais ne sait pas l'écrire. Dépose une vraie photo
 d'iPhone dans `tests/fixtures/dessin-iphone.heic` et le test dédié s'activera.
@@ -851,6 +855,9 @@ partir de l'original et de ces réglages ; l'original n'est pas touché. La
 version web d'avant retouche est mise de côté (`raw_web_path`) : c'est sur
 elle qu'on replace les coins pour reprendre la retouche.
 
+Une seule exception, qu'il faut demander : la case **Alléger l'original**
+([D-44](#d-44)).
+
 **Pourquoi.** La première séance — 32 œuvres encadrées, sur quatre étages —
 a donné des trapèzes, des cadres voisins dans le champ et des étages hauts
 plus sombres. Il fallait les reprendre, mais l'original reste la pièce
@@ -1057,6 +1064,7 @@ avec une migration qui reprend les valeurs existantes, précisions comprises.
 
 ---
 
+<a id="d-41"></a>
 ## D-41 — L'original s'affiche dans l'application, jamais dans un onglet
 
 **Choix.** Le lien **Pleine résolution** du panneau d'images et le bouton
@@ -1096,6 +1104,7 @@ de dix lignes dans `PhotosRelationManager`, à réserver au Mac.
 
 ---
 
+<a id="d-42"></a>
 ## D-42 — Quitter une fiche : retour à la liste enregistré, « décrit » confirmé si rien n'est écrit
 
 **Choix.** La fiche gagne un bouton **Retour à la liste**, en tête de ses
@@ -1131,6 +1140,78 @@ Un simple lien perdrait sans bruit une description à moitié écrite.
 
 **Coût d'un changement.** Faire du retour un simple lien : une ligne. Ôter la
 confirmation : deux lignes dans `EditDrawing`.
+
+---
+
+<a id="d-43"></a>
+## D-43 — Un DNG est développé en JPEG à l'import, et le DNG n'est pas gardé *validée*
+
+**Choix.** Les fichiers DNG (ProRAW d'iPhone) sont acceptés par l'import en
+masse et par l'ajout de photographies. À l'import, le serveur les développe
+en JPEG pleine définition, qualité 92, à l'endroit, et c'est ce JPEG qui
+devient l'original. Les métadonnées (appareil, focale, date) sont lues dans le
+DNG et gardées dans `exif`. Le nom du fichier déposé reste `IMG_….DNG`.
+
+**Pourquoi.** Le 8 novembre 2026, une séance en ProRAW : 54 fichiers de
+48 Mpx, 66 Mo chacun, 3,9 Go pour un carton. Le Mac les lit mais ne sait pas
+les modifier. Développé en JPEG, un fichier en pèse 4 à 6, sans perte visible.
+ImageMagick, chez l'hébergeur, les lit par libraw : 6 secondes par fichier, et
+un rendu comparé à celui d'Apple sur un vrai ProRAW, à peine plus clair.
+
+**Ce qu'on y perd.** La latitude du RAW : rattraper une exposition, changer la
+balance des blancs après coup. Pour un catalogue, la photographie développée
+suffit. Les DNG restent sur le Mac, à archiver ailleurs si l'on y tient.
+
+**Alternatives.**
+- *Garder le DNG tel quel*, comme tout autre original : 66 Mo par photographie,
+  26 Go pour 400. Proposé, écarté.
+- *Développer sur le Mac avant l'envoi* (`sips` le fait en 2 secondes) : dix
+  fois moins à envoyer, mais un geste de plus à chaque séance, et rien ne
+  l'impose si on l'oublie.
+- *Développer en HEIC* : un tiers plus léger, mais ImageMagick ne sait pas
+  écrire ce format.
+
+**Coût d'un changement.** Garder les DNG : retirer l'appel à
+`DeveloppementRaw` dans `PhotoImporter` et faire décoder les DNG par
+`DerivativeMaker`. Les photographies déjà importées restent en JPEG.
+
+---
+
+<a id="d-44"></a>
+## D-44 — L'original peut être allégé depuis la retouche, pour de bon *validée*
+
+**Choix.** Une case **Alléger l'original** dans la page de retouche. Cochée,
+l'enregistrement rogne l'original au rectangle des quatre coins, élargi de
+4 % du plus grand côté de la photographie entière, et le réécrit en JPEG
+pleine définition. La case n'est jamais cochée d'office ; une fois cochée,
+elle le reste d'une photographie à la suivante, pour enchaîner un carton. Elle
+indique la part de la photographie qui sera supprimée.
+
+**Pourquoi.** Sur les photos du 8 novembre, l'œuvre et son passe-partout
+occupent le tiers de l'image ; le reste, c'est la chemise et la table.
+Les stocker ne sert à rien.
+
+**Ce qui est irréversible.** Le reste de la photographie. « Revenir à la
+photographie d'origine » ramène à la partie gardée, plus au cliché entier.
+Une annotation écrite hors des coins et de la marge, sur la chemise par
+exemple, disparaît avec le reste : placer les coins en conséquence.
+
+**Ce qui ne l'est pas.** Les coins peuvent être repris dans la marge, la
+lumière et le quart de tour changés comme avant. Le calcul des vraies
+proportions continue de se faire dans la photographie entière : la colonne
+`original_trim` retient où se trouvait la partie gardée.
+
+**Alternatives.**
+- *Pas de rognage de l'original* : la retouche reste entièrement réversible,
+  mais on stocke la table. Proposé, écarté.
+- *Rogner automatiquement à l'import*, autour de la feuille détectée : rien à
+  faire, mais un rognage irréversible confié à une détection qui peut se
+  tromper, et des annotations perdues sans qu'on les ait vues.
+- *Rogner au ras des coins, sans marge* : un peu plus léger, mais plus moyen
+  de reprendre un coin placé trop à l'intérieur.
+
+**Coût d'un changement.** Retirer la case : quelques lignes dans la page. Les
+originaux déjà allégés le restent.
 
 ---
 

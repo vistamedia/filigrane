@@ -42,6 +42,8 @@ return [
     'web_path' => 'photos/web',
     'thumb_path' => 'photos/miniatures',
 
+    // Un DNG se présente le plus souvent comme un TIFF, qu'il est par sa
+    // structure ; certaines versions de libmagic le nomment pour ce qu'il est.
     'accepted_mimes' => [
         'image/jpeg',
         'image/png',
@@ -50,7 +52,25 @@ return [
         'image/heif',
         'image/tiff',
         'image/avif',
+        'image/x-adobe-dng',
+        'image/dng',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Originaux réécrits par l'application
+    |--------------------------------------------------------------------------
+    | Deux cas seulement : un DNG développé à l'import (D-43), et un original
+    | allégé depuis la retouche (D-44). Qualité JPEG 92 : sans perte visible,
+    | dix fois plus léger qu'un ProRAW de 48 Mpx.
+    |
+    | La marge d'allègement, autour des quatre coins de la retouche, est une
+    | part du plus grand côté de la photographie : de quoi reprendre les coins
+    | plus tard sans buter sur le bord.
+    */
+
+    'original_jpeg_quality' => (int) env('FILIGRANE_ORIGINAL_JPEG_QUALITY', 92),
+    'marge_allegement' => 0.04,
 
     /*
     |--------------------------------------------------------------------------
