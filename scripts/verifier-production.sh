@@ -111,7 +111,7 @@ contient "la page de connexion est en français"  "/login"  "Mot de passe"
 absent "aucune clé de traduction brute n'apparaît" "/login" 'filament-[a-z]*::'
 contient "la présentation ne laisse filtrer aucune fiche" "/a-propos" "Conception et développement"
 contient "le manifeste nomme l'application"      "/manifest.webmanifest" "Filigrane"
-contient "le service worker est servi en JavaScript" "/sw.js" "filigrane-v"
+contient "le service worker est servi en JavaScript" "/sw.js" "const VERSION = 'filigrane-"
 
 echo
 echo "Transport :"
