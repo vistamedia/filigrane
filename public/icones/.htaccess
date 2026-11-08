@@ -1,0 +1,11 @@
+# Les icônes gardent leur nom d'une version à l'autre. Avec un an de cache,
+# comme pour les photographies (dont le nom change à chaque retouche), une
+# icône remplacée resterait l'ancienne chez qui l'a déjà vue. Elles sont
+# minuscules : un jour suffit.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 day"
+    ExpiresByType image/svg+xml "access plus 1 day"
+    ExpiresByType image/x-icon "access plus 1 day"
+    ExpiresByType image/vnd.microsoft.icon "access plus 1 day"
+</IfModule>

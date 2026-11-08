@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 71 tests PHP + 75 tests de bout en bout
+make test       # 72 tests PHP + 75 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -131,5 +131,8 @@ make            # liste toutes les commandes
   [D-41](04-decisions-et-alternatives.md#d-41)). Le même jour, un bouton
   **Retour à la liste** sur la fiche, et une confirmation avant de déclarer
   décrite une fiche vide (voir [D-42](04-decisions-et-alternatives.md#d-42)).
+- Corrigé le 8 novembre : le service worker resservait l'ancienne icône aux
+  navigateurs qui avaient ouvert le site avant son remplacement ; sa version
+  suit désormais les fichiers qu'il garde, sous le contrôle d'un test.
 - Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
   activer le test de conversion.

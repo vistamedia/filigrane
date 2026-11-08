@@ -9,9 +9,15 @@
  * Rien de ce que l'utilisatrice saisit n'est mis en file d'attente localement,
  * et aucune photo n'est mise en cache : une collection de 250 dessins
  * dépasserait vite le quota accordé à Safari sur iOS.
+ *
+ * VERSION est l'empreinte des fichiers de SHELL. Le navigateur ne renouvelle
+ * ce cache que si sw.js change : une icône remplacée sans changer VERSION
+ * resterait l'ancienne, pour toujours, chez qui avait déjà ouvert le site.
+ * C'est arrivé le 29 octobre 2026 (DOCS/02, défaut n° 15). Le test
+ * ServiceWorkerTest calcule l'empreinte et refuse l'oubli.
  */
 
-const VERSION = 'filigrane-v1';
+const VERSION = 'filigrane-f40f5b81';
 const SHELL = [
   '/hors-ligne',
   '/icones/icone-192x192.png',
@@ -23,7 +29,9 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(VERSION)
-      .then((cache) => cache.addAll(SHELL))
+      // « reload » : sinon le cache HTTP du navigateur, qui garde longtemps
+      // les icônes, resservirait l'ancienne au nouveau cache.
+      .then((cache) => cache.addAll(SHELL.map((url) => new Request(url, { cache: 'reload' }))))
       .then(() => self.skipWaiting()),
   );
 });

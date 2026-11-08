@@ -320,6 +320,14 @@ enregistrement depuis un cache corromprait une fiche. Et il ne met en cache
 aucune photographie : 250 dessins dépasseraient vite le quota accordé à Safari
 sur iOS.
 
+**Sa version est l'empreinte de ce qu'il garde.** Le navigateur ne renouvelle
+ce cache que si `sw.js` change. Remplacer une icône sans toucher à `VERSION`
+la fige, chez qui a déjà ouvert le site, jusqu'à ce qu'il vide ses données.
+`ServiceWorkerTest` recalcule l'empreinte et indique la valeur à reporter. Les
+icônes elles-mêmes ne restent qu'un jour dans le cache HTTP
+(`public/icones/.htaccess`), contre un an pour les photographies, dont le nom
+change à chaque version.
+
 **Rien ne s'ouvre hors de l'application.** Installée, l'application n'a ni
 onglets ni bouton de retour. Un lien en `target="_blank"` ou un téléchargement
 y laisse l'utilisatrice devant un écran sans issue. L'original d'une
@@ -458,7 +466,7 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 71 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide. |
+| PHPUnit (`tests/Feature`) | 72 tests | Numérotation, chaîne de traitement des images, échelles, corbeille, exports, retouche et proportions, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
 | Playwright `mac` | 59 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import, studio, mesure, retouche et reprise après le ménage, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
@@ -570,6 +578,18 @@ le lendemain, et aucun test ne vivait jusque-là :
     L'original s'ouvre désormais dans la visionneuse de la fiche
     ([D-41](04-decisions-et-alternatives.md#d-41)), et le test vérifie qu'on
     reste sur la même page, dans le même onglet.
+
+Un quinzième, signalé le 8 novembre, depuis Chrome :
+
+15. La page à-propos montrait l'ancienne icône et l'ancien favicon, sauf
+    après un rechargement forcé. Le service worker sert l'icône et le favicon
+    depuis son cache, « cache d'abord ». Les icônes définitives sont arrivées
+    une heure après le premier déploiement, sous les mêmes noms, sans que
+    `sw.js` change : les navigateurs qui avaient ouvert le site dans
+    l'intervalle ont gardé les anciennes. Le rechargement forcé contourne le
+    service worker, d'où le symptôme. `VERSION` est désormais l'empreinte des
+    fichiers mis en cache, vérifiée par un test, et le nouveau cache se
+    remplit en contournant le cache HTTP.
 
 Au passage, la visionneuse gardait la liste des photographies de son premier
 affichage. Une photographie ajoutée depuis ne s'y ouvrait pas, et un clic sur
