@@ -30,6 +30,13 @@ class PhotoImporter
     public const TYPES_PAR_EXTENSION = ['dng' => 'image/x-adobe-dng'];
 
     /**
+     * À poser sur les champs d'envoi (extraAlpineAttributes) : dès que
+     * FilePond est prêt, les envois refusés en chemin sont relancés, et ceux
+     * qui échouent encore sont nommés sous le champ.
+     */
+    public const RELANCE_DES_ENVOIS = ['x-effect' => 'pond && window.filigraneEnvois?.(pond, $el)'];
+
+    /**
      * @param  array{kind?: PhotoKind|string, caption?: string|null}  $attributes
      */
     public function import(

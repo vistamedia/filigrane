@@ -290,6 +290,7 @@ Relevé le 28 octobre 2026, utile le jour où quelque chose change.
 | Envoi de fichiers | 512 Mo, **20 fichiers au plus par requête** |
 | Temps d'exécution | 600 s côté web, illimité en ligne de commande |
 | Mémoire | 512 Mo |
+| Pare-feu applicatif | refuse un envoi de fichier qui ne vient pas d'un navigateur (`curl` : 406), et refuse parfois, en passant, un envoi sous forte charge. Laravel reçoit alors la requête rejouée **en GET** et répond 405 : un 405 sur `upload-file` vient de là, pas de l'application. Relevé le 9 novembre 2026. |
 | Node | 18.20.8 — trop ancien pour ce projet, d'où la compilation en local |
 | Composer, Git, rsync | présents |
 

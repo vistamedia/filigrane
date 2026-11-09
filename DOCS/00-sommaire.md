@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 84 tests PHP + 78 tests de bout en bout
+make test       # 87 tests PHP + 80 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -142,5 +142,8 @@ make            # liste toutes les commandes
 - Ajouté le 9 novembre : une photo de **plusieurs mini-dessins** se sépare en
   une fiche par dessin, à partir de cadres proposés par l'application (voir
   [D-45](04-decisions-et-alternatives.md#d-45)).
+- Corrigé le 9 novembre : les envois refusés en chemin par l'hébergeur sont
+  relancés, et ceux qui échouent encore sont nommés ; et les messages de
+  validation, qui s'affichaient sous forme de clés brutes, sont en français.
 - Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
   activer le test de conversion.

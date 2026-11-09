@@ -58,6 +58,55 @@ test.describe('Import en masse', () => {
         expect(erreurs).toEqual([]);
     });
 
+    // Le 9 novembre, l'hébergeur a refusé 4 envois de ProRAW sur 104, aux
+    // minutes les plus chargées : Laravel recevait alors un GET et répondait
+    // 405. On imite ce refus en interceptant l'envoi.
+    const refus = { status: 405, contentType: 'application/json', body: '{"message":"The GET method is not supported."}' };
+
+    test('un envoi refusé en passant est relancé sans qu\'on le voie', async ({ page }) => {
+        const erreurs = surveillerLesErreurs(page);
+        let envois = 0;
+
+        await page.route('**/upload-file**', (route) => (envois++ === 0 ? route.fulfill(refus) : route.continue()));
+
+        await page.goto('/import');
+        await page.locator('input[type="file"]').setInputFiles([fixture('dessin-recto.jpg')]);
+
+        await expect(page.locator('[data-filepond-item-state="processing-complete"]'))
+            .toHaveCount(1, { timeout: 60_000 });
+        expect(envois).toBe(2);
+
+        // Ni liste d'échecs, ni message générique resté affiché.
+        await expect(page.locator('[data-envois-en-echec]')).toBeHidden();
+        await expect(page.getByText(/n'a pas pu être envoyé|failed to upload/)).toHaveCount(0);
+
+        // Les erreurs réseau simulées sont attendues ici.
+        expect(erreurs.filter((e) => ! /405|Failed to load resource/.test(e))).toEqual([]);
+    });
+
+    test('un fichier qui échoue encore est nommé, et seul le reste est importé', async ({ page }) => {
+        await page.route('**/upload-file**', (route) => (
+            route.request().postDataBuffer()?.includes('dessin-verso.jpg') ? route.fulfill(refus) : route.continue()
+        ));
+
+        await page.goto('/import');
+        await page.locator('input[type="file"]').setInputFiles([
+            fixture('dessin-recto.jpg'),
+            fixture('dessin-verso.jpg'),
+        ]);
+
+        // Deux relances, à 2 puis 4 secondes, avant de renoncer.
+        const liste = page.locator('[data-envois-en-echec]');
+        await expect(liste).toBeVisible({ timeout: 60_000 });
+        await expect(liste).toContainText('1 fichier n\'a pas pu être envoyé');
+        await expect(liste).toContainText('dessin-verso.jpg');
+        await expect(liste).not.toContainText('dessin-recto.jpg');
+        await expect(page.getByText(/failed to upload/)).toHaveCount(0);
+
+        await page.getByRole('button', { name: 'Importer', exact: true }).click();
+        await expect(page.getByText('1 photographie importée')).toBeVisible({ timeout: 120_000 });
+    });
+
     test('le mode « une seule fiche » regroupe les clichés', async ({ page }) => {
         await page.goto('/import');
 

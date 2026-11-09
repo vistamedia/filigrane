@@ -418,7 +418,7 @@ c'est **la** contrainte de conception.
 | Cibles tactiles d'au moins 44 px | Vérifié automatiquement (`08-confort.spec.js`). |
 | Contraste du bouton principal | 6,5:1 mesuré, au-delà du seuil AA de 4,5:1. |
 | Fenêtres de confirmation explicites | « Mettre à la corbeille » ne dit pas « Supprimer ». |
-| Interface entièrement en français | 168 clés manquantes dans Filament 5.11 ont été traduites (`lang/vendor/`). |
+| Interface entièrement en français | 168 clés manquantes dans Filament 5.11 ont été traduites (`lang/vendor/`), et les messages du framework (validation, connexion, mot de passe) le sont dans `lang/fr/` depuis le 9 novembre. |
 
 > Un réglage « A− / A+ » avait d'abord été posé dans la barre supérieure. Il a
 > été **retiré** : l'utilisatrice voit très bien, et deux boutons inutiles en
@@ -534,8 +534,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 84 tests | Numérotation, chaîne de traitement des images, développement des DNG, séparation d'une planche, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
-| Playwright `mac` | 62 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import (DNG compris), séparation d'une planche, studio, mesure, retouche, reprise après le ménage, allègement, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 87 tests | Numérotation, traductions, chaîne de traitement des images, développement des DNG, séparation d'une planche, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
+| Playwright `mac` | 64 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import (DNG compris, envois refusés puis relancés), séparation d'une planche, studio, mesure, retouche, reprise après le ménage, allègement, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
@@ -658,6 +658,28 @@ Un quinzième, signalé le 8 novembre, depuis Chrome :
     service worker, d'où le symptôme. `VERSION` est désormais l'empreinte des
     fichiers mis en cache, vérifiée par un test, et le nouveau cache se
     remplit en contournant le cache HTTP.
+
+Deux autres, le 9 novembre, à partir d'une capture d'écran de l'import :
+
+16. **Les messages de validation n'étaient pas traduits.** La langue de
+    l'application et la langue de secours sont toutes deux le français : un
+    message absent de `lang/fr` ne retombe pas sur l'anglais, il s'affiche
+    tel quel. Toute erreur de validation montrait donc sa clé brute
+    (« validation.unique » pour un numéro d'inventaire déjà pris), sauf celles
+    de Filament, qui a ses propres traductions. `lang/fr` contient désormais
+    `validation`, `auth`, `passwords` et `pagination`, et `TraductionsTest`
+    vérifie que chaque message du framework y figure.
+17. **Des envois refusés en chemin, sans dire lesquels.** Pendant un import de
+    70 ProRAW, l'hébergeur a refusé 4 envois sur 104, aux minutes les plus
+    chargées (jusqu'à 1 Go par minute). Laravel recevait la requête rejouée en
+    GET et répondait 405 ; Livewire affichait « The photographies failed to
+    upload », sans nommer les fichiers. Renvoyés aussitôt, les mêmes fichiers
+    passent : le refus est passager. La page relance désormais chaque envoi
+    refusé, deux fois, à 2 puis 4 secondes
+    (`resources/views/filament/envois.blade.php`), et nomme sous le champ ceux
+    qui échouent encore. Le message générique de Livewire est retiré pour ces
+    refus sans motif (`App\Filament\Concerns\RelanceLesEnvois`) ; un refus
+    motivé, comme un fichier trop lourd, garde le sien.
 
 Au passage, la visionneuse gardait la liste des photographies de son premier
 affichage. Une photographie ajoutée depuis ne s'y ouvrait pas, et un clic sur

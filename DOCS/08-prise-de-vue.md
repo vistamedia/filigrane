@@ -195,6 +195,10 @@ est gardé. L'appareil, la focale et la date suivent.
 
 - Compte environ 6 secondes par fichier à l'import, et l'envoi de 66 Mo par
   photo : un carton de 50 photos, c'est 3 Go à envoyer.
+- L'hébergeur refuse parfois un envoi quand on en enchaîne beaucoup. La page
+  le relance d'elle-même, deux fois ; si un fichier échoue encore, il est
+  nommé sous le champ : touche ↻ sur sa vignette avant d'importer, sans quoi
+  il ne serait pas importé.
 - Le DNG lui-même n'est **pas gardé** par Filigrane. Si tu veux pouvoir le
   redévelopper un jour, archive le dossier ailleurs (disque externe, Photos).
 - Le ProRAW ne sert que si tu comptes retravailler l'exposition ou les

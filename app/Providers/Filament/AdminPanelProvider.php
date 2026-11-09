@@ -106,6 +106,12 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::HEAD_END,
                 fn (): string => view('pwa.head')->render(),
             )
+            // Relance des envois de photographies refusés en chemin, et liste
+            // de ceux qui échouent encore (voir resources/views/filament/envois).
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.envois')->render(),
+            )
             // Sous le formulaire de connexion : la présentation de
             // l'application, seule page lisible sans compte.
             ->renderHook(

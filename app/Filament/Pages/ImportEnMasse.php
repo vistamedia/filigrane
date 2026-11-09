@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\PhotoKind;
+use App\Filament\Concerns\RelanceLesEnvois;
 use App\Filament\Resources\Drawings\Schemas\DrawingForm;
 use App\Models\Drawing;
 use App\Services\PhotoImporter;
@@ -30,6 +31,8 @@ use UnitEnum;
  */
 class ImportEnMasse extends Page
 {
+    use RelanceLesEnvois;
+
     protected string $view = 'filament.pages.import-en-masse';
 
     protected static ?string $slug = 'import';
@@ -89,6 +92,7 @@ class ImportEnMasse extends Page
                             ->image()
                             ->acceptedFileTypes(PhotoImporter::TYPES_DEPOSABLES)
                             ->mimeTypeMap(PhotoImporter::TYPES_PAR_EXTENSION)
+                            ->extraAlpineAttributes(PhotoImporter::RELANCE_DES_ENVOIS)
                             ->maxSize(100 * 1024)
                             ->maxFiles(300)
                             ->storeFiles(false)

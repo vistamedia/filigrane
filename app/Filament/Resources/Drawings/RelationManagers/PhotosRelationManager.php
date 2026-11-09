@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Drawings\RelationManagers;
 
 use App\Enums\PhotoKind;
 use App\Enums\ReshootReason;
+use App\Filament\Concerns\RelanceLesEnvois;
 use App\Filament\Pages\MesurerPhoto;
 use App\Filament\Pages\RetoucherPhoto;
 use App\Filament\Pages\SeparerPhoto;
@@ -29,6 +30,8 @@ use Throwable;
 
 class PhotosRelationManager extends RelationManager
 {
+    use RelanceLesEnvois;
+
     protected static string $relationship = 'photos';
 
     protected static ?string $title = 'Photographies';
@@ -269,6 +272,7 @@ class PhotosRelationManager extends RelationManager
                     ->image()
                     ->acceptedFileTypes(PhotoImporter::TYPES_DEPOSABLES)
                     ->mimeTypeMap(PhotoImporter::TYPES_PAR_EXTENSION)
+                    ->extraAlpineAttributes(PhotoImporter::RELANCE_DES_ENVOIS)
                     ->maxSize(100 * 1024)
                     ->maxFiles(40)
                     ->storeFiles(false)
