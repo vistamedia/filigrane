@@ -29,7 +29,8 @@ marquées *validée*.
 [D-24](#d-24) HEIC converti côté serveur · [D-36](#d-36) Retouche non destructive ·
 [D-37](#d-37) Proportions par la focale · [D-38](#d-38) Clichés à refaire ·
 [D-41](#d-41) L'original s'affiche dans l'application ·
-[D-43](#d-43) DNG développé à l'import · [D-44](#d-44) Original allégé
+[D-43](#d-43) DNG développé à l'import · [D-44](#d-44) Original allégé ·
+[D-45](#d-45) Une planche, une fiche par dessin
 
 **Sécurité et comptes**
 [D-12](#d-12) Deux rôles · [D-13](#d-13) Pas de courriel ·
@@ -1212,6 +1213,50 @@ proportions continue de se faire dans la photographie entière : la colonne
 
 **Coût d'un changement.** Retirer la case : quelques lignes dans la page. Les
 originaux déjà allégés le restent.
+
+---
+
+<a id="d-45"></a>
+## D-45 — Une planche de mini-dessins devient une fiche par dessin *validée*
+
+**Choix.** Une photographie qui montre plusieurs petits dessins côte à côte se
+sépare depuis sa fiche (« Une fiche par dessin »). L'application repère les
+feuilles et propose un cadre par dessin, qu'on ajuste, retire ou complète.
+Chaque cadre devient une fiche « à décrire » avec sa photographie, découpée à
+pleine définition dans l'original. Le premier dessin, dans l'ordre de la
+lecture, reste sur la fiche d'origine et garde son numéro ; les autres
+prennent les **numéros suivants**, et recopient l'artiste, la période,
+l'emplacement et les mots-clés. La **photographie d'ensemble est supprimée**.
+
+**Pourquoi.** À la séance du 8 novembre 2026, des lots de mini-dessins ont été
+photographiés par onze sur un même cliché. Les rephotographier un par un
+aurait doublé la séance. Chaque dessin reste une œuvre, et appelle sa fiche.
+
+**La détection n'est qu'une proposition.** Papier clair sur table sombre : un
+seuil, puis les régions claires d'un seul tenant, découpées là où un reflet
+soude deux feuilles voisines. Sur la planche réelle, onze sur onze ; un cadre
+embarquait un reflet du vernis, plus clair que le papier. D'où l'écran de
+contrôle avant toute création.
+
+**Alternatives.**
+- *Une seule fiche pour le lot* : rien à développer, mais on ne décrit ni ne
+  retrouve chaque dessin. Proposé, écarté.
+- *Des sous-numéros* (FIL-0071-01…) : on voit l'appartenance au lot, mais ils
+  sortent de la numérotation automatique. Proposé, écarté : le lot se
+  retrouve par son emplacement.
+- *Garder la photographie d'ensemble*, en vue d'ensemble sur la première fiche :
+  souvenir du rangement, mais doublon de pixels déjà découpés. Proposé, écarté ;
+  le fichier d'origine reste sur le Mac.
+- *Séparer automatiquement à l'import*, sans écran de contrôle : plus rapide,
+  mais une détection fautive créerait des fiches à corriger une à une.
+
+**Coût d'un changement.** Garder la photographie d'ensemble : une ligne dans
+`SeparationPhoto`. Des sous-numéros : une demi-journée, avec une règle de
+numérotation à écrire.
+
+**Limite.** La mesure. La carte bancaire posée sur la planche ne tombe que dans
+un seul cadre. Reporter l'échelle de la planche sur chaque dessin est possible
+(même photographie, même échelle), mais n'est pas fait.
 
 ---
 

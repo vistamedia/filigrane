@@ -155,6 +155,37 @@ tour. « Revenir à la photographie d'origine » ramène à ce qui a été gard�
 
 ---
 
+## Plusieurs petits dessins sur une même photo
+
+Pour un lot de mini-dessins, inutile de les photographier un par un : pose-les
+côte à côte sur la table sombre et prends-les d'un coup. Après l'import, sur la
+fiche, **Une fiche par dessin** (dans le panneau de la photo) :
+
+1. L'application propose un cadre par dessin, numéroté dans l'ordre de la
+   lecture : rangée par rangée, de gauche à droite.
+2. Ajuste un cadre par ses coins, déplace-le en le faisant glisser, retire-le
+   (×) ou ajoutes-en un.
+3. **Créer N fiches.** La fiche de la photo garde le dessin n° 1 et son numéro ;
+   les autres prennent les numéros suivants, avec l'artiste, la période,
+   l'emplacement et les mots-clés de la première. La photo d'ensemble est
+   ensuite supprimée.
+
+Une notification propose alors de **les redresser à la chaîne** : la retouche
+s'ouvre sur le premier dessin, et « Enregistrer, puis la suivante » passe au
+suivant.
+
+Pour que le repérage tombe juste du premier coup :
+- **laisse un peu de table entre les feuilles** : deux feuilles qui se
+  touchent ne font qu'un cadre ;
+- **évite les reflets** du vernis entre les feuilles : un reflet plus clair que
+  le papier passe pour une feuille, et agrandit un cadre ;
+- photographie **d'aplomb**, de haut : les cadres sont des rectangles droits.
+
+La carte bancaire posée sur la planche ne tombe que dans un des cadres : pour
+mesurer chaque dessin, pose-la à côté de chacun, ou mesure-les à la règle.
+
+---
+
 ## Les photos en ProRAW (DNG)
 
 Les fichiers **.DNG** de l'iPhone se déposent comme les autres, dans l'import

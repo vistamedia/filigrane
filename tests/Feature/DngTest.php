@@ -82,6 +82,15 @@ class DngTest extends TestCase
         unlink($tiff);
     }
 
+    public function test_un_jpeg_renomme_en_dng_reste_un_jpeg(): void
+    {
+        $photo = app(PhotoImporter::class)->import(Drawing::create([]), base_path('tests/fixtures/dessin-recto.jpg'), 'IMG_0001.DNG');
+
+        $this->assertNull($photo->processing_error);
+        $this->assertSame('image/jpeg', $photo->mime);
+        $this->assertSame([3000, 2250], [$photo->width_px, $photo->height_px]);
+    }
+
     private function luminance(Imagick $image, float $x, float $y): float
     {
         return $image->getImagePixelColor((int) $x, (int) $y)->getColorValue(Imagick::COLOR_RED);

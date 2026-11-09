@@ -6,6 +6,7 @@ use App\Enums\PhotoKind;
 use App\Enums\ReshootReason;
 use App\Filament\Pages\MesurerPhoto;
 use App\Filament\Pages\RetoucherPhoto;
+use App\Filament\Pages\SeparerPhoto;
 use App\Models\Photo;
 use App\Services\PhotoImporter;
 use Filament\Actions\Action;
@@ -209,6 +210,13 @@ class PhotosRelationManager extends RelationManager
                     ->tooltip('Redresser, recadrer, tourner ou éclaircir cette photo')
                     ->iconButton()
                     ->url(fn (Photo $record): string => RetoucherPhoto::getUrl(['photo' => $record->id])),
+
+                Action::make('separer')
+                    ->label('Séparer les dessins')
+                    ->icon('heroicon-o-squares-2x2')
+                    ->tooltip('Plusieurs dessins sur cette photo : une fiche pour chacun')
+                    ->iconButton()
+                    ->url(fn (Photo $record): string => SeparerPhoto::getUrl(['photo' => $record->id])),
 
                 Action::make('mesurer')
                     ->label('Mesurer')

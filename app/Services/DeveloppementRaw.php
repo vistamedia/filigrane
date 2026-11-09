@@ -23,18 +23,23 @@ class DeveloppementRaw
     private const BALISE_DNG = 'UndefinedTag:0xC612';
 
     /**
-     * Un DNG se reconnaît à son extension, au type que lui donne libmagic,
-     * ou, quand il se présente comme un simple TIFF, à sa balise DNGVersion.
+     * Un DNG se reconnaît au type que lui donne libmagic, ou, quand il se
+     * présente comme un simple TIFF, à son extension ou à sa balise
+     * DNGVersion. L'extension seule ne suffit pas : un JPEG renommé en .dng
+     * doit être importé comme le JPEG qu'il est.
      */
     public static function estUnDng(string $chemin, ?string $nom, string $mime): bool
     {
-        if (strtolower(pathinfo((string) $nom, PATHINFO_EXTENSION)) === 'dng'
-            || in_array($mime, ['image/x-adobe-dng', 'image/dng'], true)) {
+        if (in_array($mime, ['image/x-adobe-dng', 'image/dng'], true)) {
             return true;
         }
 
         if ($mime !== 'image/tiff') {
             return false;
+        }
+
+        if (strtolower(pathinfo((string) $nom, PATHINFO_EXTENSION)) === 'dng') {
+            return true;
         }
 
         $balises = @exif_read_data($chemin);

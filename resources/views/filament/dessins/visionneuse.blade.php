@@ -170,6 +170,18 @@
             </div>
 
             <div class="flex justify-between gap-3">
+                <dt class="text-gray-500 dark:text-gray-400">Plusieurs dessins</dt>
+                <dd class="text-right">
+                    <a
+                        href="{{ \App\Filament\Pages\SeparerPhoto::getUrl(['photo' => $principale->id]) }}"
+                        class="font-medium text-primary-600 hover:underline dark:text-primary-400"
+                    >
+                        Une fiche par dessin
+                    </a>
+                </dd>
+            </div>
+
+            <div class="flex justify-between gap-3">
                 <dt class="text-gray-500 dark:text-gray-400">Original</dt>
                 <dd class="text-right">
                     {{-- Dans l'application, pas dans un nouvel onglet : sur la

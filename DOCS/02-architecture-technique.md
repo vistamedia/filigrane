@@ -296,6 +296,39 @@ sur la vignette de la planche, et réunit les fiches concernées dans l'onglet
 « À rephotographier » (`Drawing::scopeNeedsReshoot()`). Voir
 [D-38](04-decisions-et-alternatives.md#d-38).
 
+### Séparer une planche de plusieurs dessins
+
+Une photographie de plusieurs mini-dessins posés côte à côte devient une fiche
+par dessin. Page `SeparerPhoto` (`/separer?photo=…`), ouverte par le lien
+« Une fiche par dessin » du panneau d'images, ou par l'icône de la liste des
+photographies. Voir [D-45](04-decisions-et-alternatives.md#d-45).
+
+**La détection** (`App\Support\DetecteurDeDessins`) travaille sur la version
+web réduite à 500 px :
+1. seuil d'Otsu entre le papier clair et la table sombre, puis une légère
+   ouverture morphologique, qui efface le grain du bois ;
+2. régions claires d'un seul tenant (voisinage à quatre) ;
+3. une région qui contient deux feuilles soudées par un reflet est **découpée
+   en bandes** : là où une suite de lignes, ou de colonnes, n'est plus remplie
+   qu'à moins de 50 %, loin des bords de la région ;
+4. sont écartés ce qui est trop petit, trop mince ou trop peu rempli (un reflet
+   en diagonale) ;
+5. une marge de 1,5 % autour de chaque cadre, et l'ordre de la lecture : rangée
+   par rangée, de gauche à droite.
+
+Sur la planche réelle du 8 novembre, onze feuilles sur onze, en 0,13 s ; un
+cadre embarquait un reflet du vernis, plus clair que le papier, qu'aucun seuil
+ne distingue. C'est une proposition : la page permet d'ajuster chaque cadre par
+ses coins, de le déplacer, d'en retirer ou d'en ajouter.
+
+**La découpe** (`App\Services\SeparationPhoto`) décode l'original une fois et
+en tire chaque cadre à pleine définition (`getImageRegion`), en JPEG. Le
+premier cadre reste sur la fiche d'origine ; les suivants reçoivent une fiche
+neuve, qui recopie l'artiste, la période, l'emplacement et les mots-clés.
+Chaque découpe est un original allégé : `original_trim` retient sa place dans
+la photographie entière, pour la retouche. La photographie d'ensemble est
+supprimée en dernier, une fois toutes les découpes enregistrées.
+
 ---
 
 ## Stockage des images
@@ -468,7 +501,7 @@ app/
 │                         ReshootReason, Location
 ├── Filament/
 │   ├── Pages/            StudioPhoto, ImportEnMasse, MesurerPhoto,
-│   │                     RetoucherPhoto, Diaporama
+│   │                     RetoucherPhoto, SeparerPhoto, Diaporama
 │   ├── Resources/        Drawings, Tags, Calibrations, Users
 │   └── Widgets/          CollectionProgress, LatestDrawings
 ├── Http/Controllers/     PhotoFileController (originaux authentifiés)
@@ -480,8 +513,10 @@ app/
 ├── Policies/             une par modèle
 ├── Services/             PhotoImporter, DerivativeMaker, ScaleResolver,
 │                         SeriesScaler, InventoryNumberGenerator,
-│                         ExportTableur, ExportCatalogue, RetouchePhoto
-└── Support/              ExifReader, SheetDetector, TexteRiche, Perspective
+│                         ExportTableur, ExportCatalogue, RetouchePhoto,
+│                         DeveloppementRaw, SeparationPhoto
+└── Support/              ExifReader, SheetDetector, DetecteurDeDessins,
+                          TexteRiche, Perspective
 ```
 
 **Pourquoi un composant Livewire séparé pour le panneau d'images ?**
@@ -499,8 +534,8 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 79 tests | Numérotation, chaîne de traitement des images, développement des DNG, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
-| Playwright `mac` | 61 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import (DNG compris), studio, mesure, retouche, reprise après le ménage, allègement, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
+| PHPUnit (`tests/Feature`) | 84 tests | Numérotation, chaîne de traitement des images, développement des DNG, séparation d'une planche, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
+| Playwright `mac` | 62 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import (DNG compris), séparation d'une planche, studio, mesure, retouche, reprise après le ménage, allègement, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
 
