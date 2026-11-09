@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Attribue les numéros d'inventaire « FIL-0001 », « FIL-0002 »…
+ * Attribue les numéros d'inventaire « LBS-0001 », « LBS-0002 »…
  *
  * Les numéros ne sont jamais recyclés : une fiche mise à la corbeille garde le
  * sien, sinon deux dessins différents porteraient la même référence dans les
@@ -15,7 +15,7 @@ class InventoryNumberGenerator
 {
     public function next(): string
     {
-        $prefix = config('filigrane.inventory_prefix', 'FIL');
+        $prefix = config('filigrane.inventory_prefix', 'LBS');
         $padding = (int) config('filigrane.inventory_padding', 4);
 
         return DB::transaction(function () use ($prefix, $padding): string {

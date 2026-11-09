@@ -17,7 +17,7 @@ test.describe('Catalogage d\'un dessin', () => {
         await boutonSoumettre(page, 'Créer').click();
 
         await expect(page).toHaveURL(/\/dessins\/\d+\/decrire/);
-        await expect(page.getByLabel('Numéro d\'inventaire')).toHaveValue(/^FIL-\d{4}$/);
+        await expect(page.getByLabel('Numéro d\'inventaire')).toHaveValue(/^LBS-\d{4}$/);
         const inventaire = await page.getByLabel('Numéro d\'inventaire').inputValue();
 
         // 2. Ajout de deux photographies par dépôt de fichiers.
@@ -90,7 +90,7 @@ test.describe('Catalogage d\'un dessin', () => {
         await page.getByRole('button', { name: 'Décrit — passer au suivant' }).click();
 
         // On arrive directement sur une autre fiche.
-        await expect(page.getByText(/au tour de FIL-/)).toBeVisible();
+        await expect(page.getByText(/au tour de LBS-/)).toBeVisible();
         await expect(page.getByLabel('Numéro d\'inventaire')).not.toHaveValue(premier);
     });
 
@@ -170,6 +170,12 @@ test.describe('Catalogage d\'un dessin', () => {
         const aDecrire = Number(await compteurs[0].innerText());
         await expect(compteurs[1]).toHaveText(String(aDecrire));
 
+        // Chaque onglet a le sien, « Décrits » et « Tous » compris.
+        const decrits = onglet(page, 'Décrits').locator('.fi-badge');
+        const tous = onglet(page, 'Tous').locator('.fi-badge');
+        const dejaDecrits = (await decrits.count()) ? Number(await decrits.innerText()) : 0;
+        const total = Number(await tous.innerText());
+
         // Le bouton n'apparaît qu'une fois des fiches cochées.
         const bouton = page.getByRole('button', { name: 'Changer l\'avancement' });
         await expect(bouton).toBeHidden();
@@ -202,6 +208,9 @@ test.describe('Catalogage d\'un dessin', () => {
                 await expect(compteur).toHaveCount(0);
             }
         }
+
+        await expect(decrits).toHaveText(String(dejaDecrits + 2));
+        await expect(tous).toHaveText(String(total));
 
         expect(erreurs).toEqual([]);
     });

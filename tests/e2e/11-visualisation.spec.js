@@ -26,7 +26,7 @@ async function creerFicheDecrite(page, planche) {
     await expect(page).toHaveURL(/\/dessins\/\d+\/decrire/);
     // Le numéro n'apparaît qu'une fois la fiche vraiment enregistrée : c'est
     // le signal que la page est en place, gestionnaire de photographies compris.
-    await expect(page.getByLabel('Numéro d\'inventaire')).toHaveValue(/^FIL-\d{4}$/);
+    await expect(page.getByLabel('Numéro d\'inventaire')).toHaveValue(/^LBS-\d{4}$/);
 
     await page.getByRole('button', { name: 'Ajouter des photographies' }).click();
 

@@ -69,7 +69,7 @@ test.describe('Recette en ligne', () => {
         // 2. Une photographie entre dans le catalogue.
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('dessin-avec-regle.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 120_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 120_000 });
 
         const inventaire = (await page.locator('.fi-filigrane-vignette span').first().innerText()).trim();
 

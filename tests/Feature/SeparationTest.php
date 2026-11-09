@@ -93,7 +93,7 @@ class SeparationTest extends TestCase
         // suivants prennent les numéros d'après, dans l'ordre de la lecture.
         $fiches = collect($decoupes)->map->drawing;
         $this->assertTrue($fiches->first()->is($source));
-        $this->assertSame(['FIL-0001', 'FIL-0002', 'FIL-0003', 'FIL-0004', 'FIL-0005'], $fiches->pluck('inventory_number')->all());
+        $this->assertSame(['LBS-0001', 'LBS-0002', 'LBS-0003', 'LBS-0004', 'LBS-0005'], $fiches->pluck('inventory_number')->all());
         $this->assertSame($decoupes[0]->id, $source->refresh()->cover_photo_id);
 
         // Ce que l'import avait donné au lot vaut pour chaque dessin.

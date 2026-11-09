@@ -30,13 +30,13 @@ test.describe('Mesure des dimensions', () => {
         // Une fiche avec la photographie qui contient la règle.
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('dessin-avec-regle.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.locator('.fi-filigrane-vignette').first().click();
         await expect(page).toHaveURL(/\/decrire/);
 
         await page.getByRole('link', { name: 'Mesurer' }).click();
-        await expect(page.getByRole('heading', { name: /Mesurer FIL-/ })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Mesurer LBS-/ })).toBeVisible();
 
         // 1. Le trait rouge sur la règle, dont on déclare la longueur.
         await deplacer(page, 'Début de la référence', REGLE.x1, REGLE.y);
@@ -90,7 +90,7 @@ test.describe('Mesure des dimensions', () => {
         // Un troisième, avec la règle, sert de calibration.
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('dessin-avec-regle.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.locator('.fi-filigrane-vignette').first().click();
         await page.getByRole('link', { name: 'Mesurer' }).click();

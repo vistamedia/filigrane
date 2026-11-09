@@ -2,8 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Enums\DimensionsSource;
+use App\Enums\UserRole;
+use App\Filament\Resources\Drawings\Pages\EditDrawing;
 use App\Models\Drawing;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class NumeroInventaireTest extends TestCase
@@ -16,9 +21,9 @@ class NumeroInventaireTest extends TestCase
         $deuxieme = Drawing::create([]);
         $troisieme = Drawing::create([]);
 
-        $this->assertSame('FIL-0001', $premier->inventory_number);
-        $this->assertSame('FIL-0002', $deuxieme->inventory_number);
-        $this->assertSame('FIL-0003', $troisieme->inventory_number);
+        $this->assertSame('LBS-0001', $premier->inventory_number);
+        $this->assertSame('LBS-0002', $deuxieme->inventory_number);
+        $this->assertSame('LBS-0003', $troisieme->inventory_number);
     }
 
     public function test_un_numero_mis_a_la_corbeille_n_est_pas_reattribue(): void
@@ -28,11 +33,11 @@ class NumeroInventaireTest extends TestCase
 
         $deuxieme->delete();
 
-        // Le numéro FIL-0002 figure peut-être déjà sur une étiquette ou dans
+        // Le numéro LBS-0002 figure peut-être déjà sur une étiquette ou dans
         // des notes papier : il ne doit jamais désigner un autre dessin.
         $suivant = Drawing::create([]);
 
-        $this->assertSame('FIL-0003', $suivant->inventory_number);
+        $this->assertSame('LBS-0003', $suivant->inventory_number);
         $this->assertSame(1, Drawing::onlyTrashed()->count());
     }
 
@@ -43,7 +48,50 @@ class NumeroInventaireTest extends TestCase
         $this->assertSame('LOUVRE-RF-1234', $dessin->inventory_number);
 
         // Et la numérotation automatique reprend sa propre série.
-        $this->assertSame('FIL-0001', Drawing::create([])->inventory_number);
+        $this->assertSame('LBS-0001', Drawing::create([])->inventory_number);
+    }
+
+    public function test_les_numeros_fil_deviennent_lbs_sans_rien_perdre(): void
+    {
+        $migration = require database_path('migrations/2026_11_09_100000_rename_inventory_prefix_to_lbs.php');
+        $migration->down();
+
+        $numeros = ['FIL-0002', 'FIL-0004u', 'FIL-0036 ', 'collection LBS', 'LOUVRE-RF-1234'];
+
+        foreach ($numeros as $numero) {
+            Drawing::create(['inventory_number' => $numero]);
+        }
+
+        // Une fiche en corbeille garde un numéro réservé : il suit aussi.
+        Drawing::create(['inventory_number' => 'FIL-0005'])->delete();
+
+        $avant = Drawing::withTrashed()->orderBy('id')->pluck('updated_at', 'id');
+
+        $migration->up();
+
+        $this->assertSame(
+            ['LBS-0002', 'LBS-0004u', 'LBS-0036', 'collection LBS', 'LOUVRE-RF-1234', 'LBS-0005'],
+            Drawing::withTrashed()->orderBy('id')->pluck('inventory_number')->all(),
+        );
+
+        // Changer de préfixe n'est pas retravailler la fiche.
+        $this->assertEquals($avant, Drawing::withTrashed()->orderBy('id')->pluck('updated_at', 'id'));
+
+        // Et la numérotation reprend après le plus grand des numéros renommés.
+        $this->assertSame('LBS-0037', Drawing::create([])->inventory_number);
+    }
+
+    public function test_un_numero_saisi_a_la_main_perd_ses_espaces(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => UserRole::Curator]));
+        $dessin = Drawing::create([]);
+
+        Livewire::test(EditDrawing::class, ['record' => $dessin->getRouteKey()])
+            ->fillForm(['inventory_number' => ' LBS-0036 '])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('LBS-0036', $dessin->refresh()->inventory_number);
     }
 
     public function test_le_titre_reste_lisible_quand_rien_n_est_renseigne(): void
@@ -51,8 +99,8 @@ class NumeroInventaireTest extends TestCase
         $vide = Drawing::create([]);
         $renseigne = Drawing::create(['artist' => 'Anonyme', 'period' => 'XVIIIᵉ siècle']);
 
-        $this->assertSame('FIL-0001', $vide->title());
-        $this->assertSame('FIL-0002 — Anonyme, XVIIIᵉ siècle', $renseigne->title());
+        $this->assertSame('LBS-0001', $vide->title());
+        $this->assertSame('LBS-0002 — Anonyme, XVIIIᵉ siècle', $renseigne->title());
     }
 
     public function test_les_dimensions_s_affichent_en_centimetres(): void
@@ -60,7 +108,7 @@ class NumeroInventaireTest extends TestCase
         $dessin = Drawing::create([
             'width_mm' => 300,
             'height_mm' => 405,
-            'dimensions_source' => \App\Enums\DimensionsSource::Estimated,
+            'dimensions_source' => DimensionsSource::Estimated,
         ]);
 
         $this->assertSame('40,5 × 30 cm (estimée)', $dessin->dimensionsLabel());

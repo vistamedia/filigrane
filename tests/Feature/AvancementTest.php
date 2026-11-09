@@ -8,6 +8,7 @@ use App\Filament\Resources\Drawings\Pages\EditDrawing;
 use App\Filament\Resources\Drawings\Pages\ListDrawings;
 use App\Models\Drawing;
 use App\Models\User;
+use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -125,6 +126,24 @@ class AvancementTest extends TestCase
         $this->changerParLots([$ancienne, Drawing::create([])], DrawingStatus::Described);
 
         $this->assertEquals($date, $ancienne->refresh()->described_at);
+    }
+
+    public function test_chaque_onglet_de_la_liste_porte_son_compteur(): void
+    {
+        Drawing::create(['status' => DrawingStatus::ToDescribe]);
+        Drawing::create(['status' => DrawingStatus::Described]);
+        Drawing::create(['status' => DrawingStatus::Described]);
+
+        // Une fiche à la corbeille n'est plus du fonds : elle ne compte nulle part.
+        Drawing::create(['status' => DrawingStatus::Described])->delete();
+
+        $onglets = Livewire::test(ListDrawings::class)->instance()->getTabs();
+
+        $this->assertSame(
+            // Un onglet vide ne porte pas de « 0 ».
+            ['a_decrire' => '1', 'en_cours' => null, 'decrits' => '2', 'tous' => '3'],
+            array_map(fn (Tab $onglet): ?string => $onglet->getBadge(), $onglets),
+        );
     }
 
     public function test_remettre_des_fiches_a_decrire_efface_leur_date(): void

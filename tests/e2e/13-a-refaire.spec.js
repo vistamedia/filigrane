@@ -15,7 +15,7 @@ test('signaler un cliché à refaire le met dans la liste de la prochaine séanc
 
     await page.goto('/studio-photo');
     await page.locator('input[capture]').setInputFiles(fixture('cadre-en-perspective.jpg'));
-    await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
     await page.locator('.fi-filigrane-vignette').first().click();
     await expect(page).toHaveURL(/\/decrire/);

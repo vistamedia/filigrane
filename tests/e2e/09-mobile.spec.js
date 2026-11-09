@@ -30,7 +30,7 @@ test.describe('Usage sur téléphone', () => {
     test('la planche de dessins se lit sur une colonne', async ({ page }) => {
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('dessin-recto.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.goto('/dessins');
 
@@ -47,7 +47,7 @@ test.describe('Usage sur téléphone', () => {
     test('la fiche empile la photographie puis les champs', async ({ page }) => {
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('dessin-recto.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.locator('.fi-filigrane-vignette').first().click();
         await expect(page).toHaveURL(/\/decrire/);
@@ -77,11 +77,11 @@ test.describe('Usage sur téléphone', () => {
 
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('cadre-en-perspective.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.locator('.fi-filigrane-vignette').first().click();
         await page.getByRole('link', { name: 'Redresser, recadrer' }).click();
-        await expect(page.getByRole('heading', { name: /Retoucher FIL-/ })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Retoucher LBS-/ })).toBeVisible();
 
         const largeur = page.viewportSize().width;
 

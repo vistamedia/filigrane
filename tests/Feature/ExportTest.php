@@ -68,7 +68,7 @@ class ExportTest extends TestCase
 
         [$cote, $artiste, $periode, $hauteur, $largeur] = $lignes[1];
 
-        $this->assertSame('FIL-0001', $cote);
+        $this->assertSame('LBS-0001', $cote);
         $this->assertSame('Attribué à Hubert Robert', $artiste);
         $this->assertSame('Vers 1780', $periode);
 

@@ -29,7 +29,7 @@ test.describe('Captures', () => {
         // quelque chose — le diaporama ne retient que les fiches commentées.
         await page.goto('/studio-photo');
         await page.locator('input[capture]').setInputFiles(fixture('dessin-avec-regle.jpg'));
-        await page.getByText(/Fiche FIL-\d{4} créée/).waitFor({ timeout: 60_000 });
+        await page.getByText(/Fiche LBS-\d{4} créée/).waitFor({ timeout: 60_000 });
 
         await page.goto('/dessins');
         await onglet(page, 'Tous').click();

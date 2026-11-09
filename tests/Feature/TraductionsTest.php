@@ -42,11 +42,11 @@ class TraductionsTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['role' => UserRole::Curator]));
 
-        Drawing::create(['inventory_number' => 'FIL-0042']);
+        Drawing::create(['inventory_number' => 'LBS-0042']);
         $dessin = Drawing::create([]);
 
         Livewire::test(EditDrawing::class, ['record' => $dessin->getRouteKey()])
-            ->fillForm(['inventory_number' => 'FIL-0042'])
+            ->fillForm(['inventory_number' => 'LBS-0042'])
             ->call('save')
             ->assertHasFormErrors(['inventory_number' => 'unique'])
             ->assertSee('est déjà utilisée')

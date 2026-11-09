@@ -7,9 +7,10 @@ return [
     | Numéros d'inventaire
     |--------------------------------------------------------------------------
     | Les fiches reçoivent un numéro séquentiel « PRÉFIXE-0001 » à la création.
+    | « LBS- » depuis le 9 novembre 2026, « FIL- » auparavant (voir D-46).
     */
 
-    'inventory_prefix' => env('FILIGRANE_INVENTORY_PREFIX', 'FIL'),
+    'inventory_prefix' => env('FILIGRANE_INVENTORY_PREFIX', 'LBS'),
     'inventory_padding' => 4,
 
     /*

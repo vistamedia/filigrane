@@ -534,7 +534,7 @@ ligne de commande, import en masse ou test.
 
 | Suite | Quantité | Ce qu'elle couvre |
 |---|---|---|
-| PHPUnit (`tests/Feature`) | 87 tests | Numérotation, traductions, chaîne de traitement des images, développement des DNG, séparation d'une planche, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
+| PHPUnit (`tests/Feature`) | 90 tests | Numérotation et passage de FIL- à LBS-, traductions, chaîne de traitement des images, développement des DNG, séparation d'une planche, échelles, corbeille, exports, retouche et proportions, allègement de l'original, ménage de nuit, clichés à refaire, avancement automatique et par lots, compteurs des onglets, emplacement, retour à la liste, confirmation sur une fiche vide, version du service worker. |
 | Playwright `mac` | 64 tests | Connexion, droits, catalogage, retour à la liste, avancement et emplacement par lots, import (DNG compris, envois refusés puis relancés), séparation d'une planche, studio, mesure, retouche, reprise après le ménage, allègement, original dans la visionneuse, clichés à refaire, PWA, confort, diaporama, exports. |
 | Playwright `mobile` | 16 tests | Mise en page et atteignabilité à 390 px, retouche comprise. |
 | Playwright `en-ligne` | 1 test | Recette du serveur réel après déploiement. |
@@ -685,6 +685,15 @@ Au passage, la visionneuse gardait la liste des photographies de son premier
 affichage. Une photographie ajoutée depuis ne s'y ouvrait pas, et un clic sur
 l'image principale montrait toujours la première, même quand l'illustration
 choisie était une autre. Les deux sont corrigés.
+
+Un dix-huitième, signalé le même jour :
+
+18. Les onglets « Décrits » et « Tous » de la liste n'avaient pas de compteur,
+    contrairement à « À décrire », « En cours » et « À rephotographier ».
+    Chacun a désormais le sien, sur le même modèle : un onglet vide ne porte
+    pas de « 0 », et une fiche en corbeille ne compte nulle part.
+    `AvancementTest` vérifie les quatre, et le test de bout en bout les voit
+    suivre un changement d'avancement par lots.
 
 **Ce que les tests ne couvrent pas, et qu'il faut vérifier à la main :**
 

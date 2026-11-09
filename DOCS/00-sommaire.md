@@ -73,7 +73,7 @@ quatre pièges qui coûtent de la précision.
 ```bash
 make install    # première installation complète
 make up         # démarre l'environnement local → http://localhost:8080
-make test       # 87 tests PHP + 80 tests de bout en bout
+make test       # 90 tests PHP + 80 tests de bout en bout
 make deploy     # met en ligne
 make sauvegarde # rapatrie base et photographies sur ce Mac
 make apercus    # régénère les captures de la page publique « À propos »
@@ -145,5 +145,9 @@ make            # liste toutes les commandes
 - Corrigé le 9 novembre : les envois refusés en chemin par l'hébergeur sont
   relancés, et ceux qui échouent encore sont nommés ; et les messages de
   validation, qui s'affichaient sous forme de clés brutes, sont en français.
+- Changé le 9 novembre : les onglets « Décrits » et « Tous » de la liste ont
+  leur compteur, comme les autres ; et les numéros d'inventaire passent de
+  `FIL-` à `LBS-`, ceux déjà attribués compris, chiffres inchangés (voir
+  [D-46](04-decisions-et-alternatives.md#d-46)).
 - Reste à faire à la main : déposer une photo HEIC dans `tests/fixtures/` pour
   activer le test de conversion.

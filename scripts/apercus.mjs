@@ -78,7 +78,7 @@ async function redresserUnCadre(page) {
     await page.waitForURL(/\/decrire/);
 
     await page.locator('.fi-ta-row', { hasText: 'Encadrement' }).getByRole('link', { name: 'Retoucher' }).click();
-    await page.getByRole('heading', { name: /Retoucher FIL-/ }).waitFor();
+    await page.getByRole('heading', { name: /Retoucher LBS-/ }).waitFor();
 
     const scene = await page.locator('[x-ref="scene"]').boundingBox();
     const coins = ['supérieur gauche', 'supérieur droit', 'inférieur droit', 'inférieur gauche'];

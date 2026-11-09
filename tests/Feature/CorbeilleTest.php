@@ -88,14 +88,14 @@ class CorbeilleTest extends TestCase
         $premier = Drawing::create([]);
         $premier->delete();
 
-        $this->assertSame('FIL-0002', Drawing::create([])->inventory_number);
+        $this->assertSame('LBS-0002', Drawing::create([])->inventory_number);
 
         // Effacée pour de bon, elle rend son numéro.
         $premier->forceDelete();
         Drawing::query()->delete();
         Drawing::withTrashed()->get()->each->forceDelete();
 
-        $this->assertSame('FIL-0001', Drawing::create([])->inventory_number);
+        $this->assertSame('LBS-0001', Drawing::create([])->inventory_number);
     }
 
     private function admin(): \App\Models\User

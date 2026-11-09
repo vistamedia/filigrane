@@ -11,7 +11,7 @@ test.describe('Studio photo', () => {
         // on lui fournit directement un fichier.
         await page.locator('input[capture]').setInputFiles(fixture('dessin-recto.jpg'));
 
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
         await expect(page.getByRole('heading', { name: 'Clichés de cette séance' })).toBeVisible();
 
         const vignettes = page.locator('.fi-filigrane-vignette');
@@ -33,10 +33,10 @@ test.describe('Studio photo', () => {
         await page.getByText('Plusieurs clichés sur la même fiche').click();
 
         await page.locator('input[capture]').setInputFiles(fixture('dessin-recto.jpg'));
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.locator('input[capture]').setInputFiles(fixture('dessin-verso.jpg'));
-        await expect(page.getByText(/Photographie ajoutée à FIL-\d{4}/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Photographie ajoutée à LBS-\d{4}/)).toBeVisible({ timeout: 60_000 });
 
         const numeros = await page.locator('.fi-filigrane-vignette span').allInnerTexts();
         expect(new Set(numeros).size).toBe(1);
@@ -63,7 +63,7 @@ test.describe('Studio photo', () => {
         await expect.poll(async () => video.evaluate((v) => v.videoWidth)).toBeGreaterThan(0);
 
         await page.getByRole('button', { name: 'Déclencher' }).click();
-        await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
         await page.getByRole('button', { name: 'Fermer le viseur' }).click();
         await expect(video).toBeHidden();

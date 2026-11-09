@@ -44,7 +44,7 @@ async function deplacer(page, etiquette, fx, fy) {
  * (bleu ≈ 60) une fois le cadre redressé et recadré.
  */
 async function coinDeLaPhoto(page) {
-    const image = page.locator('img[alt^="FIL-"]').first();
+    const image = page.locator('img[alt^="LBS-"]').first();
     await expect(image).toHaveJSProperty('complete', true);
 
     const bleu = await image.evaluate((img) => {
@@ -71,7 +71,7 @@ test('quatre coins posés sur le cadre suffisent à le redresser', async ({ page
 
     await page.goto('/studio-photo');
     await page.locator('input[capture]').setInputFiles(fixture('cadre-en-perspective.jpg'));
-    await expect(page.getByText(/Fiche FIL-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/Fiche LBS-\d{4} créée/)).toBeVisible({ timeout: 60_000 });
 
     await page.locator('.fi-filigrane-vignette').first().click();
     await expect(page).toHaveURL(/\/decrire/);
@@ -79,10 +79,10 @@ test('quatre coins posés sur le cadre suffisent à le redresser', async ({ page
 
     // Avant retouche : la photographie entière, le mur jusque dans les coins.
     expect(await coinDeLaPhoto(page)).toBe('mur');
-    const avant = await page.locator('img[alt^="FIL-"]').first().getAttribute('src');
+    const avant = await page.locator('img[alt^="LBS-"]').first().getAttribute('src');
 
     await page.getByRole('link', { name: 'Redresser, recadrer' }).click();
-    await expect(page.getByRole('heading', { name: /Retoucher FIL-/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Retoucher LBS-/ })).toBeVisible();
 
     for (const [i, etiquette] of POIGNEES.entries()) {
         await deplacer(page, etiquette, ...CADRE.coins[i]);
@@ -112,7 +112,7 @@ test('quatre coins posés sur le cadre suffisent à le redresser', async ({ page
 
     // La fiche montre désormais le cadre seul, redressé, sous une adresse
     // neuve que le cache du navigateur ne connaît pas.
-    const image = page.locator('img[alt^="FIL-"]').first();
+    const image = page.locator('img[alt^="LBS-"]').first();
     expect(await image.getAttribute('src')).not.toBe(avant);
     expect(await coinDeLaPhoto(page)).toBe('baguette');
     expect(await image.evaluate((img) => img.naturalWidth / img.naturalHeight)).toBeCloseTo(0.75, 2);

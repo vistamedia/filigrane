@@ -84,10 +84,14 @@ class DrawingForm
                         ? 'Attribué automatiquement à l\'enregistrement.'
                         : 'Modifiable, par exemple pour reprendre un numéro d\'inventaire existant.')
                     ->placeholder(fn (string $operation): ?string => $operation === 'create'
-                        ? 'FIL-…'
+                        ? config('filigrane.inventory_prefix').'-…'
                         : null)
                     ->disabled(fn (string $operation): bool => $operation === 'create')
                     ->dehydrated(fn (string $operation): bool => $operation !== 'create')
+                    // Livewire ne retire pas les espaces des champs, comme le
+                    // fait un formulaire classique : « FIL-0036 » a gardé la
+                    // sienne, invisible à l'écran.
+                    ->dehydrateStateUsing(fn (?string $state): ?string => $state === null ? null : trim($state))
                     ->required(fn (string $operation): bool => $operation !== 'create')
                     ->maxLength(32)
                     ->unique(ignoreRecord: true)

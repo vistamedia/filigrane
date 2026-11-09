@@ -28,7 +28,7 @@ erDiagram
 
     drawings {
         bigint id PK
-        varchar inventory_number UK "FIL-0001"
+        varchar inventory_number UK "LBS-0001"
         varchar artist "indexé"
         varchar period "indexé"
         longtext description "HTML"
@@ -116,7 +116,7 @@ C'est la table centrale. Une ligne par feuille de la collection.
 | Colonne | Type | Null | Rôle |
 |---|---|:-:|---|
 | `id` | `bigint unsigned` | non | Clé primaire. |
-| `inventory_number` | `varchar(32)` **unique** | non | Numéro attribué à la création (`FIL-0001`). Jamais recyclé. |
+| `inventory_number` | `varchar(32)` **unique** | non | Numéro attribué à la création (`LBS-0001`, `FIL-0001` avant le 9 novembre 2026). Jamais recyclé. |
 | `artist` | `varchar(255)` *indexé* | oui | Texte libre, volontairement non normalisé (voir plus bas). |
 | `period` | `varchar(255)` *indexé* | oui | Texte libre : « vers 1750 », « XVIIIᵉ siècle », « daté 1783 ». |
 | `description` | `longtext` | oui | HTML produit par l'éditeur enrichi. Ce que l'on voit. |

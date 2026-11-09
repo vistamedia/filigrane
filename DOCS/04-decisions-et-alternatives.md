@@ -22,7 +22,7 @@ marquées *validée*.
 [D-09](#d-09) Emplacement par mots-clés *(revenue)* · [D-10](#d-10) Pas d'historique ·
 [D-11](#d-11) Pas d'index plein texte · [D-19](#d-19) Numéros non recyclés ·
 [D-20](#d-20) Corbeille · [D-28](#d-28) Millimètres entiers ·
-[D-40](#d-40) Emplacement en liste fixe
+[D-40](#d-40) Emplacement en liste fixe · [D-46](#d-46) Préfixe LBS-
 
 **Images et mesure**
 [D-05](#d-05) Originaux privés · [D-06](#d-06) Mesure par référence ·
@@ -63,9 +63,8 @@ mais muet sur le contenu).
 
 **Coût d'un changement.** Faible, mais réparti : `APP_NAME` dans `.env`, le
 manifeste, le composant du logo, les icônes, les titres de la documentation.
-Une demi-heure. Le préfixe des numéros d'inventaire (`FIL-`) se change dans
-`.env`, mais **les numéros déjà attribués ne doivent pas bouger** — ils
-figurent peut-être déjà sur des étiquettes.
+Une demi-heure. Le préfixe des numéros d'inventaire n'en dépend plus :
+`FIL-` jusqu'au 9 novembre 2026, `LBS-` depuis (voir [D-46](#d-46)).
 
 ---
 
@@ -441,8 +440,9 @@ avant de compenser.
 <a id="d-19"></a>
 ## D-19 — Les numéros d'inventaire ne sont jamais recyclés *validée*
 
-**Choix.** `FIL-0001`, `FIL-0002`… attribués à l'enregistrement. Une fiche mise
-à la corbeille garde son numéro, qui reste réservé.
+**Choix.** `LBS-0001`, `LBS-0002`… attribués à l'enregistrement (`FIL-`
+jusqu'au 9 novembre 2026, voir [D-46](#d-46)). Une fiche mise à la corbeille
+garde son numéro, qui reste réservé.
 
 **Pourquoi.** Un numéro figure peut-être déjà sur une étiquette, dans un
 carnet ou dans un courrier. S'il désignait un jour un autre dessin, la
@@ -456,8 +456,9 @@ même.
 (`FILIGRANE_INVENTORY_PREFIX`). Le champ reste modifiable à la main pour
 reprendre un inventaire existant (« LOUVRE-RF-1234 »).
 
-**Coût d'un changement.** Nul pour le préfixe des **futurs** numéros. Renuméroter
-l'existant serait une mauvaise idée, pour la raison ci-dessus.
+**Coût d'un changement.** Nul pour le préfixe des **futurs** numéros. Toucher
+aux numéros existants demande une bonne raison, pour celle ci-dessus : ce fut
+fait une fois, pour le préfixe seul, chiffres inchangés ([D-46](#d-46)).
 
 ---
 
@@ -1241,7 +1242,7 @@ contrôle avant toute création.
 **Alternatives.**
 - *Une seule fiche pour le lot* : rien à développer, mais on ne décrit ni ne
   retrouve chaque dessin. Proposé, écarté.
-- *Des sous-numéros* (FIL-0071-01…) : on voit l'appartenance au lot, mais ils
+- *Des sous-numéros* (LBS-0071-01…) : on voit l'appartenance au lot, mais ils
   sortent de la numérotation automatique. Proposé, écarté : le lot se
   retrouve par son emplacement.
 - *Garder la photographie d'ensemble*, en vue d'ensemble sur la première fiche :
@@ -1257,6 +1258,45 @@ numérotation à écrire.
 **Limite.** La mesure. La carte bancaire posée sur la planche ne tombe que dans
 un seul cadre. Reporter l'échelle de la planche sur chaque dessin est possible
 (même photographie, même échelle), mais n'est pas fait.
+
+---
+
+<a id="d-46"></a>
+## D-46 — Les numéros d'inventaire passent de FIL- à LBS-, existants compris *validée*
+
+**Choix.** Le préfixe des numéros d'inventaire est `LBS-` depuis le
+9 novembre 2026, à la demande d'Emmanuel. Les numéros déjà attribués en `FIL-`
+ont été renommés par une migration : seul le préfixe change, le chiffre et les
+suffixes saisis à la main restent (`FIL-0019a` devient `LBS-0019a`). Les fiches
+en corbeille suivent, puisque leurs numéros restent réservés ([D-19](#d-19)).
+Un numéro qui ne commence pas par `FIL-` n'est pas touché, ni la date de
+modification des fiches. La numérotation automatique continue à la suite.
+
+**Pourquoi.** `FIL-` reprenait le nom de l'application ([D-01](#d-01)), pas
+celui de la collection.
+
+**Ce que D-19 craignait.** Un numéro déjà reporté ailleurs : étiquette,
+carnet, catalogue ou tableur exporté. Le chiffre n'ayant pas bougé, un
+`FIL-0123` noté avant le 9 novembre se retrouve en changeant les trois lettres.
+
+**En passant.** `FIL-0036` portait une espace finale, saisie à la main et
+invisible à l'écran : Livewire ne retire pas les espaces des champs, comme le
+fait un formulaire classique. La migration l'a retirée, et le champ du numéro
+retire désormais les espaces à l'enregistrement. La fiche numérotée à la main
+« collection LBS » est restée telle quelle.
+
+**Alternatives.**
+- *Garder les `FIL-` et réserver `LBS-` aux nouvelles fiches* : rien à
+  renommer, mais deux séries dans une même collection, et la nouvelle repartait
+  de `LBS-0001` : deux dessins auraient porté le même chiffre.
+- *Rendre le préfixe libre, fiche par fiche* : sans objet, le champ du numéro
+  reste déjà modifiable à la main.
+
+**Coût d'un changement.** Revenir à `FIL-` : la migration a sa marche arrière
+(`LBS-` redevient `FIL-`, fiches créées depuis comprises), et
+`FILIGRANE_INVENTORY_PREFIX=FIL` dans le `.env` du serveur. Un autre préfixe :
+le même réglage, et une migration sur le modèle de
+`2026_11_09_100000_rename_inventory_prefix_to_lbs`.
 
 ---
 

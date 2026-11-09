@@ -150,9 +150,12 @@ class ListDrawings extends ListRecords
 
             'decrits' => Tab::make('Décrits')
                 ->icon('heroicon-o-check-circle')
+                ->badge(fn (): ?string => self::compteur(Drawing::where('status', DrawingStatus::Described)))
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', DrawingStatus::Described)),
 
-            'tous' => Tab::make('Tous'),
+            // Le fonds entier, hors corbeille (la portée par défaut du modèle).
+            'tous' => Tab::make('Tous')
+                ->badge(fn (): ?string => self::compteur(Drawing::query())),
 
             // La liste de travail de la prochaine séance de prise de vue.
             // L'onglet n'existe que tant qu'il a quelque chose à montrer.

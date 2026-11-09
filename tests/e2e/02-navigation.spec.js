@@ -36,7 +36,8 @@ test.describe('Navigation', () => {
         await expect(page.getByRole('link', { name: /Emmanuel Danan/ })).toBeVisible();
 
         // Et elle ne laisse rien filtrer de la collection.
-        await expect(page.locator('body')).not.toContainText('FIL-');
+        // Aucun numéro d'inventaire, ni d'aujourd'hui, ni d'avant le 9 novembre.
+        await expect(page.locator('body')).not.toContainText(/(LBS|FIL)-\d/);
 
         await contexte.close();
     });
